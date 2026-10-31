@@ -234,6 +234,52 @@ details.card:not([open]) { gap: 0; }
 @media (prefers-reduced-motion: reduce) {
   .cell, .disc.winner::after, .ghost.on span { animation: none !important; }
 }
+
+/* Speelwijze en online lobby */
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mode {
+  text-align: left; display: flex; flex-direction: column; gap: 4px;
+  padding: 12px 14px; border-radius: 16px; border: 3px solid var(--ink); background: var(--paper);
+  color: var(--ink); cursor: pointer; box-shadow: 0 4px 0 var(--ink); font: inherit;
+  transition: transform .1s, box-shadow .1s, background .15s;
+}
+.mode b { font: 400 18px/1.1 var(--font-title); letter-spacing: .02em; }
+.mode span { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.mode[aria-pressed="true"] { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); }
+.mode[aria-pressed="true"] span { color: var(--ink); }
+.mode:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.lobby h2 { margin: 0; font: 700 22px/1.2 var(--font-ui); }
+.lobby .muted { margin: 0; color: var(--muted); }
+.lobby .small { font-size: 13px; font-weight: 600; }
+.lobby-view { display: flex; flex-direction: column; gap: 12px; }
+.field-label { font-weight: 700; font-size: 14px; margin-bottom: -6px; }
+.input {
+  min-width: 0; width: 100%; font: 600 17px/1.2 var(--font-ui);
+  padding: 11px 13px; border-radius: 12px; border: 3px solid var(--ink); background: var(--soft); color: var(--ink);
+}
+.input:focus { outline: none; box-shadow: 0 0 0 4px var(--yellow); }
+.lobby-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .lobby-split { grid-template-columns: 1fr; } }
+.lobby-box { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 16px; background: var(--soft); border: 3px dashed var(--ink); min-width: 0; }
+.lobby-box b { font: 400 19px/1.1 var(--font-title); letter-spacing: .02em; }
+.lobby-box span { font-size: 14px; color: var(--muted); }
+.join-row { display: flex; gap: 8px; }
+.code-in { font: 400 22px/1 var(--font-title); letter-spacing: .2em; text-transform: uppercase; text-align: center; flex: 1; background: var(--paper); }
+.code-big {
+  align-self: flex-start; font: 400 clamp(44px, 13vw, 64px)/1 var(--font-title); letter-spacing: .14em;
+  padding: 10px 18px 10px 24px; border-radius: 16px; background: var(--yellow); border: 4px solid var(--ink); box-shadow: 0 6px 0 var(--ink);
+  user-select: all; -webkit-user-select: all;
+}
+.share-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.copy-msg { font-size: 14px; font-weight: 600; color: var(--good); }
+.lobby-view.conn { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 10px; }
+.lobby-view.conn #connText { flex: 1; min-width: 200px; font-size: 15px; }
+.dot-live { width: 12px; height: 12px; border-radius: 50%; background: var(--good); border: 2px solid var(--ink); animation: live 1.6s ease-in-out infinite; }
+@keyframes live { 50% { opacity: .35; } }
+.net-msg { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--soft); font-size: 14px; font-weight: 600; }
+.net-msg.bad { background: var(--bad-soft); color: #9a2a22; }
+.input[readonly] { background: transparent; }
+@media (prefers-reduced-motion: reduce) { .dot-live { animation: none; } }
 </style>
 </head>
 <body>
@@ -247,6 +293,56 @@ details.card:not([open]) { gap: 0; }
   <header>
     <h1 class="logo">4 OP EEN RIJ</h1>
   </header>
+
+  <div class="modes" role="group" aria-label="Manier van spelen">
+    <button type="button" class="mode" id="mLocal" aria-pressed="true"><b>Op één scherm</b><span>Samen aan één telefoon of laptop.</span></button>
+    <button type="button" class="mode" id="mOnline" aria-pressed="false"><b>Online spelen</b><span>Ieder op een eigen apparaat, via een lobbycode.</span></button>
+  </div>
+
+  <section class="card lobby" id="lobby" hidden>
+    <div id="lobbyStart" class="lobby-view">
+      <h2>Speel online tegen iemand</h2>
+      <p class="muted">Maak een lobby en stuur de code of link naar je tegenstander. Heb je een code gekregen? Vul hem hieronder in.</p>
+      <label class="field-label" for="myName">Jouw naam</label>
+      <input class="input" id="myName" maxlength="16" placeholder="Bijvoorbeeld Milan" autocomplete="nickname">
+      <div class="lobby-split">
+        <div class="lobby-box">
+          <b>Nieuwe lobby</b>
+          <span>Jij speelt rood en begint.</span>
+          <button class="btn yellow" type="button" id="hostBtn">Lobby maken</button>
+        </div>
+        <div class="lobby-box">
+          <b>Meedoen</b>
+          <span>Vul de code van je tegenstander in.</span>
+          <div class="join-row">
+            <input class="input code-in" id="joinCode" maxlength="5" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Lobbycode">
+            <button class="btn" type="button" id="joinBtn">Meedoen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="lobbyWait" class="lobby-view" hidden>
+      <span class="muted small">Jouw lobbycode</span>
+      <div class="code-big" id="codeBig" aria-live="polite"></div>
+      <p class="muted" id="waitText">Wachten op tegenstander…</p>
+      <div class="share-row">
+        <button class="btn yellow" type="button" id="shareBtn" hidden>Deel link</button>
+        <button class="btn" type="button" id="copyLink">Kopieer link</button>
+        <span class="copy-msg" id="copyMsg" role="status"></span>
+      </div>
+      <input class="input" id="linkBox" readonly hidden aria-label="Lobbylink">
+      <button class="btn small" type="button" id="leaveBtn2">Annuleren</button>
+    </div>
+
+    <div id="lobbyConn" class="lobby-view conn" hidden>
+      <span class="dot-live" aria-hidden="true"></span>
+      <span id="connText"></span>
+      <button class="btn small yellow" type="button" id="rejoinBtn" hidden>Opnieuw verbinden</button>
+      <button class="btn small" type="button" id="leaveBtn">Stoppen</button>
+    </div>
+    <p class="net-msg" id="netMsg" role="status" hidden></p>
+  </section>
 
   <section class="players" aria-label="Spelers en score">
     <div class="player" data-p="1">
@@ -303,15 +399,32 @@ details.card:not([open]) { gap: 0; }
   let grid, moves, current, over, winLine, starter = 1, busy = false, hoverCol = 3;
   let scores = { 1: 0, 2: 0 };
 
+  // ---------- online-toestand ----------
+  const NET = { on: false, role: null, me: 0, peer: null, conn: null, code: '', opp: '', state: 'idle', localSave: null };
+  const PEER_PREFIX = 'spelletjes-4opeenrij-';
+  const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  // Vaste herkenning van dit apparaat, zodat een terugkerende tegenstander weer binnen mag
+  let CLIENT_ID = '';
+  try { CLIENT_ID = localStorage.getItem(KEY + '-id') || ''; } catch (e) {}
+  if (!CLIENT_ID) { CLIENT_ID = Math.random().toString(36).slice(2, 10); try { localStorage.setItem(KEY + '-id', CLIENT_ID); } catch (e) {} }
+
   try {
     const s = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (s) {
       scores = s.scores || scores;
       if (s.names) { $('name1').value = s.names[1] || 'Speler 1'; $('name2').value = s.names[2] || 'Speler 2'; }
+      if (s.myName) $('myName').value = s.myName;
     }
   } catch (e) {}
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ scores, names: { 1: $('name1').value, 2: $('name2').value } })); } catch (e) {}
+    if (NET.on) {
+      try {
+        const s = JSON.parse(localStorage.getItem(KEY) || '{}');
+        s.myName = $('myName').value; localStorage.setItem(KEY, JSON.stringify(s));
+      } catch (e) {}
+      return;
+    }
+    try { localStorage.setItem(KEY, JSON.stringify({ scores, names: { 1: $('name1').value, 2: $('name2').value }, myName: $('myName').value })); } catch (e) {}
   }
   const name = (p) => ($('name' + p).value.trim() || ('Speler ' + p));
   const chip = (p) => `<span class="chip" style="--pc:var(--${p === 1 ? 'red' : 'yellow'})" aria-hidden="true"></span>`;
@@ -322,7 +435,7 @@ details.card:not([open]) { gap: 0; }
     const b = document.createElement('button');
     b.type = 'button'; b.id = 'col' + c;
     b.setAttribute('aria-label', 'Kolom ' + (c + 1));
-    b.addEventListener('click', () => play(c));
+    b.addEventListener('click', () => tryPlay(c));
     b.addEventListener('pointerenter', () => setHover(c));
     b.addEventListener('focus', () => setHover(c));
     colsEl.appendChild(b);
@@ -332,24 +445,32 @@ details.card:not([open]) { gap: 0; }
   }
   colsEl.addEventListener('pointerleave', () => setHover(-1));
 
+  const myTurn = () => !NET.on || (NET.state === 'connected' && current === NET.me);
   function setHover(c) {
     hoverCol = c;
-    [...previewEl.children].forEach((g, i) => g.classList.toggle('on', i === c && !over && grid[0][i] === 0));
+    [...previewEl.children].forEach((g, i) => g.classList.toggle('on', i === c && !over && myTurn() && grid[0][i] === 0));
   }
 
   function newGame(first) {
     grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-    moves = []; over = false; winLine = null; current = first;
+    moves = []; over = false; winLine = null; current = first; starter = first;
     discsEl.innerHTML = ''; discsEl.classList.remove('done');
     update();
   }
 
   function lowestRow(c) { for (let r = ROWS - 1; r >= 0; r--) if (grid[r][c] === 0) return r; return -1; }
 
-  function play(c) {
-    if (over || busy) return;
+  // Klik op een kolom: lokaal altijd, online alleen als jij aan de beurt bent
+  function tryPlay(c) {
+    if (!myTurn() || busy || over) return;
+    const n = moves.length;
+    if (play(c) && NET.on) send({ t: 'move', col: c, n });
+  }
+
+  function play(c, instant) {
+    if (over) return false;
     const r = lowestRow(c);
-    if (r < 0) return;
+    if (r < 0) return false;
     grid[r][c] = current;
     moves.push({ r, c, p: current });
 
@@ -357,21 +478,21 @@ details.card:not([open]) { gap: 0; }
     cell.className = 'cell';
     cell.style.gridColumn = c + 1; cell.style.gridRow = r + 1;
     cell.style.setProperty('--r', r);
-    const t = reduce ? 0 : 0.28 + r * 0.06;
+    const t = reduce || instant ? 0 : 0.28 + r * 0.06;
     cell.style.setProperty('--t', t + 's');
     cell.dataset.key = r + '-' + c;
     cell.innerHTML = `<div class="disc p${current}"></div>`;
     discsEl.appendChild(cell);
 
-    busy = true;
-    setTimeout(() => { busy = false; }, t * 700);
+    if (!instant) { busy = true; setTimeout(() => { busy = false; }, t * 700); }
 
     const line = findWin(r, c, current);
-    if (line) { over = true; winLine = line; scores[current]++; setTimeout(markWin, t * 1000); }
+    if (line) { over = true; winLine = line; scores[current]++; setTimeout(markWin, instant ? 0 : t * 1000); }
     else if (moves.length === ROWS * COLS) { over = true; }
     else { current = current === 1 ? 2 : 1; }
     save();
-    update(!!line || over);
+    update(!instant && (!!line || over));
+    return true;
   }
 
   function findWin(r, c, p) {
@@ -393,7 +514,7 @@ details.card:not([open]) { gap: 0; }
   }
 
   function undo() {
-    if (!moves.length || busy) return;
+    if (NET.on || !moves.length || busy) return;
     const last = moves.pop();
     grid[last.r][last.c] = 0;
     const el = discsEl.querySelector(`[data-key="${last.r}-${last.c}"]`);
@@ -410,26 +531,46 @@ details.card:not([open]) { gap: 0; }
     $('score1').textContent = scores[1];
     $('score2').textContent = scores[2];
     [1, 2].forEach((p) => {
-      const active = !over && p === current;
+      const active = !over && p === current && (!NET.on || NET.state === 'connected');
       document.querySelector(`.player[data-p="${p}"]`).classList.toggle('active', active);
-      $('sub' + p).textContent = active ? 'is aan zet' : (p === 1 ? 'rood' : 'geel');
+      let sub = active ? 'is aan zet' : (p === 1 ? 'rood' : 'geel');
+      if (NET.on && p === NET.me) sub = active ? 'jij bent aan zet' : 'jij';
+      $('sub' + p).textContent = sub;
     });
     previewEl.dataset.p = current;
 
     statusEl.classList.remove('flash');
-    if (over && winLine) statusEl.innerHTML = `${chip(current)}<span>${esc(name(current))} wint!</span>`;
-    else if (over) statusEl.innerHTML = '<span>Gelijkspel, het bord is vol</span>';
+    if (NET.on && NET.state !== 'connected' && !over) {
+      statusEl.innerHTML = `<span>${NET.state === 'lost' ? 'Verbinding weg…' : 'Wachten op tegenstander…'}</span>`;
+    } else if (over && winLine) {
+      statusEl.innerHTML = NET.on
+        ? `${chip(current)}<span>${current === NET.me ? 'Jij wint!' : esc(name(current)) + ' wint!'}</span>`
+        : `${chip(current)}<span>${esc(name(current))} wint!</span>`;
+    } else if (over) statusEl.innerHTML = '<span>Gelijkspel, het bord is vol</span>';
+    else if (NET.on) statusEl.innerHTML = current === NET.me ? `${chip(current)}<span>Jouw beurt</span>` : `${chip(current)}<span>Beurt van ${esc(name(current))}</span>`;
     else statusEl.innerHTML = `${chip(current)}<span>${esc(name(current))} is aan zet</span>`;
     if (flash) { void statusEl.offsetWidth; statusEl.classList.add('flash'); }
 
-    for (let c = 0; c < COLS; c++) $('col' + c).disabled = over || grid[0][c] !== 0;
+    for (let c = 0; c < COLS; c++) $('col' + c).disabled = over || grid[0][c] !== 0 || !myTurn();
+    $('undo').hidden = NET.on;
     $('undo').disabled = moves.length === 0;
+    const ng = $('newgame');
+    if (NET.on) { ng.textContent = 'Revanche'; ng.disabled = !over || NET.state !== 'connected'; }
+    else { ng.textContent = 'Nieuw spel'; ng.disabled = false; }
+    $('fullReset').hidden = NET.on;
     setHover(hoverCol);
   }
 
-  $('newgame').addEventListener('click', () => { starter = starter === 1 ? 2 : 1; newGame(starter); });
+  $('newgame').addEventListener('click', () => {
+    if (!NET.on) { newGame(starter === 1 ? 2 : 1); return; }
+    if (!over || NET.state !== 'connected') return;
+    if (NET.role === 'host') hostNewGame(); else send({ t: 'askNew' });
+  });
   $('undo').addEventListener('click', undo);
-  ['name1', 'name2'].forEach((id) => $(id).addEventListener('input', () => { save(); update(); }));
+  ['name1', 'name2'].forEach((id) => $(id).addEventListener('input', () => {
+    save(); update();
+    if (NET.on && id === 'name' + NET.me) { $('myName').value = $(id).value; send({ t: 'name', name: $(id).value }); }
+  }));
 
   let armTimer = null;
   function disarm() { clearTimeout(armTimer); const b = $('fullReset'); b.classList.remove('armed'); b.textContent = 'Volledig resetten'; }
@@ -443,24 +584,295 @@ details.card:not([open]) { gap: 0; }
     scores = { 1: 0, 2: 0 };
     $('name1').value = 'Speler 1'; $('name2').value = 'Speler 2';
     try { localStorage.removeItem(KEY); } catch (e) {}
-    starter = 1; newGame(1);
+    newGame(1);
   });
 
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT') return;
-    if (e.key >= '1' && e.key <= '7') { play(+e.key - 1); return; }
+    if (e.key >= '1' && e.key <= '7') { tryPlay(+e.key - 1); return; }
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
       const d = e.key === 'ArrowLeft' ? -1 : 1;
       setHover(Math.max(0, Math.min(COLS - 1, (hoverCol < 0 ? 3 : hoverCol) + d)));
       e.preventDefault();
     }
-    if ((e.key === 'Enter' || e.key === 'ArrowDown') && hoverCol >= 0 && document.activeElement?.parentElement !== colsEl && !e.target.closest('button')) {
-      play(hoverCol); e.preventDefault();
-    }
-    if (e.key === 'Backspace' || (e.key === 'z' && (e.ctrlKey || e.metaKey))) { undo(); e.preventDefault(); }
+    if ((e.key === 'Enter' || e.key === 'ArrowDown') && hoverCol >= 0 && !e.target.closest('button')) { tryPlay(hoverCol); e.preventDefault(); }
+    if (!NET.on && (e.key === 'Backspace' || (e.key === 'z' && (e.ctrlKey || e.metaKey)))) { undo(); e.preventDefault(); }
   });
 
+  // =================== ONLINE SPELEN ===================
+  function setMode(online) {
+    $('mLocal').setAttribute('aria-pressed', String(!online));
+    $('mOnline').setAttribute('aria-pressed', String(online));
+    $('lobby').hidden = !online;
+    if (!online && NET.on) leaveOnline();
+    if (online && !NET.on) showLobby('start');
+  }
+  $('mLocal').addEventListener('click', () => setMode(false));
+  $('mOnline').addEventListener('click', () => setMode(true));
+
+  function showLobby(view) {
+    ['lobbyStart', 'lobbyWait', 'lobbyConn'].forEach((id) => { $(id).hidden = id !== 'lobby' + view.charAt(0).toUpperCase() + view.slice(1); });
+  }
+  function netMsg(text, bad) { const m = $('netMsg'); m.textContent = text || ''; m.classList.toggle('bad', !!bad); m.hidden = !text; }
+
+  // PeerJS pas laden als iemand online wil spelen
+  let peerLib = null;
+  function loadPeer() {
+    if (window.Peer) return Promise.resolve();
+    if (peerLib) return peerLib;
+    const urls = ['https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js', 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js'];
+    peerLib = urls.reduce((p, url) => p.catch(() => new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = url; s.onload = res; s.onerror = () => { s.remove(); rej(); };
+      document.head.appendChild(s);
+    })), Promise.reject()).then(() => { if (!window.Peer) throw new Error('nolib'); });
+    peerLib.catch(() => { peerLib = null; });
+    return peerLib;
+  }
+  const peerOpts = () => Object.assign({ debug: 0 }, window.PEER_OPTIONS || {});
+  const newCode = () => Array.from({ length: 5 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
+  const cleanCode = (v) => v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+  const myNameVal = () => ($('myName').value.trim() || (NET.role === 'host' ? 'Speler 1' : 'Speler 2'));
+  const send = (msg) => { try { if (NET.conn && NET.conn.open) NET.conn.send(msg); } catch (e) {} };
+
+  function enterOnline(role) {
+    if (!NET.on) {
+      NET.localSave = { scores: { ...scores }, n1: $('name1').value, n2: $('name2').value, moves: moves.map((m) => m.c), starter };
+    }
+    NET.on = true; NET.role = role; NET.me = role === 'host' ? 1 : 2;
+    scores = { 1: 0, 2: 0 };
+    $('name' + NET.me).value = myNameVal();
+    $('name' + (3 - NET.me)).value = 'Nog niemand';
+    $('name' + (3 - NET.me)).readOnly = true;
+    $('name' + NET.me).readOnly = false;
+    save();
+  }
+  function leaveOnline() {
+    try { if (NET.conn) NET.conn.close(); } catch (e) {}
+    try { if (NET.peer) NET.peer.destroy(); } catch (e) {}
+    clearTimeout(NET.joinTimer);
+    const ls = NET.localSave;
+    Object.assign(NET, { on: false, role: null, me: 0, peer: null, conn: null, code: '', opp: '', state: 'idle', localSave: null, guestId: '' });
+    $('name1').readOnly = false; $('name2').readOnly = false;
+    if (ls) {
+      scores = ls.scores; $('name1').value = ls.n1; $('name2').value = ls.n2;
+      newGame(ls.starter); ls.moves.forEach((c) => play(c, true));
+    } else newGame(1);
+    netMsg('');
+    if (location.hash.startsWith('#lobby-')) history.replaceState(null, '', location.pathname + location.search);
+    showLobby('start');
+  }
+
+  // ---- Lobby maken ----
+  $('hostBtn').addEventListener('click', () => host());
+  function host(tries = 0) {
+    netMsg('Lobby wordt gemaakt…');
+    $('hostBtn').disabled = true;
+    loadPeer().then(() => {
+      const code = newCode();
+      const peer = new window.Peer(PEER_PREFIX + code, peerOpts());
+      peer.on('open', () => {
+        enterOnline('host');
+        NET.peer = peer; NET.code = code; NET.state = 'waiting';
+        newGame(1);
+        $('codeBig').textContent = code;
+        $('linkBox').value = lobbyLink(code);
+        $('waitText').textContent = 'Wachten op tegenstander…';
+        showLobby('wait'); netMsg(''); $('hostBtn').disabled = false;
+      });
+      peer.on('connection', (c) => attach(c));
+      peer.on('disconnected', () => { if (NET.peer === peer && !peer.destroyed) setTimeout(() => { try { peer.reconnect(); } catch (e) {} }, 1500); });
+      peer.on('error', (err) => {
+        if (err.type === 'unavailable-id' && tries < 3) { peer.destroy(); host(tries + 1); return; }
+        if (NET.peer !== peer) { $('hostBtn').disabled = false; netMsg(errText(err), true); peer.destroy(); return; }
+        if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') netMsg('Verbinding met de koppeldienst haperde. We proberen het opnieuw…', true);
+      });
+    }).catch(() => { $('hostBtn').disabled = false; netMsg(libError(), true); });
+  }
+
+  // ---- Meedoen ----
+  $('joinBtn').addEventListener('click', () => join(cleanCode($('joinCode').value)));
+  $('joinCode').addEventListener('input', () => { $('joinCode').value = cleanCode($('joinCode').value); });
+  $('joinCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); join(cleanCode($('joinCode').value)); } });
+  function join(code) {
+    if (code.length !== 5) { netMsg('Een lobbycode heeft 5 tekens.', true); return; }
+    netMsg('Verbinden met lobby ' + code + '…');
+    $('joinBtn').disabled = true;
+    loadPeer().then(() => {
+      const startPeer = () => {
+        const peer = new window.Peer(peerOpts());
+        peer.on('open', () => {
+          if (!NET.on) enterOnline('guest');
+          NET.peer = peer; NET.code = code; NET.state = 'connecting';
+          connectToHost();
+        });
+        peer.on('disconnected', () => { if (NET.peer === peer && !peer.destroyed) setTimeout(() => { try { peer.reconnect(); } catch (e) {} }, 1500); });
+        peer.on('error', (err) => {
+          $('joinBtn').disabled = false;
+          if (err.type === 'peer-unavailable') {
+            clearTimeout(NET.joinTimer);
+            if (NET.state === 'lost') { netMsg('De lobby is niet meer bereikbaar. Vraag om een nieuwe code.', true); return; }
+            netMsg('Geen lobby gevonden met code ' + code + '. Klopt de code?', true);
+            leaveIfNotPlaying();
+            return;
+          }
+          netMsg(errText(err), true);
+        });
+      };
+      if (NET.peer && !NET.peer.destroyed && NET.peer.open) connectToHost(); else startPeer();
+    }).catch(() => { $('joinBtn').disabled = false; netMsg(libError(), true); });
+  }
+  function leaveIfNotPlaying() {
+    if (NET.on && NET.role === 'guest' && NET.state !== 'connected' && NET.state !== 'lost') {
+      try { NET.peer.destroy(); } catch (e) {}
+      const ls = NET.localSave; NET.on = false; NET.peer = null; NET.state = 'idle';
+      $('name1').readOnly = false; $('name2').readOnly = false;
+      if (ls) { scores = ls.scores; $('name1').value = ls.n1; $('name2').value = ls.n2; newGame(ls.starter); ls.moves.forEach((c) => play(c, true)); }
+      NET.localSave = null;
+      showLobby('start');
+    }
+  }
+  function connectToHost() {
+    const c = NET.peer.connect(PEER_PREFIX + NET.code, { reliable: true });
+    attach(c);
+    clearTimeout(NET.joinTimer);
+    NET.joinTimer = setTimeout(() => {
+      if (!c.open) {
+        $('joinBtn').disabled = false;
+        netMsg('Het lukt niet om verbinding te maken. Probeer een ander netwerk (bijvoorbeeld wifi in plaats van 4G) of vraag om een nieuwe code.', true);
+        if (NET.state !== 'lost') leaveIfNotPlaying();
+      }
+    }, 15000);
+  }
+  $('rejoinBtn').addEventListener('click', () => { netMsg('Opnieuw verbinden…'); join(NET.code); });
+
+  // ---- Verbinding en berichten ----
+  function attach(c) {
+    c.on('open', () => {
+      if (NET.role !== 'guest') return; // de host kiest pas bij 'hello' wie er meespeelt
+      if (NET.conn && NET.conn !== c) { try { NET.conn.close(); } catch (e) {} }
+      NET.conn = c;
+      clearTimeout(NET.joinTimer);
+      $('joinBtn').disabled = false;
+      send({ t: 'hello', name: myNameVal(), id: CLIENT_ID });
+    });
+    c.on('data', (m) => handle(m, c));
+    c.on('close', () => {
+      if (NET.role === 'guest' && NET.conn === c && NET.state === 'connecting') {
+        netMsg('Meedoen lukte niet: deze lobby is al vol of gesloten.', true); leaveIfNotPlaying(); return;
+      }
+      if (NET.conn !== c || !NET.on) return;
+      NET.conn = null; NET.state = 'lost';
+      if (NET.role === 'host') {
+        $('waitText').textContent = NET.opp + ' is weg. Wachten tot je tegenstander terugkomt…';
+        showLobby('wait');
+        netMsg('De verbinding is verbroken. Het spel blijft staan; je tegenstander kan met dezelfde code terugkomen.', true);
+      } else {
+        showLobby('conn'); $('rejoinBtn').hidden = false;
+        netMsg('De verbinding is verbroken. Tik op Opnieuw verbinden.', true);
+      }
+      update();
+    });
+    c.on('error', () => {});
+  }
+  function handle(m, c) {
+    if (!m || typeof m !== 'object') return;
+    switch (m.t) {
+      case 'hello': // host ontvangt
+        if (NET.role !== 'host') return;
+        if (NET.conn && NET.conn !== c && NET.conn.open && m.id !== NET.guestId) { try { c.send({ t: 'full' }); } catch (e) {} return; }
+        if (NET.conn && NET.conn !== c) { const old = NET.conn; NET.conn = null; try { old.close(); } catch (e) {} }
+        NET.conn = c; NET.guestId = m.id || '';
+        NET.opp = String(m.name || 'Speler 2').slice(0, 16);
+        $('name2').value = NET.opp;
+        NET.state = 'connected';
+        sendSync();
+        onConnected();
+        break;
+      case 'sync': // gast ontvangt volledige stand
+        if (NET.role !== 'guest') return;
+        NET.opp = String(m.names[1] || 'Speler 1').slice(0, 16);
+        $('name1').value = NET.opp;
+        $('name2').value = String(m.names[2] || myNameVal()).slice(0, 16);
+        scores = { 1: +m.scores[1] || 0, 2: +m.scores[2] || 0 };
+        NET.state = 'connected';
+        newGame(m.starter);
+        scores = { 1: +m.scores[1] || 0, 2: +m.scores[2] || 0 };
+        m.moves.forEach((col) => play(col, true));
+        scores = { 1: +m.scores[1] || 0, 2: +m.scores[2] || 0 };
+        update();
+        onConnected();
+        break;
+      case 'move': {
+        if (current === NET.me) return; // niet jouw tegenstander aan de beurt
+        if (m.n !== moves.length) { if (NET.role === 'host') sendSync(); else send({ t: 'needSync' }); return; }
+        play(+m.col);
+        break;
+      }
+      case 'needSync': if (NET.role === 'host') sendSync(); break;
+      case 'askNew': if (NET.role === 'host' && over) hostNewGame(); break;
+      case 'new': if (NET.role === 'guest') { newGame(+m.starter); } break;
+      case 'name':
+        NET.opp = String(m.name || '').slice(0, 16) || 'Tegenstander';
+        $('name' + (3 - NET.me)).value = NET.opp; update(); renderConn();
+        break;
+      case 'full':
+        NET.conn = null; try { c.close(); } catch (e) {}
+        netMsg('Deze lobby is al vol. Vraag de maker om een nieuwe code.', true); leaveIfNotPlaying();
+        break;
+    }
+  }
+  function sendSync() {
+    send({ t: 'sync', names: { 1: name(1), 2: name(2) }, scores, starter, moves: moves.map((x) => x.c) });
+  }
+  function hostNewGame() {
+    const s = starter === 1 ? 2 : 1;
+    newGame(s);
+    send({ t: 'new', starter: s });
+  }
+  function onConnected() {
+    $('rejoinBtn').hidden = true;
+    netMsg('');
+    showLobby('conn'); renderConn(); update();
+    if (location.hash !== '#lobby-' + NET.code && NET.role === 'guest') history.replaceState(null, '', '#lobby-' + NET.code);
+  }
+  function renderConn() {
+    $('connText').innerHTML = `Verbonden met <b>${esc(NET.opp || 'tegenstander')}</b> · lobby <b>${esc(NET.code)}</b> · jij bent ${NET.me === 1 ? 'rood' : 'geel'}`;
+  }
+  $('leaveBtn').addEventListener('click', () => leaveOnline());
+  $('leaveBtn2').addEventListener('click', () => leaveOnline());
+  $('myName').addEventListener('input', () => save());
+
+  // ---- Delen ----
+  const lobbyLink = (code) => location.origin + location.pathname + '#lobby-' + code;
+  $('copyLink').addEventListener('click', () => {
+    const text = lobbyLink(NET.code);
+    const fb = () => { const b = $('linkBox'); b.hidden = false; b.value = text; b.focus(); b.select(); $('copyMsg').textContent = 'Selecteer en kopieer de link.'; };
+    try { navigator.clipboard.writeText(text).then(() => { $('copyMsg').textContent = 'Link gekopieerd'; }, fb); } catch (e) { fb(); }
+  });
+  if (navigator.share) {
+    $('shareBtn').hidden = false;
+    $('shareBtn').addEventListener('click', () => {
+      navigator.share({ title: '4 op een Rij', text: 'Speel 4 op een Rij tegen me! Lobbycode: ' + NET.code, url: lobbyLink(NET.code) }).catch(() => {});
+    });
+  }
+
+  function errText(err) {
+    switch (err && err.type) {
+      case 'browser-incompatible': return 'Deze browser ondersteunt online spelen niet. Probeer Chrome, Edge, Firefox of Safari.';
+      case 'network': case 'server-error': case 'socket-error': case 'socket-closed': return 'Geen verbinding met de koppeldienst. Controleer je internet en probeer het opnieuw.';
+      case 'webrtc': return 'De directe verbinding lukte niet. Probeer een ander netwerk, bijvoorbeeld wifi in plaats van 4G.';
+      default: return 'Er ging iets mis met de verbinding. Probeer het opnieuw.';
+    }
+  }
+  function libError() {
+    return 'Online spelen kon niet starten. Het werkt alleen op de gewone website (zoals GitHub Pages) met internet.';
+  }
+
   newGame(starter);
+
+  // Binnenkomen via een lobbylink
+  const m = location.hash.match(/^#lobby-([A-Za-z0-9]{5})$/);
+  if (m) { setMode(true); $('joinCode').value = cleanCode(m[1]); join(cleanCode(m[1])); }
 })();
 </script>
 </body>
