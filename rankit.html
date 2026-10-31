@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rank It</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* Gedeelde stijl van de spelletjessite: lucht met wolken, dikke inktranden, gele titels.
+   Bewust één vaste, vrolijke look (geen donkere variant). */
+:root {
+  --sky-top: #7cc8ef;
+  --sky-bottom: #c4ebfb;
+  --cloud: #ffffff;
+  --paper: #ffffff;
+  --ink: #1f2a3c;
+  --muted: #55667f;
+  --soft: #e9f4fb;
+  --guide: #d3e2ee;
+  --yellow: #ffcc2e;
+  --yellow-deep: #f2a900;
+  --yellow-soft: #fff3c4;
+  --red: #e0443a;
+  --red-soft: #fde2df;
+  --blue: #2f6fe0;
+  --blue-deep: #1d4fb8;
+  --blue-soft: #dce8fb;
+  --good: #1f9a5a;
+  --good-soft: #d9f5e5;
+  --bad: #e0443a;
+  --bad-soft: #fde2df;
+  --font-title: "Lilita One", "Arial Black", Impact, sans-serif;
+  --font-ui: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--sky-top); }
+body {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 70%) fixed;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 44px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.sky { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.cloud { position: absolute; fill: var(--cloud); opacity: .9; animation: drift linear infinite; }
+.cloud.c1 { width: 130px; top: 9%; left: -10%; animation-duration: 70s; }
+.cloud.c2 { width: 90px; top: 38%; left: -20%; animation-duration: 95s; animation-delay: -40s; opacity: .7; }
+.cloud.c3 { width: 160px; top: 70%; left: -25%; animation-duration: 120s; animation-delay: -75s; opacity: .6; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+
+.wrap { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+.back {
+  display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  padding: 7px 14px 7px 10px; border-radius: 999px;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+  color: var(--ink); text-decoration: none; font: 600 14px/1 var(--font-ui);
+  transition: transform .08s, box-shadow .08s;
+}
+.back:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
+.back:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.back:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.back svg { width: 16px; height: 16px; }
+
+.logo {
+  margin: 0;
+  font: 400 clamp(44px, 12vw, 72px)/0.95 var(--font-title);
+  letter-spacing: .03em;
+  color: var(--yellow);
+  -webkit-text-stroke: 6px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 var(--ink);
+  transform: rotate(-2deg);
+  text-wrap: balance;
+}
+.lede { margin: 0; color: var(--ink); opacity: .8; font-size: 15px; max-width: 44ch; }
+
+.card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 7px 0 var(--ink);
+  padding-block: 20px;
+  padding-inline: clamp(14px, 4.5vw, 26px);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+details.card:not([open]) { gap: 0; }
+
+/* Spelerskaarten (2 spelers) */
+.players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.player {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 16px; min-width: 0;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink);
+  transition: transform .2s, box-shadow .2s, background .2s;
+}
+.player.active { background: var(--yellow-soft); transform: translateY(-3px); box-shadow: 0 7px 0 var(--ink); }
+.who { display: flex; flex-direction: column; min-width: 0; }
+.player input {
+  font: 600 17px/1.2 var(--font-ui); color: var(--ink); background: transparent;
+  border: 0; border-bottom: 2px dashed transparent; padding: 1px 0; width: 100%; min-width: 0;
+}
+.player input:hover { border-bottom-color: var(--guide); }
+.player input:focus { outline: none; border-bottom-color: var(--ink); }
+.sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.player.active .sub { color: var(--ink); font-weight: 600; }
+.score { font: 400 30px/1 var(--font-title); font-variant-numeric: tabular-nums; }
+
+.status {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 36px; text-align: center;
+  font: 400 clamp(22px, 5.5vw, 28px)/1.1 var(--font-title); letter-spacing: .02em;
+}
+.status.flash { animation: bounce .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes bounce { from { transform: translateY(-10px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.btn {
+  font: 700 17px/1 var(--font-ui);
+  padding: 13px 20px; border-radius: 14px;
+  border: 3px solid var(--ink); background: var(--paper); color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink); cursor: pointer;
+  transition: transform .08s, box-shadow .08s;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.yellow { background: var(--yellow); }
+.btn.small { font-size: 14px; padding: 9px 14px; box-shadow: 0 3px 0 var(--ink); }
+.btn.danger.armed { background: var(--bad); color: #fff; }
+
+.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.hint { color: var(--ink); opacity: .75; font-size: 13px; margin: 0; max-width: 46ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .status.flash { animation: none !important; }
+  .player, .btn, .back { transition: none; }
+}
+</style>
+<style>
+/* Variantkeuze bovenaan, dan het onderwerp met een genummerde ladder van 5 plekken */
+.wrap { max-width: 680px; }
+.tagline { margin: 0; font-weight: 600; font-size: 15px; color: var(--ink); opacity: .85; max-width: 48ch; }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mode {
+  text-align: left; display: flex; flex-direction: column; gap: 4px;
+  padding: 12px 14px; border-radius: 16px; border: 3px solid var(--ink); background: var(--paper);
+  color: var(--ink); cursor: pointer; box-shadow: 0 4px 0 var(--ink);
+  font: inherit; transition: transform .1s, box-shadow .1s, background .15s;
+}
+.mode b { font: 400 18px/1.1 var(--font-title); letter-spacing: .02em; }
+.mode span { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.mode[aria-pressed="true"] { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); }
+.mode[aria-pressed="true"] span { color: var(--ink); }
+.mode:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+
+.qcard { gap: 16px; }
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tag { font: 400 15px/1 var(--font-title); letter-spacing: .05em; padding: 7px 12px; border-radius: 10px; background: var(--yellow); border: 3px solid var(--ink); }
+.count { font-size: 13px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.topic { margin: 0; font: 700 clamp(22px, 5.6vw, 30px)/1.2 var(--font-ui); text-wrap: balance; }
+.instr { margin: 0; color: var(--muted); font-size: 15px; }
+.instr b { color: var(--ink); }
+
+/* Ladder */
+.ladder { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.rung {
+  display: grid; grid-template-columns: 46px 1fr auto; align-items: center; gap: 12px;
+  min-height: 58px; padding: 6px 8px 6px 6px; border-radius: 14px;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+}
+.rank {
+  width: 46px; height: 46px; border-radius: 11px; display: grid; place-items: center;
+  font: 400 24px/1 var(--font-title); background: var(--soft); border: 3px solid var(--ink);
+}
+.rung:nth-child(1) .rank { background: var(--yellow); }
+.rung:nth-child(2) .rank { background: #dfe6ee; }
+.rung:nth-child(3) .rank { background: #f3c79a; }
+.item { font: 700 18px/1.25 var(--font-ui); min-width: 0; overflow-wrap: anywhere; }
+.arrows { display: flex; gap: 6px; }
+.arrow {
+  width: 42px; height: 42px; border-radius: 10px; border: 3px solid var(--ink); background: var(--paper);
+  display: grid; place-items: center; cursor: pointer; color: var(--ink);
+}
+.arrow svg { width: 18px; height: 18px; }
+.arrow:hover:not(:disabled) { background: var(--yellow); }
+.arrow:disabled { opacity: .3; cursor: default; }
+.arrow:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 1px; }
+.rung.moved { animation: nudge .35s ease-out; }
+@keyframes nudge { 0% { background: var(--yellow-soft); transform: scale(1.02); } 100% { background: var(--paper); transform: none; } }
+.ends { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--muted); padding-inline: 4px; }
+
+/* Blind */
+.reveal { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 14px; border-radius: 18px; background: var(--soft); border: 3px dashed var(--ink); text-align: center; }
+.reveal small { font-size: 13px; font-weight: 600; color: var(--muted); }
+.reveal .now {
+  font: 400 clamp(30px, 8vw, 44px)/1.05 var(--font-title); letter-spacing: .02em;
+  padding: 14px 22px; border-radius: 16px; background: var(--paper); border: 4px solid var(--ink); box-shadow: 0 6px 0 var(--ink);
+  overflow-wrap: anywhere; max-width: 100%;
+}
+.reveal .now.flip { animation: flip .45s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes flip { from { transform: rotateX(80deg) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+.deck { display: flex; gap: 6px; }
+.deck i { width: 22px; height: 30px; border-radius: 5px; background: var(--blue); border: 2.5px solid var(--ink); }
+.deck i.gone { background: transparent; border-style: dashed; opacity: .4; }
+.slot-btn {
+  width: 100%; text-align: left; min-height: 46px; border-radius: 10px; border: 3px dashed var(--ink);
+  background: var(--yellow-soft); color: var(--ink); font: 700 16px/1.2 var(--font-ui); padding: 10px 12px; cursor: pointer;
+}
+.slot-btn:hover { background: var(--yellow); border-style: solid; }
+.slot-btn:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 1px; }
+.rung.empty { background: var(--paper); box-shadow: none; border-style: dashed; }
+.rung.empty.wait .item { color: var(--muted); font-weight: 600; font-size: 15px; }
+.rung.just { animation: nudge .5s ease-out; }
+.done-box { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: var(--good-soft); border: 3px solid var(--good); }
+.done-box b { font: 400 22px/1.1 var(--font-title); color: var(--good); letter-spacing: .02em; }
+.done-box span { font-size: 14px; }
+
+.row-btns { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.row-btns .spacer { flex: 1; }
+.toast { font-size: 14px; font-weight: 600; color: var(--good); }
+.copybox { width: 100%; min-height: 120px; font: 500 14px/1.4 var(--font-ui); padding: 10px; border-radius: 10px; border: 2px solid var(--ink); background: var(--soft); color: var(--ink); }
+
+.actions { display: grid; grid-template-columns: auto 1fr; gap: 10px; }
+.btn.next { font-size: 19px; padding: 15px 20px; }
+.iconbtn { width: 52px; height: 52px; padding: 0; display: grid; place-items: center; }
+.iconbtn svg { width: 22px; height: 22px; }
+
+details.fold > summary { cursor: pointer; font: 400 22px/1.1 var(--font-title); letter-spacing: .02em; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::after { content: "+"; font-size: 26px; }
+details.fold[open] > summary::after { content: "−"; }
+details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 4px; border-radius: 6px; }
+.fold-body { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.fold-body p { margin: 0; color: var(--muted); font-size: 14px; }
+.own-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 520px) { .own-grid { grid-template-columns: 1fr; } }
+.own-grid .full { grid-column: 1 / -1; }
+.input {
+  min-width: 0; width: 100%; font: 600 16px/1.2 var(--font-ui);
+  padding: 10px 12px; border-radius: 12px; border: 3px solid var(--ink); background: var(--soft); color: var(--ink);
+}
+.input:focus { outline: none; box-shadow: 0 0 0 4px var(--yellow); }
+.err { color: var(--bad); font-size: 14px; font-weight: 600; }
+.own { display: flex; flex-direction: column; gap: 6px; }
+.own-item { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; padding: 8px 10px; border-radius: 10px; background: var(--soft); }
+.own-item span { flex: 1; min-width: 0; }
+.own-item button { border: 0; background: transparent; cursor: pointer; color: var(--muted); font: 700 14px/1 var(--font-ui); }
+.own-item button:hover { color: var(--bad); }
+.small-note { font-size: 13px; color: var(--muted); }
+
+@media (max-width: 420px) {
+  .rung { grid-template-columns: 40px 1fr auto; gap: 8px; }
+  .rank { width: 40px; height: 40px; font-size: 21px; }
+  .arrow { width: 38px; height: 38px; }
+  .item { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rung.moved, .rung.just, .reveal .now.flip { animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <svg class="cloud c1" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c2" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c3" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+</div>
+<div class="wrap">
+  <a class="back" href="./"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Alle spelletjes</a>
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h1 class="logo">RANK IT!</h1>
+    <p class="tagline">Vijf opties, één volgorde. Maak je eigen ranking en ontdek wie er net zo denkt als jij.</p>
+  </header>
+
+  <div class="modes" role="group" aria-label="Spelvariant">
+    <button type="button" class="mode" id="modeA" data-mode="a"><b>Vrij rangschikken</b><span>Je ziet alle vijf de opties en zet ze op volgorde.</span></button>
+    <button type="button" class="mode" id="modeB" data-mode="b"><b>Blind rangschikken</b><span>De opties komen één voor één. Elke plek is meteen vast.</span></button>
+  </div>
+
+  <section class="card qcard">
+    <div class="qhead">
+      <span class="tag" id="modeTag"></span>
+      <span class="count" id="count"></span>
+    </div>
+    <p class="topic" id="topic"></p>
+    <p class="instr" id="instr"></p>
+
+    <!-- Variant A -->
+    <div id="viewA">
+      <div class="ends" aria-hidden="true"><span id="endTop"></span><span id="endBot"></span></div>
+      <ol class="ladder" id="ladderA"></ol>
+    </div>
+
+    <!-- Variant B -->
+    <div id="viewB" hidden>
+      <div class="reveal" id="reveal">
+        <small id="revealLbl"></small>
+        <div class="now" id="now" aria-live="polite"></div>
+        <div class="deck" id="deck" aria-hidden="true"></div>
+      </div>
+      <div class="done-box" id="doneBox" hidden>
+        <b>Alle vijf geplaatst!</b>
+        <span id="doneText"></span>
+      </div>
+      <div class="ends" aria-hidden="true" style="margin-top:14px"><span id="endTopB"></span><span id="endBotB"></span></div>
+      <ol class="ladder" id="ladderB"></ol>
+    </div>
+
+    <div class="row-btns">
+      <button class="btn small" type="button" id="resetBtn">Reset ranking</button>
+      <button class="btn small" type="button" id="copyBtn">Kopieer ranking</button>
+      <span class="toast" id="toast" role="status"></span>
+    </div>
+    <textarea class="copybox" id="copyBox" readonly hidden aria-label="Ranking om te kopiëren"></textarea>
+
+    <div class="actions">
+      <button class="btn iconbtn" type="button" id="prev" aria-label="Vorig onderwerp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="btn yellow next" type="button" id="next">Volgend onderwerp</button>
+    </div>
+  </section>
+
+  <details class="card fold" id="ownBox">
+    <summary>Eigen onderwerpen</summary>
+    <div class="fold-body">
+      <p>Bedenk een onderwerp met vijf opties. Het komt in de stapel terecht.</p>
+      <div class="own-grid">
+        <input class="input full" id="ownT" maxlength="80" placeholder="Onderwerp, bijvoorbeeld: Kaassoorten" aria-label="Onderwerp">
+        <input class="input" id="ownI0" maxlength="40" placeholder="Optie 1" aria-label="Optie 1">
+        <input class="input" id="ownI1" maxlength="40" placeholder="Optie 2" aria-label="Optie 2">
+        <input class="input" id="ownI2" maxlength="40" placeholder="Optie 3" aria-label="Optie 3">
+        <input class="input" id="ownI3" maxlength="40" placeholder="Optie 4" aria-label="Optie 4">
+        <input class="input" id="ownI4" maxlength="40" placeholder="Optie 5" aria-label="Optie 5">
+        <div class="full row-btns"><button class="btn small" type="button" id="ownAdd">Toevoegen</button><span class="err" id="ownErr" role="alert"></span></div>
+      </div>
+      <div class="own" id="ownList"></div>
+    </div>
+  </details>
+
+  <div class="foot">
+    <p class="hint">Iedereen maakt zijn eigen ranking, op papier of in zijn hoofd. Vergelijk daarna: wie denkt hetzelfde, en wie wijkt het meest af?</p>
+    <button class="btn small danger" id="fullReset" type="button">Volledig resetten</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const KEY = 'rank-it';
+  const $ = (id) => document.getElementById(id);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const FAV = ['favoriet', 'minst favoriet'];
+
+  // [onderwerp, [5 opties], optioneel [label bovenaan, label onderaan]]
+  const BANK = [
+    ['Vakantiebestemmingen', ['Japan', 'Thailand', 'Italië', 'New York', 'IJsland']],
+    ['Fastfoodketens', ["McDonald's", 'Burger King', 'KFC', "Domino's", 'Subway']],
+    ['Superkrachten', ['Vliegen', 'Onzichtbaar worden', 'Gedachten lezen', 'Teleporteren', 'De tijd stilzetten']],
+    ['Bekende films', ['Titanic', 'The Lion King', 'Harry Potter', 'Star Wars', 'Pulp Fiction']],
+    ['Manieren om een vrije vrijdag door te brengen', ['Uitslapen en series kijken', 'Een dagje strand', 'Een stedentrip', 'Klussen in huis', 'Een lange wandeling']],
+    ['Eigenschappen die je belangrijk vindt in een vriend', ['Eerlijkheid', 'Humor', 'Loyaliteit', 'Behulpzaamheid', 'Spontaniteit'], ['belangrijkst', 'minst belangrijk']],
+    ['Manieren om €1 miljoen uit te geven', ['Je huis afbetalen', 'Een wereldreis maken', 'Aan een goed doel geven', 'Beleggen', 'Een eigen bedrijf starten']],
+    ['Activiteiten voor een perfecte vakantie', ['Zonnen op het strand', 'Musea bezoeken', 'Lekker uit eten', 'Wandelen in de natuur', 'Feesten tot laat']],
+    ['Snacks uit de muur', ['Kroket', 'Frikandel', 'Kaassoufflé', 'Bitterballen', 'Loempia']],
+    ['Feestdagen', ['Kerst', 'Oud en nieuw', 'Koningsdag', 'Sinterklaas', 'Je eigen verjaardag']],
+    ['Ontbijtjes', ['Croissant', 'Pannenkoeken', 'Yoghurt met granola', 'Boterham met hagelslag', 'Eieren met spek']],
+    ['Sporten om naar te kijken', ['Voetbal', 'Formule 1', 'Tennis', 'Schaatsen', 'Darts']],
+    ['Huisdieren', ['Hond', 'Kat', 'Konijn', 'Paard', 'Goudvis']],
+    ['Huishoudelijke klusjes', ['Afwassen', 'Stofzuigen', 'Strijken', 'Badkamer poetsen', 'Boodschappen doen'], ['minst erg', 'meest vreselijk']],
+    ['Lekkernijen', ['Drop', 'Chocola', 'Winegums', 'Stroopwafels', 'Chips']],
+    ['Vervoermiddelen', ['Fiets', 'Auto', 'Trein', 'Vliegtuig', 'Scooter']],
+    ['Nederlandse steden', ['Amsterdam', 'Utrecht', 'Rotterdam', 'Maastricht', 'Groningen']],
+    ['Drankjes', ['Koffie', 'Thee', 'Cola', 'Bier', 'Wijn']],
+    ['Muziekstijlen', ['Pop', 'Rock', 'Hiphop', 'Dance', 'Nederlandstalig']],
+    ['Apps', ['WhatsApp', 'Instagram', 'TikTok', 'YouTube', 'Spotify'], ['kan ik het minst zonder', 'kan ik het best zonder']],
+    ['Avondjes uit', ['Bioscoop', 'Concert', 'Escape room', 'Pubquiz', 'Karaoke']],
+    ['Pizzatoppings', ['Salami', 'Ananas', 'Champignons', 'Tonijn', 'Extra kaas']],
+    ['Talenten die je meteen zou willen hebben', ['Een instrument bespelen', 'Vloeiend Japans spreken', 'Perfect tekenen', 'Koken als een chef', 'Goed dansen']],
+    ['Soorten vakanties', ['Kamperen', 'Hotel', 'Cruise', 'Backpacken', 'Vakantiehuisje']],
+    ['Soorten weer', ['Zon en 30 graden', 'Verse sneeuw', 'Onweer', 'Mist', 'Lenteregen met zon']],
+    ['Kerstdiners', ['Gourmetten', 'Kalkoen met alles erop en eraan', 'Fonduen', 'Steengrillen', 'Uit eten']],
+    ["Soorten tv-programma's", ['Realityshows', 'Detectives', 'Comedy', 'Documentaires', "Kookprogramma's"]],
+    ['Dieren om in het wild te zien', ['Olifant', 'Walvis', 'Leeuw', 'Pinguïn', 'Panda']],
+    ['Manieren om te ontspannen', ['Lezen', 'Sporten', 'Gamen', 'Muziek luisteren', 'Een warm bad']],
+    ['IJssmaken', ['Vanille', 'Chocolade', 'Aardbei', 'Pistache', 'Stracciatella']],
+    ['Spullen voor op een onbewoond eiland', ['Een mes', 'Een aansteker', 'Een tent', 'Een visnet', 'Een goed boek'], ['meest nuttig', 'minst nuttig']],
+    ['Bordspellen', ['Monopoly', 'Kolonisten van Catan', 'Scrabble', 'Risk', 'Trivial Pursuit']],
+  ];
+
+  let store = { mode: 'a', order: [], index: 0, own: [], rankA: {}, blind: {} };
+  try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) store = Object.assign(store, s); } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+
+  const esc = (s) => String(s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  const icon = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  function topics() {
+    const list = BANK.map(([t, items, ends], i) => ({ id: 'b' + i, title: t, items, ends: ends || FAV }));
+    store.own.forEach((o) => list.push({ id: 'o' + o.id, title: o.title, items: o.items, ends: FAV }));
+    return list;
+  }
+  const byId = () => Object.fromEntries(topics().map((t) => [t.id, t]));
+  function syncOrder(first) {
+    const ids = topics().map((t) => t.id);
+    const keep = store.order.filter((id) => ids.includes(id));
+    const missing = ids.filter((id) => !keep.includes(id));
+    if (!keep.length) {
+      store.order = shuffle(ids);
+      if (first) { const k = store.order.indexOf(first); store.order.splice(k, 1); store.order.unshift(first); }
+      store.index = 0;
+    } else {
+      store.order = keep.slice(0, store.index + 1).concat(shuffle(keep.slice(store.index + 1).concat(missing)));
+    }
+    store.index = Math.min(store.index, store.order.length - 1);
+    save();
+  }
+  const cur = () => byId()[store.order[store.index]];
+
+  // ---------- variant A ----------
+  function rankingA(t) {
+    let r = store.rankA[t.id];
+    if (!Array.isArray(r) || r.length !== 5 || !t.items.every((x) => r.includes(x))) { r = t.items.slice(); store.rankA[t.id] = r; save(); }
+    return r;
+  }
+  function renderA(movedIdx) {
+    const t = cur(), r = rankingA(t), ol = $('ladderA');
+    ol.innerHTML = '';
+    r.forEach((item, i) => {
+      const li = document.createElement('li');
+      li.className = 'rung' + (i === movedIdx ? ' moved' : '');
+      li.innerHTML = `<span class="rank">${i + 1}</span><span class="item">${esc(item)}</span>
+        <span class="arrows">
+          <button type="button" class="arrow" id="up${i}" aria-label="${esc(item)} omhoog" ${i === 0 ? 'disabled' : ''}>${icon('M6 15l6-6 6 6')}</button>
+          <button type="button" class="arrow" id="dn${i}" aria-label="${esc(item)} omlaag" ${i === 4 ? 'disabled' : ''}>${icon('M6 9l6 6 6-6')}</button>
+        </span>`;
+      li.querySelector('#up' + i).addEventListener('click', () => move(i, -1));
+      li.querySelector('#dn' + i).addEventListener('click', () => move(i, 1));
+      ol.appendChild(li);
+    });
+  }
+  function move(i, d) {
+    const t = cur(), r = rankingA(t), j = i + d;
+    if (j < 0 || j > 4) return;
+    [r[i], r[j]] = [r[j], r[i]];
+    save(); renderA(j);
+    const btn = $((d < 0 ? 'up' : 'dn') + j);
+    (btn && !btn.disabled ? btn : $((d < 0 ? 'dn' : 'up') + j)).focus({ preventScroll: true });
+  }
+
+  // ---------- variant B ----------
+  function blindState(t) {
+    let b = store.blind[t.id];
+    if (!b || !Array.isArray(b.seq) || b.seq.length !== 5) { b = { seq: shuffle(t.items), slots: [null, null, null, null, null], step: 0 }; store.blind[t.id] = b; save(); }
+    return b;
+  }
+  function renderB(justSlot) {
+    const t = cur(), b = blindState(t), done = b.step >= 5;
+    $('reveal').hidden = done;
+    $('doneBox').hidden = !done;
+    if (!done) {
+      $('revealLbl').textContent = `Optie ${b.step + 1} van 5`;
+      const now = $('now');
+      if (now.textContent !== b.seq[b.step]) {
+        now.textContent = b.seq[b.step];
+        now.classList.remove('flip');
+        if (!reduce) { void now.offsetWidth; now.classList.add('flip'); }
+      }
+      $('deck').innerHTML = [0, 1, 2, 3, 4].map((i) => `<i class="${i <= b.step ? 'gone' : ''}"></i>`).join('');
+    } else {
+      $('doneText').textContent = 'Ze kwamen in deze volgorde: ' + b.seq.join(', ') + '. Vergelijk je ranking met de groep.';
+    }
+    const ol = $('ladderB');
+    ol.innerHTML = '';
+    b.slots.forEach((item, i) => {
+      const li = document.createElement('li');
+      li.className = 'rung' + (item ? '' : ' empty') + (i === justSlot ? ' just' : '') + (!item && done ? ' wait' : '');
+      if (item) li.innerHTML = `<span class="rank">${i + 1}</span><span class="item">${esc(item)}</span><span></span>`;
+      else li.innerHTML = `<span class="rank">${i + 1}</span><button type="button" class="slot-btn" id="slot${i}">Plaats op positie ${i + 1}</button><span></span>`;
+      ol.appendChild(li);
+      const sb = li.querySelector('.slot-btn');
+      if (sb) sb.addEventListener('click', () => place(i));
+    });
+  }
+  function place(i) {
+    const t = cur(), b = blindState(t);
+    if (b.step >= 5 || b.slots[i]) return;
+    b.slots[i] = b.seq[b.step];
+    b.step++;
+    save(); renderB(i);
+    const nextSlot = document.querySelector('.slot-btn');
+    if (nextSlot) nextSlot.focus({ preventScroll: true });
+  }
+
+  // ---------- algemeen ----------
+  function render() {
+    const t = cur();
+    const a = store.mode === 'a';
+    $('modeA').setAttribute('aria-pressed', String(a));
+    $('modeB').setAttribute('aria-pressed', String(!a));
+    $('modeTag').textContent = a ? 'VRIJ' : 'BLIND';
+    $('count').textContent = `Onderwerp ${store.index + 1} van ${store.order.length}`;
+    $('topic').textContent = t.title;
+    $('instr').innerHTML = a
+      ? `Zet de opties op volgorde van <b>1 (${esc(t.ends[0])})</b> tot <b>5 (${esc(t.ends[1])})</b>. Gebruik de pijltjes.`
+      : `Elke optie gaat meteen op een vaste plek, van <b>1 (${esc(t.ends[0])})</b> tot <b>5 (${esc(t.ends[1])})</b>. Je weet nog niet wat er komt.`;
+    ['endTop', 'endTopB'].forEach((id) => { $(id).textContent = '1 = ' + t.ends[0]; });
+    ['endBot', 'endBotB'].forEach((id) => { $(id).textContent = '5 = ' + t.ends[1]; });
+    $('viewA').hidden = !a;
+    $('viewB').hidden = a;
+    $('prev').disabled = store.index === 0;
+    $('next').textContent = store.index === store.order.length - 1 ? 'Opnieuw schudden' : 'Volgend onderwerp';
+    $('toast').textContent = ''; $('copyBox').hidden = true;
+    if (a) renderA(); else renderB();
+  }
+
+  document.querySelectorAll('.mode').forEach((m) => m.addEventListener('click', () => { store.mode = m.dataset.mode; save(); render(); }));
+  $('next').addEventListener('click', () => {
+    if (store.index >= store.order.length - 1) { store.order = shuffle(store.order); store.index = 0; }
+    else store.index++;
+    const t = cur(); delete store.rankA[t.id]; delete store.blind[t.id];
+    save(); render();
+  });
+  $('prev').addEventListener('click', () => { if (store.index > 0) { store.index--; save(); render(); } });
+
+  $('resetBtn').addEventListener('click', () => {
+    const t = cur();
+    if (store.mode === 'a') delete store.rankA[t.id]; else delete store.blind[t.id];
+    save(); render();
+  });
+
+  function rankingText() {
+    const t = cur();
+    const list = store.mode === 'a' ? rankingA(t) : blindState(t).slots.map((x) => x || '…');
+    return `Rank It! ${t.title} (${store.mode === 'a' ? 'vrij' : 'blind'})\n` + list.map((x, i) => `${i + 1}. ${x}`).join('\n');
+  }
+  $('copyBtn').addEventListener('click', () => {
+    const text = rankingText();
+    const fallback = () => {
+      const box = $('copyBox'); box.value = text; box.hidden = false; box.focus(); box.select();
+      $('toast').textContent = 'Selecteer de tekst en kopieer hem.';
+    };
+    try {
+      navigator.clipboard.writeText(text).then(() => { $('toast').textContent = 'Gekopieerd'; $('copyBox').hidden = true; }, fallback);
+    } catch (e) { fallback(); }
+  });
+
+  // Eigen onderwerpen
+  function renderOwn() {
+    const box = $('ownList');
+    box.innerHTML = store.own.length ? '' : '<span class="small-note">Nog geen eigen onderwerpen.</span>';
+    store.own.forEach((o, i) => {
+      const d = document.createElement('div');
+      d.className = 'own-item';
+      d.innerHTML = `<span><b>${esc(o.title)}</b>: ${o.items.map(esc).join(', ')}</span><button type="button" aria-label="Verwijder onderwerp">Verwijder</button>`;
+      d.querySelector('button').addEventListener('click', () => { store.own.splice(i, 1); syncOrder(); renderOwn(); render(); });
+      box.appendChild(d);
+    });
+  }
+  $('ownAdd').addEventListener('click', () => {
+    const title = $('ownT').value.trim();
+    const items = [0, 1, 2, 3, 4].map((i) => $('ownI' + i).value.trim());
+    if (!title || items.some((x) => !x)) { $('ownErr').textContent = 'Vul een onderwerp en alle vijf de opties in.'; return; }
+    if (new Set(items.map((x) => x.toLowerCase())).size < 5) { $('ownErr').textContent = 'Gebruik vijf verschillende opties.'; return; }
+    $('ownErr').textContent = '';
+    store.own.push({ id: Date.now().toString(36), title, items });
+    ['ownT', 'ownI0', 'ownI1', 'ownI2', 'ownI3', 'ownI4'].forEach((id) => { $(id).value = ''; });
+    syncOrder(); renderOwn(); render();
+    $('ownT').focus();
+  });
+
+  let armTimer = null;
+  function disarm() { clearTimeout(armTimer); const b = $('fullReset'); b.classList.remove('armed'); b.textContent = 'Volledig resetten'; }
+  $('fullReset').addEventListener('click', () => {
+    const b = $('fullReset');
+    if (!b.classList.contains('armed')) {
+      b.classList.add('armed'); b.textContent = 'Zeker weten? Klik nog een keer';
+      clearTimeout(armTimer); armTimer = setTimeout(disarm, 4000); return;
+    }
+    disarm();
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    store = { mode: 'a', order: [], index: 0, own: [], rankA: {}, blind: {} };
+    syncOrder('b0'); renderOwn(); render();
+  });
+
+  syncOrder('b0');
+  renderOwn();
+  render();
+})();
+</script>
+</body>
+</html>

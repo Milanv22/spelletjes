@@ -98,6 +98,8 @@ body {
   display: flex; flex-direction: column; gap: 16px;
 }
 
+details.card:not([open]) { gap: 0; }
+
 /* Spelerskaarten (2 spelers) */
 .players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .player {

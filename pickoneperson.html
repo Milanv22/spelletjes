@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pick One Person</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* Gedeelde stijl van de spelletjessite: lucht met wolken, dikke inktranden, gele titels.
+   Bewust één vaste, vrolijke look (geen donkere variant). */
+:root {
+  --sky-top: #7cc8ef;
+  --sky-bottom: #c4ebfb;
+  --cloud: #ffffff;
+  --paper: #ffffff;
+  --ink: #1f2a3c;
+  --muted: #55667f;
+  --soft: #e9f4fb;
+  --guide: #d3e2ee;
+  --yellow: #ffcc2e;
+  --yellow-deep: #f2a900;
+  --yellow-soft: #fff3c4;
+  --red: #e0443a;
+  --red-soft: #fde2df;
+  --blue: #2f6fe0;
+  --blue-deep: #1d4fb8;
+  --blue-soft: #dce8fb;
+  --good: #1f9a5a;
+  --good-soft: #d9f5e5;
+  --bad: #e0443a;
+  --bad-soft: #fde2df;
+  --font-title: "Lilita One", "Arial Black", Impact, sans-serif;
+  --font-ui: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--sky-top); }
+body {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 70%) fixed;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 44px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.sky { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.cloud { position: absolute; fill: var(--cloud); opacity: .9; animation: drift linear infinite; }
+.cloud.c1 { width: 130px; top: 9%; left: -10%; animation-duration: 70s; }
+.cloud.c2 { width: 90px; top: 38%; left: -20%; animation-duration: 95s; animation-delay: -40s; opacity: .7; }
+.cloud.c3 { width: 160px; top: 70%; left: -25%; animation-duration: 120s; animation-delay: -75s; opacity: .6; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+
+.wrap { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+.back {
+  display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  padding: 7px 14px 7px 10px; border-radius: 999px;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+  color: var(--ink); text-decoration: none; font: 600 14px/1 var(--font-ui);
+  transition: transform .08s, box-shadow .08s;
+}
+.back:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
+.back:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.back:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.back svg { width: 16px; height: 16px; }
+
+.logo {
+  margin: 0;
+  font: 400 clamp(44px, 12vw, 72px)/0.95 var(--font-title);
+  letter-spacing: .03em;
+  color: var(--yellow);
+  -webkit-text-stroke: 6px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 var(--ink);
+  transform: rotate(-2deg);
+  text-wrap: balance;
+}
+.lede { margin: 0; color: var(--ink); opacity: .8; font-size: 15px; max-width: 44ch; }
+
+.card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 7px 0 var(--ink);
+  padding-block: 20px;
+  padding-inline: clamp(14px, 4.5vw, 26px);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+details.card:not([open]) { gap: 0; }
+
+/* Spelerskaarten (2 spelers) */
+.players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.player {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 16px; min-width: 0;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink);
+  transition: transform .2s, box-shadow .2s, background .2s;
+}
+.player.active { background: var(--yellow-soft); transform: translateY(-3px); box-shadow: 0 7px 0 var(--ink); }
+.who { display: flex; flex-direction: column; min-width: 0; }
+.player input {
+  font: 600 17px/1.2 var(--font-ui); color: var(--ink); background: transparent;
+  border: 0; border-bottom: 2px dashed transparent; padding: 1px 0; width: 100%; min-width: 0;
+}
+.player input:hover { border-bottom-color: var(--guide); }
+.player input:focus { outline: none; border-bottom-color: var(--ink); }
+.sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.player.active .sub { color: var(--ink); font-weight: 600; }
+.score { font: 400 30px/1 var(--font-title); font-variant-numeric: tabular-nums; }
+
+.status {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 36px; text-align: center;
+  font: 400 clamp(22px, 5.5vw, 28px)/1.1 var(--font-title); letter-spacing: .02em;
+}
+.status.flash { animation: bounce .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes bounce { from { transform: translateY(-10px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.btn {
+  font: 700 17px/1 var(--font-ui);
+  padding: 13px 20px; border-radius: 14px;
+  border: 3px solid var(--ink); background: var(--paper); color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink); cursor: pointer;
+  transition: transform .08s, box-shadow .08s;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.yellow { background: var(--yellow); }
+.btn.small { font-size: 14px; padding: 9px 14px; box-shadow: 0 3px 0 var(--ink); }
+.btn.danger.armed { background: var(--bad); color: #fff; }
+
+.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.hint { color: var(--ink); opacity: .75; font-size: 13px; margin: 0; max-width: 46ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .status.flash { animation: none !important; }
+  .player, .btn, .back { transition: none; }
+}
+</style>
+<style>
+/* Vraagkaart als held: thema-label, grote scenariotekst, aftellen en volgende-knop eronder */
+.wrap { max-width: 680px; }
+.tagline { margin: 0; font-weight: 600; font-size: 15px; color: var(--ink); opacity: .85; max-width: 46ch; }
+
+.filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 600 14px/1 var(--font-ui); padding: 8px 12px; border-radius: 999px;
+  border: 3px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.filter[aria-pressed="true"] { background: var(--cc, var(--yellow)); }
+.filter[aria-pressed="false"] { opacity: .5; box-shadow: none; transform: translateY(3px); }
+.filter[aria-pressed="false"] .sw { background: transparent; }
+.filter .n { font-size: 12px; font-weight: 600; opacity: .6; font-variant-numeric: tabular-nums; }
+details.picker > summary, details.settings > summary { cursor: pointer; font: 400 22px/1.1 var(--font-title); letter-spacing: .02em; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+details.picker > summary::-webkit-details-marker { display: none; }
+details.picker > summary::after { content: "+"; font-size: 26px; }
+details.picker[open] > summary::after { content: "−"; }
+details.picker > summary:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 4px; border-radius: 6px; }
+.picker-body { display: flex; flex-direction: column; gap: 16px; margin-top: 14px; }
+.picker-body h3 { margin: 0 0 8px; font: 700 15px/1.2 var(--font-ui); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.form-label { margin-bottom: -10px; font: 600 13px/1.2 var(--font-ui); color: var(--muted); letter-spacing: .02em; }
+.filter .sw { width: 10px; height: 10px; border-radius: 50%; background: var(--cc); border: 2px solid var(--ink); }
+.filter[aria-pressed="true"] .sw { background: var(--paper); }
+.filter:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 2px; }
+
+.qcard { position: relative; overflow: hidden; gap: 18px; padding-block: 22px 24px; }
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.theme {
+  display: inline-flex; align-items: center; gap: 8px;
+  font: 400 15px/1 var(--font-title); letter-spacing: .05em; text-transform: uppercase;
+  padding: 7px 12px; border-radius: 10px; background: var(--cc); border: 3px solid var(--ink);
+}
+.count { font-size: 13px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.question {
+  margin: 0; min-height: 5.5em;
+  font: 700 clamp(24px, 6vw, 34px)/1.22 var(--font-ui); color: var(--ink);
+  text-wrap: balance;
+}
+.question.enter { animation: slidein .35s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes slidein { from { transform: translateX(30px) rotate(1deg); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.group { display: flex; gap: 6px; flex-wrap: wrap; }
+.group:empty { display: none; }
+.person { font: 600 14px/1 var(--font-ui); padding: 7px 11px; border-radius: 999px; background: var(--soft); border: 2px solid var(--ink); }
+
+.actions { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
+.btn.next { font-size: 19px; padding: 15px 20px; }
+.iconbtn { width: 52px; height: 52px; padding: 0; display: grid; place-items: center; }
+.iconbtn svg { width: 22px; height: 22px; }
+
+/* Aftellen */
+.countdown {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: var(--yellow); z-index: 3;
+}
+.countdown span {
+  font: 400 clamp(90px, 28vw, 170px)/1 var(--font-title); color: var(--paper);
+  -webkit-text-stroke: 8px var(--ink); paint-order: stroke fill; text-shadow: 0 8px 0 var(--ink);
+  animation: boom .8s ease-out;
+}
+.countdown span.go { font-size: clamp(70px, 20vw, 130px); color: var(--red); }
+@keyframes boom { from { transform: scale(2.2); opacity: 0; } 40% { opacity: 1; } to { transform: scale(1); } }
+
+/* Instellingen */
+details.settings > summary { cursor: pointer; font: 400 22px/1.1 var(--font-title); letter-spacing: .02em; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+details.settings > summary::-webkit-details-marker { display: none; }
+details.settings > summary::after { content: "+"; font-size: 26px; }
+details.settings[open] > summary::after { content: "−"; }
+details.settings > summary:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 4px; border-radius: 6px; }
+.set-body { display: flex; flex-direction: column; gap: 18px; margin-top: 14px; }
+.set-body h3 { margin: 0 0 4px; font: 700 16px/1.2 var(--font-ui); }
+.set-body p { margin: 0 0 8px; color: var(--muted); font-size: 14px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.input {
+  flex: 1 1 200px; min-width: 0; font: 600 16px/1.2 var(--font-ui);
+  padding: 10px 12px; border-radius: 12px; border: 3px solid var(--ink); background: var(--soft); color: var(--ink);
+}
+.input:focus { outline: none; box-shadow: 0 0 0 4px var(--yellow); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.chip-x {
+  display: inline-flex; align-items: center; gap: 6px; font: 600 14px/1 var(--font-ui);
+  padding: 6px 6px 6px 11px; border-radius: 999px; background: var(--paper); border: 2px solid var(--ink);
+}
+.chip-x button { border: 0; background: var(--soft); width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font: 700 13px/1 var(--font-ui); color: var(--ink); }
+.chip-x button:hover { background: var(--bad-soft); }
+.own { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.own-item { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; padding: 8px 10px; border-radius: 10px; background: var(--soft); }
+.own-item span { flex: 1; min-width: 0; }
+.own-item button { border: 0; background: transparent; cursor: pointer; color: var(--muted); font: 700 14px/1 var(--font-ui); }
+.own-item button:hover { color: var(--bad); }
+.small-note { font-size: 13px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .question.enter, .countdown span { animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <svg class="cloud c1" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c2" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c3" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+</div>
+<div class="wrap">
+  <a class="back" href="./"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Alle spelletjes</a>
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h1 class="logo">PICK ONE PERSON</h1>
+    <p class="tagline">Eén scenario, één persoon. Kies samen wie uit de groep het beste past, en leg maar eens uit waarom.</p>
+  </header>
+
+  <details class="card picker" id="picker">
+    <summary>Kies thema's en vraagvormen</summary>
+    <div class="picker-body">
+      <div>
+        <h3>Thema</h3>
+        <div class="filters" id="filters" role="group" aria-label="Thema's"></div>
+      </div>
+      <div>
+        <h3>Vraagvorm</h3>
+        <div class="filters" id="formFilters" role="group" aria-label="Vraagvormen"></div>
+      </div>
+    </div>
+  </details>
+
+  <section class="card qcard" aria-live="polite">
+    <div class="qhead">
+      <span class="theme" id="theme"></span>
+      <span class="count" id="count"></span>
+    </div>
+    <span class="form-label" id="form"></span>
+    <p class="question" id="question"></p>
+    <div class="group" id="groupChips" aria-label="De groep"></div>
+    <div class="actions">
+      <button class="btn iconbtn" type="button" id="prev" aria-label="Vorige vraag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="btn yellow next" type="button" id="next">Volgende vraag</button>
+      <button class="btn iconbtn" type="button" id="cd" aria-label="Aftellen: 3, 2, 1, wijs!" title="3, 2, 1, wijs!"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M12 9v4l3 2M9 2h6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="countdown" id="countdown" hidden><span id="cdNum">3</span></div>
+  </section>
+
+  <details class="card settings" id="settings">
+    <summary>Groep en eigen vragen</summary>
+    <div class="set-body">
+      <div>
+        <h3>Wie zit er in de groep?</h3>
+        <p>Optioneel. De namen staan dan onder elke vraag, handig als geheugensteuntje.</p>
+        <div class="row">
+          <input class="input" id="nameIn" maxlength="20" placeholder="Naam toevoegen" aria-label="Naam toevoegen">
+          <button class="btn small" type="button" id="nameAdd">Toevoegen</button>
+        </div>
+        <div class="chips" id="nameChips"></div>
+      </div>
+      <div>
+        <h3>Eigen vragen</h3>
+        <p>Schrijf een scenario dat bij jullie team past. Het komt in de stapel onder het thema Eigen.</p>
+        <div class="row">
+          <input class="input" id="qIn" maxlength="200" placeholder="Wie zou het eerst …?" aria-label="Eigen vraag">
+          <button class="btn small" type="button" id="qAdd">Toevoegen</button>
+        </div>
+        <div class="own" id="ownList"></div>
+      </div>
+      <div class="row">
+        <button class="btn small" type="button" id="shuffle">Stapel opnieuw schudden</button>
+      </div>
+    </div>
+  </details>
+
+  <div class="foot">
+    <p class="hint">Iedereen ziet dezelfde vraag. Wijs tegelijk iemand aan of bespreek het, en ga dan door. Toetsenbord: pijltjes of spatie.</p>
+    <button class="btn small danger" id="fullReset" type="button">Volledig resetten</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const KEY = 'pick-one-person';
+  const $ = (id) => document.getElementById(id);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const THEMES = {
+    avontuur: { label: 'Avontuur', color: 'var(--good-soft)' },
+    humor: { label: 'Humor', color: 'var(--yellow)' },
+    vertrouwen: { label: 'Vertrouwen', color: 'var(--red-soft)' },
+    feest: { label: 'Feest', color: '#efdcfb' },
+    fantasie: { label: 'Fantasie', color: '#d6f3f1' },
+    dilemma: { label: "Dilemma's", color: '#ffd9e8' },
+    talent: { label: 'Talent', color: '#e4f0c8' },
+    toekomst: { label: 'Toekomst', color: '#dde3ff' },
+    eigen: { label: 'Eigen', color: '#ffe0b8' },
+  };
+  const FORMS = {
+    metwie: 'Met wie zou je…?',
+    wiezou: 'Wie zou het…?',
+    kies: 'Je moet één persoon kiezen…',
+    vertrouw: 'Wie vertrouw je…?',
+    eerste: 'Wie zou als eerste…?',
+  };
+
+  // [thema, vraagvorm, vraag]. Nieuwe vragen achteraan per thema toevoegen, zodat bewaarde volgordes kloppen.
+  const BANK = [
+    ['avontuur', 'metwie', 'Je strandt 6 maanden op een onbewoond eiland. Met welke collega heb je de grootste overlevingskans?'],
+    ['avontuur', 'kies', 'Je moet samen een escape room uitspelen binnen 60 minuten. Wie neem je mee?'],
+    ['avontuur', 'kies', 'Er breekt een zombie-apocalyps uit op kantoor. Wie wil je naast je hebben?'],
+    ['avontuur', 'metwie', 'Je gaat een maand backpacken zonder telefoon. Met wie reis je?'],
+    ['avontuur', 'kies', 'Je moet een berg beklimmen en de top halen. Wie loopt er voorop?'],
+    ['avontuur', 'wiezou', 'Je verdwaalt in een vreemde stad zonder internet. Wie vindt de weg terug?'],
+    ['avontuur', 'kies', 'Je doet mee aan een survivalprogramma op tv. Wie is je teamgenoot?'],
+    ['avontuur', 'metwie', 'Je moet samen een ruimtereis van een jaar maken. Met wie hou je het vol?'],
+    ['avontuur', 'vertrouw', 'De auto staat stil midden in de nacht op een verlaten weg. Wie bel je?'],
+    ['avontuur', 'kies', 'Je moet in één weekend een huis bouwen. Wie zet je aan het werk?'],
+    ['avontuur', 'metwie', 'Met wie zou je een wereldreis maken?'],
+    ['avontuur', 'metwie', 'Met wie zou je een nacht in een spookhuis doorbrengen?'],
+    ['avontuur', 'metwie', 'Met wie zou je een roadtrip door Amerika maken?'],
+    ['avontuur', 'eerste', 'Wie zou als eerste opgeven tijdens een survivaltocht?'],
+    ['avontuur', 'eerste', 'Wie zou als eerste in paniek raken als de lift vastzit?'],
+    ['avontuur', 'wiezou', 'Wie zou het snelst verdwijnen naar het buitenland?'],
+    ['avontuur', 'wiezou', 'Wie zou het langst overleven in de wildernis?'],
+    ['avontuur', 'vertrouw', 'Wie vertrouw je met de kaart en het kompas tijdens een tocht door de jungle?'],
+    ['avontuur', 'kies', 'Je moet één collega kiezen om samen mee te parachutespringen. Wie wordt het?'],
+    ['avontuur', 'wiezou', 'Wie zou op een willekeurige maandag meedoen aan een Ultra Backyard?'],
+    ['avontuur', 'wiezou', 'Wie zou het het beste doen in Expeditie Robinson?'],
+
+    ['humor', 'wiezou', 'Wie wint met overmacht een karaokewedstrijd?'],
+    ['humor', 'eerste', 'Wie zou het eerst lachen tijdens een serieuze vergadering?'],
+    ['humor', 'wiezou', 'Wie heeft stiekem de meeste tabbladen open staan?'],
+    ['humor', 'wiezou', 'Wie zou een eigen kookprogramma kunnen presenteren?'],
+    ['humor', 'wiezou', 'Wie wordt per ongeluk beroemd op internet?'],
+    ['humor', 'wiezou', 'Wie heeft de grappigste verhalen van vroeger?'],
+    ['humor', 'wiezou', 'Wie zou het langst volhouden zonder koffie?'],
+    ['humor', 'wiezou', 'Wie stuurt de beste gifjes in de groepsapp?'],
+    ['humor', 'wiezou', 'Wie zou de hoofdrol krijgen in de film over ons bedrijf?'],
+    ['humor', 'wiezou', 'Wie doet de beste imitatie van een andere collega?'],
+    ['humor', 'wiezou', 'Wie komt het vaakst net iets te laat, maar met de beste smoes?'],
+    ['humor', 'eerste', 'Wie zou als eerste stoppen met een dieet zodra er taart op kantoor staat?'],
+    ['humor', 'metwie', 'Met wie zou je een cabaretvoorstelling maken?'],
+    ['humor', 'metwie', 'Met wie zou je een dansvideo opnemen voor social media?'],
+    ['humor', 'eerste', 'Wie zou als eerste zijn laptop laten liggen bij een klant?'],
+    ['humor', 'eerste', 'Wie zou als eerste per ongeluk op "allen beantwoorden" klikken?'],
+    ['humor', 'kies', 'Je moet één collega kiezen die een dag verkleed als jou naar kantoor gaat. Wie wordt het?'],
+    ['humor', 'vertrouw', 'Wie vertrouw je om je haar te knippen?'],
+    ['humor', 'wiezou', 'Wie zou op een willekeurige maandag met een compleet nieuw kapsel binnenkomen?'],
+
+    ['vertrouwen', 'vertrouw', 'Je moet een groot geheim kwijt. Aan wie vertel je het?'],
+    ['vertrouwen', 'vertrouw', 'Je hebt een eerlijk advies nodig over een lastige beslissing. Wie vraag je?'],
+    ['vertrouwen', 'vertrouw', 'Wie mag een week op je huis en huisdieren passen?'],
+    ['vertrouwen', 'vertrouw', 'Wie zou je je wachtwoord toevertrouwen in een noodgeval?'],
+    ['vertrouwen', 'kies', 'Je hebt een rotdag. Wie maakt je dag weer goed?'],
+    ['vertrouwen', 'wiezou', 'Wie zegt het altijd eerlijk als je spinazie tussen je tanden hebt?'],
+    ['vertrouwen', 'kies', 'Wie neem je mee naar een belangrijk gesprek als steun?'],
+    ['vertrouwen', 'vertrouw', 'Wie zou je je bankpas geven om boodschappen te doen?'],
+    ['vertrouwen', 'wiezou', 'Wie houdt het hoofd koel als alles misgaat?'],
+    ['vertrouwen', 'vertrouw', 'Bij wie kun je altijd terecht, ook als het niet over werk gaat?'],
+    ['vertrouwen', 'kies', 'Je moet één collega kiezen om je geheim te bewaren. Wie wordt het?'],
+    ['vertrouwen', 'kies', 'Je moet één collega kiezen als getuige op je bruiloft. Wie wordt het?'],
+    ['vertrouwen', 'vertrouw', 'Wie vertrouw je met €100.000?'],
+    ['vertrouwen', 'vertrouw', 'Wie vertrouw je met je ontgrendelde telefoon?'],
+    ['vertrouwen', 'vertrouw', 'Wie vertrouw je met de sleutels van je auto?'],
+    ['vertrouwen', 'eerste', 'Wie zou als eerste een geheim doorvertellen, per ongeluk natuurlijk?'],
+    ['vertrouwen', 'metwie', 'Met wie zou je tot diep in de nacht kunnen praten?'],
+
+    ['feest', 'kies', 'Wie organiseert het ultieme personeelsuitje?'],
+    ['feest', 'wiezou', 'Wie staat als laatste nog op de dansvloer?'],
+    ['feest', 'kies', 'Wie mag de muziek bepalen op het kerstfeest?'],
+    ['feest', 'wiezou', 'Wie houdt de beste speech op een bruiloft?'],
+    ['feest', 'wiezou', 'Wie bakt de lekkerste taart voor een verjaardag?'],
+    ['feest', 'metwie', 'Wie zou je meenemen naar een festival?'],
+    ['feest', 'wiezou', 'Wie heeft het beste kostuum op een verkleedfeest?'],
+    ['feest', 'wiezou', 'Wie wint de pubquiz in zijn eentje?'],
+    ['feest', 'wiezou', 'Wie regelt in vijf minuten een gezellige borrel?'],
+    ['feest', 'metwie', 'Wie zou je mee willen nemen op een gratis weekend Parijs?'],
+    ['feest', 'eerste', 'Wie zou als eerste de dansvloer op gaan?'],
+    ['feest', 'eerste', 'Wie zou als eerste naar huis gaan op een feest?'],
+    ['feest', 'kies', 'Je moet één collega kiezen om je verjaardagsfeest te regelen. Wie wordt het?'],
+    ['feest', 'vertrouw', 'Wie vertrouw je met de muziek op je bruiloft?'],
+    ['feest', 'metwie', 'Met wie zou je een duet zingen op het kerstfeest?'],
+
+    ['fantasie', 'wiezou', 'Wie zou het beste omgaan met de kracht om gedachten te lezen?'],
+    ['fantasie', 'kies', 'Je moet één collega kiezen om te klonen, zodat het werk verdubbelt. Wie wordt het?'],
+    ['fantasie', 'eerste', 'Wie zou als eerste een tijdmachine gebruiken, en dan voor iets heel kleins?'],
+    ['fantasie', 'wiezou', 'Wie zou het beste een superheld kunnen zijn?'],
+    ['fantasie', 'metwie', 'Met wie zou je een dag onzichtbaar willen zijn?'],
+    ['fantasie', 'vertrouw', 'Wie vertrouw je met de kracht om de tijd stil te zetten?'],
+    ['fantasie', 'eerste', 'Wie zou als eerste vriendschap sluiten met een buitenaards wezen?'],
+    ['fantasie', 'kies', 'Je moet één collega kiezen die een dag mag toveren. Wie wordt het?'],
+
+    ['dilemma', 'metwie', 'Met wie zou je een maand op wereldreis gaan, als jullie samen maar één rugzak mogen meenemen?'],
+    ['dilemma', 'wiezou', 'Wie zou het snelst ja zeggen tegen een miljoen euro als hij daarvoor nooit meer op vakantie mag?'],
+    ['dilemma', 'kies', 'Je mag één persoon meenemen naar een onbewoond eiland, maar diegene mag een maand niet praten. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je met een blind date die hij of zij voor je regelt?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste een miljoen euro aannemen in ruil voor een jaar zonder internet?'],
+    ['dilemma', 'metwie', 'Met wie zou je een jaar in een tiny house wonen, met alleen een gordijn voor de wc?'],
+    ['dilemma', 'wiezou', 'Wie zou het snelst een gevonden portemonnee met €500 terugbrengen, zonder er iets uit te halen?'],
+    ['dilemma', 'kies', 'Je moet één persoon kiezen die je zoekgeschiedenis van het afgelopen jaar mag bekijken. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je met je dagboek van toen je vijftien was?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste op een knop drukken met het bordje "niet indrukken"?'],
+    ['dilemma', 'metwie', 'Met wie zou je een jaar lang van stem ruilen?'],
+    ['dilemma', 'wiezou', 'Wie zou het langst volhouden als hij een week alleen maar in rijm mag praten?'],
+    ['dilemma', 'kies', 'Je moet één persoon kiezen die een dag lang al jouw beslissingen neemt. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je met je bankpas en pincode voor een weekend shoppen, voor jou?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste de laatste koekjes opeten en het daarna ontkennen?'],
+    ['dilemma', 'metwie', 'Met wie zou je een week van lichaam wisselen?'],
+    ['dilemma', 'wiezou', 'Wie zou het makkelijkst een jaar elke ochtend koud douchen voor €10.000?'],
+    ['dilemma', 'kies', 'Je mag één persoon een superkracht geven, maar jij krijgt er zelf geen. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je om voor jou ja of nee te zeggen tegen een baan in het buitenland?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste een enkele reis naar Mars boeken?'],
+    ['dilemma', 'metwie', 'Met wie zou je een jaar lang één garderobe delen?'],
+    ['dilemma', 'wiezou', 'Wie zou het makkelijkst een jaar zonder smartphone leven, in ruil voor een wereldreis daarna?'],
+    ['dilemma', 'kies', 'Je moet één persoon kiezen die je volgende tatoeage uitkiest. Je ziet hem pas als hij klaar is. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je om je huis te verbouwen terwijl jij een maand weg bent, zonder dat je mag meekijken?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste per ongeluk zijn eigen geheim verklappen tijdens een spel als dit?'],
+    ['dilemma', 'metwie', 'Met wie zou je een gratis week naar Bali gaan, als jullie er elke avond samen karaoke moeten zingen?'],
+    ['dilemma', 'wiezou', 'Wie zou het eerlijkst zeggen dat je cadeau niet mooi is?'],
+    ['dilemma', 'kies', 'Je wint een droomreis voor één persoon, maar je mag zelf niet gaan. Je moet het ticket weggeven. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je om eerlijk te zeggen of je nieuwe liefde echt bij je past?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste zijn telefoon in een meer gooien voor €5.000?'],
+    ['dilemma', 'metwie', 'Met wie zou je een maand van telefoon ruilen, inclusief alle apps?'],
+    ['dilemma', 'wiezou', 'Wie zou het moeilijkst vinden om een maand lang altijd de waarheid te moeten zeggen?'],
+    ['dilemma', 'kies', 'Je moet één persoon kiezen die een week je social media beheert, zonder dat jij mag meekijken. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je om een jaar lang je huisdier op te voeden?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste toegeven dat hij huilt bij romantische films?'],
+    ['dilemma', 'metwie', 'Met wie zou je naar Rome fietsen op een tandem, als die persoon de hele weg de muziek kiest?'],
+    ['dilemma', 'wiezou', 'Wie zou het snelst een jaar lang alleen nog schlagers luisteren in ruil voor een nieuwe auto?'],
+    ['dilemma', 'kies', 'Je moet één persoon kiezen die de rest van het jaar je kapper is. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je om namens jou een liefdesbrief te schrijven?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste zijn plek in de reddingsboot afstaan aan een hond?'],
+    ['dilemma', 'metwie', 'Met wie zou je een tent delen tijdens een week vol regen?'],
+    ['dilemma', 'wiezou', 'Wie zou het liefst zijn eigen verjaardagsfeest opgeven zodat jij er een krijgt?'],
+    ['dilemma', 'kies', 'Je moet één persoon kiezen die een jaar lang al jouw kleding uitkiest. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je met het kiezen van de naam voor je kind?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste ja zeggen tegen een onverwachte verhuizing naar het buitenland?'],
+    ['dilemma', 'metwie', 'Met wie zou je een dag van leven ruilen, als je het daarna aan niemand mag vertellen?'],
+    ['dilemma', 'wiezou', 'Wie zou het snelst zijn haar laten afscheren voor het goede doel?'],
+    ['dilemma', 'kies', 'Je moet één persoon kiezen die €1.000 van jouw spaargeld mag uitgeven aan wat hij maar wil. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je om de foto van jou te kiezen die op een groot spandoek op je verjaardag komt?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste zijn voornaam laten veranderen voor €50.000?'],
+    ['dilemma', 'metwie', 'Met wie zou je vastzitten in een lift, als je weet dat het zes uur gaat duren?'],
+    ['dilemma', 'wiezou', 'Wie zou het langst twijfelen voordat hij zijn laatste stuk pizza weggeeft?'],
+    ['dilemma', 'kies', 'Je moet één persoon kiezen die jouw datingprofiel schrijft. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je om een weekend op je kinderen of huisdieren te passen, zonder huisregels?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste zijn favoriete trui uittrekken als jij het koud hebt?'],
+    ['dilemma', 'metwie', 'Met wie zou je een podcast beginnen over je eigen grootste blunders?'],
+    ['dilemma', 'wiezou', 'Wie zou het vaakst op snooze drukken, ook als dat hem €1 per keer kost?'],
+    ['dilemma', 'kies', 'Je moet één persoon kiezen die onvoorbereid een speech houdt op jouw bruiloft. Wie wordt het?'],
+    ['dilemma', 'vertrouw', 'Wie vertrouw je met het laatste stuk taart, als hij er zelf ook trek in heeft?'],
+    ['dilemma', 'eerste', 'Wie zou als eerste breken als hij een maand lang niet mag klagen?'],
+
+    ['talent', 'wiezou', 'Wie zou het verrassendste verborgen talent hebben?'],
+    ['talent', 'wiezou', 'Wie zou het snelst een nieuwe taal leren?'],
+    ['talent', 'wiezou', 'Wie zou het beste een paraplu in de woestijn kunnen verkopen?'],
+    ['talent', 'metwie', 'Met wie zou je een spelletjesavond winnen?'],
+    ['talent', 'eerste', 'Wie zou als eerste een marathon uitlopen?'],
+    ['talent', 'kies', 'Je moet één collega kiezen om voor de hele afdeling te koken. Wie wordt het?'],
+    ['talent', 'vertrouw', 'Wie vertrouw je met het ophangen van een schilderij in je huis?'],
+
+    ['toekomst', 'eerste', 'Wie zou als eerste een eigen bedrijf beginnen?'],
+    ['toekomst', 'wiezou', 'Wie zou het meest verrassende boek schrijven?'],
+    ['toekomst', 'wiezou', 'Wie zou over twintig jaar op de meest onverwachte plek wonen?'],
+    ['toekomst', 'eerste', 'Wie zou als eerste met pensioen gaan op een tropisch eiland?'],
+    ['toekomst', 'metwie', 'Met wie zou je over twintig jaar nog contact hebben?'],
+    ['toekomst', 'kies', 'Je moet één collega kiezen die over tien jaar het bedrijf leidt. Wie wordt het?'],
+    ['toekomst', 'vertrouw', 'Wie vertrouw je met je spaargeld om te beleggen?'],
+  ];
+
+  // Vraagvorm van een eigen vraag raden aan de hand van het begin
+  function guessForm(t) {
+    const x = t.toLowerCase();
+    if (x.startsWith('met wie')) return 'metwie';
+    if (x.startsWith('wie zou als eerste') || x.includes('als eerste')) return 'eerste';
+    if (x.startsWith('wie vertrouw')) return 'vertrouw';
+    if (x.startsWith('je moet')) return 'kies';
+    return 'wiezou';
+  }
+
+  let store = { order: [], index: 0, themes: Object.keys(THEMES), forms: Object.keys(FORMS), known: [], names: [], own: [] };
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (s) store = Object.assign(store, s);
+  } catch (e) {}
+  // Nieuwe thema's die er sinds een vorige keer bij zijn gekomen, staan meteen aan
+  Object.keys(THEMES).forEach((k) => {
+    if (!store.known.includes(k)) { store.known.push(k); if (!store.themes.includes(k)) store.themes.push(k); }
+  });
+  if (!Array.isArray(store.forms) || !store.forms.length) store.forms = Object.keys(FORMS);
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+
+  const esc = (s) => String(s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+
+  // Alle vragen met een vaste sleutel, zodat de volgorde bewaard kan worden
+  function allQuestions() {
+    const list = [], n = {};
+    BANK.forEach(([t, f, q]) => { n[t] = (n[t] || 0); list.push({ id: t + ':' + n[t]++, theme: t, form: f, text: q }); });
+    store.own.forEach((o) => list.push({ id: 'eigen:' + o.id, theme: 'eigen', form: o.form || guessForm(o.text), text: o.text }));
+    return list;
+  }
+  function pool() { return allQuestions().filter((q) => store.themes.includes(q.theme) && store.forms.includes(q.form)); }
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  function reshuffle(keepCurrentFirst) {
+    const ids = shuffle(pool().map((q) => q.id));
+    if (keepCurrentFirst && keepCurrentFirst !== undefined) {
+      const k = ids.indexOf(keepCurrentFirst);
+      if (k > 0) { ids.splice(k, 1); ids.unshift(keepCurrentFirst); }
+    }
+    store.order = ids; store.index = 0; save();
+  }
+  // Houd de stapel in lijn met de gekozen thema's en eigen vragen
+  function syncOrder() {
+    const valid = new Set(pool().map((q) => q.id));
+    store.order = store.order.filter((id) => valid.has(id));
+    const missing = [...valid].filter((id) => !store.order.includes(id));
+    if (missing.length) {
+      const rest = store.order.slice(store.index + 1);
+      const insert = shuffle(missing);
+      store.order = store.order.slice(0, store.index + 1).concat(shuffle(rest.concat(insert)));
+    }
+    if (!store.order.length) store.order = shuffle([...valid]);
+    store.index = Math.min(store.index, Math.max(0, store.order.length - 1));
+    save();
+  }
+
+  // ---------- weergave ----------
+  function renderFilters() {
+    const all = allQuestions();
+    const fill = (boxId, entries, key, countOf) => {
+      const box = $(boxId);
+      box.innerHTML = '';
+      entries.forEach(([k, label, color]) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'filter';
+        if (color) b.style.setProperty('--cc', color);
+        b.setAttribute('aria-pressed', String(store[key].includes(k)));
+        b.innerHTML = `<span class="sw" aria-hidden="true"></span>${esc(label)}<span class="n">${countOf(k)}</span>`;
+        b.addEventListener('click', () => {
+          const on = store[key].includes(k);
+          if (on && store[key].length === 1) return; // minstens één aan laten
+          store[key] = on ? store[key].filter((x) => x !== k) : store[key].concat(k);
+          syncOrder(); renderFilters(); renderQuestion(true);
+        });
+        box.appendChild(b);
+      });
+    };
+    fill('filters', Object.entries(THEMES).filter(([k]) => k !== 'eigen' || store.own.length).map(([k, t]) => [k, t.label, t.color]), 'themes',
+      (k) => all.filter((q) => q.theme === k).length);
+    fill('formFilters', Object.entries(FORMS).map(([k, l]) => [k, l, 'var(--yellow)']), 'forms',
+      (k) => all.filter((q) => q.form === k).length);
+  }
+
+  function renderQuestion(animate) {
+    const byId = Object.fromEntries(allQuestions().map((q) => [q.id, q]));
+    const q = byId[store.order[store.index]];
+    const qEl = $('question');
+    if (!q) { qEl.textContent = 'Geen vragen in deze selectie.'; return; }
+    const t = THEMES[q.theme];
+    const theme = $('theme');
+    theme.textContent = t.label;
+    theme.style.setProperty('--cc', t.color);
+    $('count').textContent = `Vraag ${store.index + 1} van ${store.order.length}`;
+    $('form').textContent = FORMS[q.form];
+    qEl.textContent = q.text;
+    qEl.classList.remove('enter');
+    if (animate && !reduce) { void qEl.offsetWidth; qEl.classList.add('enter'); }
+    $('prev').disabled = store.index === 0;
+    $('next').textContent = store.index === store.order.length - 1 ? 'Opnieuw schudden' : 'Volgende vraag';
+    $('groupChips').innerHTML = store.names.map((n) => `<span class="person">${esc(n)}</span>`).join('');
+  }
+
+  function next() {
+    hideCountdown();
+    if (store.index >= store.order.length - 1) { reshuffle(); }
+    else { store.index++; save(); }
+    renderQuestion(true);
+  }
+  function prev() {
+    hideCountdown();
+    if (store.index > 0) { store.index--; save(); renderQuestion(true); }
+  }
+  $('next').addEventListener('click', next);
+  $('prev').addEventListener('click', prev);
+
+  // ---------- aftellen ----------
+  let cdTimer = null;
+  function hideCountdown() { clearTimeout(cdTimer); $('countdown').hidden = true; }
+  function countdown() {
+    hideCountdown();
+    const box = $('countdown'), num = $('cdNum');
+    const steps = ['3', '2', '1', 'WIJS!'];
+    let i = 0;
+    box.hidden = false;
+    const step = () => {
+      num.textContent = steps[i];
+      num.className = steps[i] === 'WIJS!' ? 'go' : '';
+      num.style.animation = 'none'; void num.offsetWidth; num.style.animation = '';
+      i++;
+      cdTimer = setTimeout(i < steps.length ? step : hideCountdown, i < steps.length ? 800 : 1400);
+    };
+    step();
+  }
+  $('cd').addEventListener('click', countdown);
+  $('countdown').addEventListener('click', hideCountdown);
+
+  // ---------- groep ----------
+  function renderNames() {
+    $('nameChips').innerHTML = '';
+    store.names.forEach((n, i) => {
+      const c = document.createElement('span');
+      c.className = 'chip-x';
+      c.innerHTML = `${esc(n)}<button type="button" aria-label="Verwijder ${esc(n)}">×</button>`;
+      c.querySelector('button').addEventListener('click', () => { store.names.splice(i, 1); save(); renderNames(); renderQuestion(); });
+      $('nameChips').appendChild(c);
+    });
+  }
+  function addName() {
+    const v = $('nameIn').value.trim();
+    if (!v) return;
+    v.split(/[,;]+/).map((x) => x.trim()).filter(Boolean).forEach((x) => { if (!store.names.includes(x)) store.names.push(x); });
+    $('nameIn').value = '';
+    save(); renderNames(); renderQuestion();
+    $('nameIn').focus();
+  }
+  $('nameAdd').addEventListener('click', addName);
+  $('nameIn').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addName(); } });
+
+  // ---------- eigen vragen ----------
+  function renderOwn() {
+    const box = $('ownList');
+    box.innerHTML = store.own.length ? '' : '<span class="small-note">Nog geen eigen vragen.</span>';
+    store.own.forEach((o, i) => {
+      const d = document.createElement('div');
+      d.className = 'own-item';
+      d.innerHTML = `<span>${esc(o.text)}</span><button type="button" aria-label="Verwijder vraag">Verwijder</button>`;
+      d.querySelector('button').addEventListener('click', () => {
+        store.own.splice(i, 1);
+        if (!store.own.length) store.themes = store.themes.filter((t) => t !== 'eigen');
+        syncOrder(); renderOwn(); renderFilters(); renderQuestion();
+      });
+      box.appendChild(d);
+    });
+  }
+  function addOwn() {
+    let v = $('qIn').value.trim();
+    if (!v) return;
+    if (!/[?.!]$/.test(v)) v += '?';
+    store.own.push({ id: Date.now().toString(36), text: v, form: guessForm(v) });
+    if (!store.themes.includes('eigen')) store.themes.push('eigen');
+    $('qIn').value = '';
+    syncOrder(); renderOwn(); renderFilters(); renderQuestion();
+    $('qIn').focus();
+  }
+  $('qAdd').addEventListener('click', addOwn);
+  $('qIn').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addOwn(); } });
+
+  $('shuffle').addEventListener('click', () => { reshuffle(); renderQuestion(true); });
+
+  // ---------- resetten ----------
+  let armTimer = null;
+  function disarm() { clearTimeout(armTimer); const b = $('fullReset'); b.classList.remove('armed'); b.textContent = 'Volledig resetten'; }
+  $('fullReset').addEventListener('click', () => {
+    const b = $('fullReset');
+    if (!b.classList.contains('armed')) {
+      b.classList.add('armed'); b.textContent = 'Zeker weten? Klik nog een keer';
+      clearTimeout(armTimer); armTimer = setTimeout(disarm, 4000); return;
+    }
+    disarm();
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    store = { order: [], index: 0, themes: Object.keys(THEMES), forms: Object.keys(FORMS), known: Object.keys(THEMES), names: [], own: [] };
+    reshuffle(); renderAll();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SUMMARY' || e.target.tagName === 'BUTTON') return;
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+  });
+
+  function renderAll() { renderFilters(); renderNames(); renderOwn(); renderQuestion(); }
+
+  // Start: eerste keer de eiland-vraag bovenop, daarna geschud
+  if (!store.order.length) reshuffle('avontuur:0'); else syncOrder();
+  renderAll();
+})();
+</script>
+</body>
+</html>

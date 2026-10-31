@@ -98,6 +98,8 @@ body {
   display: flex; flex-direction: column; gap: 16px;
 }
 
+details.card:not([open]) { gap: 0; }
+
 /* Spelerskaarten (2 spelers) */
 .players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .player {
@@ -152,11 +154,11 @@ body {
 </style>
 <style>
 /* Startpagina: grote titel, drie speelkaarten met een tekeningetje van elk spel */
-.wrap.wide { max-width: 940px; gap: 26px; }
+.wrap.wide { max-width: 1120px; gap: 26px; }
 .hero { display: flex; flex-direction: column; gap: 14px; padding-top: 8px; }
 .hero .logo { font-size: clamp(50px, 14vw, 96px); }
 
-.games { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 22px; }
+.games { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 22px; }
 .game {
   display: flex; flex-direction: column; gap: 14px;
   padding: 14px 14px 18px;
@@ -202,6 +204,9 @@ body {
 .a-skin { fill: #fff; }
 .a-grass { fill: #7bc96f; }
 .a-slot { stroke: var(--ink); stroke-width: 5; stroke-linecap: round; }
+.a-die { fill: #fff; stroke: var(--ink); stroke-width: 4; }
+.a-die.held { fill: var(--yellow); }
+.a-pip { fill: var(--ink); }
 .a-letter { font: 400 30px/1 var(--font-title); fill: var(--ink); }
 
 .tips { display: flex; gap: 12px; flex-wrap: wrap; justify-content: space-between; align-items: center; }
@@ -224,8 +229,7 @@ body {
       <div class="art">
         <svg viewBox="0 0 240 180" aria-hidden="true">
           <rect class="a-board a-ink" x="30" y="22" width="180" height="140" rx="14"></rect>
-          <g id="holes"></g>
-          <!-- 5 kolommen x 4 rijen, schijven -->
+                    <!-- 5 kolommen x 4 rijen, schijven -->
           <g class="a-ink">
             <circle class="a-hole" cx="60" cy="50" r="13"></circle><circle class="a-hole" cx="90" cy="50" r="13"></circle><circle class="a-hole" cx="120" cy="50" r="13"></circle><circle class="a-hole" cx="150" cy="50" r="13"></circle><circle class="a-yellow" cx="180" cy="50" r="13"></circle>
             <circle class="a-hole" cx="60" cy="80" r="13"></circle><circle class="a-hole" cx="90" cy="80" r="13"></circle><circle class="a-hole" cx="120" cy="80" r="13"></circle><circle class="a-red" cx="150" cy="80" r="13"></circle><circle class="a-yellow" cx="180" cy="80" r="13"></circle>
@@ -298,6 +302,124 @@ body {
       </div>
       <h2>Galgje</h2>
       <p>Eén iemand bedenkt een geheim woord, de rest raadt samen letter voor letter.</p>
+      <div class="meta">
+        <span class="chip-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="5" r="2.5" fill="currentColor"/><circle cx="8" cy="4" r="2.8" fill="currentColor"/><circle cx="12.5" cy="5" r="2.5" fill="currentColor"/><path d="M0 15c0-2.5 1.5-4.5 3.5-4.5M16 15c0-2.5-1.5-4.5-3.5-4.5M3.5 15c0-3 2-5 4.5-5s4.5 2 4.5 5" fill="currentColor"/></svg>Groep</span>
+        <span class="play">Spelen</span>
+      </div>
+    </a>
+    <a class="game" href="dobbelen.html">
+      <div class="art">
+        <svg viewBox="0 0 240 180" aria-hidden="true">
+          <g transform="rotate(-8 70 70)"><rect class="a-die" x="40" y="40" width="60" height="60" rx="12"></rect><circle class="a-pip" cx="56" cy="56" r="6"/><circle class="a-pip" cx="84" cy="56" r="6"/><circle class="a-pip" cx="70" cy="70" r="6"/><circle class="a-pip" cx="56" cy="84" r="6"/><circle class="a-pip" cx="84" cy="84" r="6"/></g>
+          <g transform="rotate(10 160 60)"><rect class="a-die held" x="130" y="30" width="60" height="60" rx="12"></rect><circle class="a-pip" cx="146" cy="46" r="6"/><circle class="a-pip" cx="174" cy="46" r="6"/><circle class="a-pip" cx="160" cy="60" r="6"/><circle class="a-pip" cx="146" cy="74" r="6"/><circle class="a-pip" cx="174" cy="74" r="6"/></g>
+          <g transform="rotate(4 120 130)"><rect class="a-die" x="90" y="100" width="60" height="60" rx="12"></rect><circle class="a-pip" cx="106" cy="116" r="6"/><circle class="a-pip" cx="134" cy="116" r="6"/><circle class="a-pip" cx="120" cy="130" r="6"/><circle class="a-pip" cx="106" cy="144" r="6"/><circle class="a-pip" cx="134" cy="144" r="6"/></g>
+          <g transform="rotate(-14 195 135)"><rect class="a-die" x="172" y="112" width="46" height="46" rx="10"></rect><circle class="a-pip" cx="185" cy="125" r="5"/><circle class="a-pip" cx="205" cy="145" r="5"/></g>
+          <g transform="rotate(16 32 140)"><rect class="a-die" x="10" y="118" width="44" height="44" rx="10"></rect><circle class="a-pip" cx="32" cy="140" r="5"/></g>
+        </svg>
+      </div>
+      <h2>Dobbelen</h2>
+      <p>Gooi drie keer met vijf stenen en vul je scoreformulier. Volgens de klassieke Yahtzee-regels.</p>
+      <div class="meta">
+        <span class="chip-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="5" cy="5" r="3" fill="currentColor"/><circle cx="11" cy="5" r="3" fill="currentColor"/><path d="M0 15c0-3 2-5 5-5s5 2 5 5M6 15c0-3 2-5 5-5s5 2 5 5" fill="currentColor"/></svg>1–6 spelers</span>
+        <span class="play">Spelen</span>
+      </div>
+    </a>
+    <a class="game" href="pickoneperson.html">
+      <div class="art">
+        <svg viewBox="0 0 240 180" aria-hidden="true">
+          <g class="a-ink">
+            <path class="a-skin" d="M30 160 Q30 118 56 118 Q82 118 82 160 Z"></path>
+            <circle class="a-skin" cx="56" cy="96" r="20"></circle>
+            <path class="a-skin" d="M158 160 Q158 118 184 118 Q210 118 210 160 Z"></path>
+            <circle class="a-skin" cx="184" cy="96" r="20"></circle>
+            <path class="a-yellow" d="M90 160 Q90 108 120 108 Q150 108 150 160 Z"></path>
+            <circle class="a-yellow" cx="120" cy="82" r="24"></circle>
+          </g>
+          <circle class="a-dot" cx="49" cy="93" r="2.6"/><circle class="a-dot" cx="63" cy="93" r="2.6"/>
+          <circle class="a-dot" cx="177" cy="93" r="2.6"/><circle class="a-dot" cx="191" cy="93" r="2.6"/>
+          <circle class="a-dot" cx="112" cy="78" r="3"/><circle class="a-dot" cx="128" cy="78" r="3"/>
+          <path class="a-ink" fill="none" d="M110 89 Q120 99 130 89"></path>
+          <path class="a-ink" fill="none" d="M50 104 Q56 108 62 104 M178 104 Q184 108 190 104"></path>
+          <g class="a-ink"><path class="a-red" d="M120 14 L126 30 L143 30 L129 40 L134 56 L120 46 L106 56 L111 40 L97 30 L114 30 Z"></path></g>
+        </svg>
+      </div>
+      <h2>Pick One Person</h2>
+      <p>Eén scenario, één persoon. Wie uit de groep kies jij? Ideaal voor een teamuitje of borrel.</p>
+      <div class="meta">
+        <span class="chip-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="5" r="2.5" fill="currentColor"/><circle cx="8" cy="4" r="2.8" fill="currentColor"/><circle cx="12.5" cy="5" r="2.5" fill="currentColor"/><path d="M0 15c0-2.5 1.5-4.5 3.5-4.5M16 15c0-2.5-1.5-4.5-3.5-4.5M3.5 15c0-3 2-5 4.5-5s4.5 2 4.5 5" fill="currentColor"/></svg>Groep</span>
+        <span class="play">Spelen</span>
+      </div>
+    </a>
+    <a class="game" href="wouldyourather.html">
+      <div class="art">
+        <svg viewBox="0 0 240 180" aria-hidden="true">
+          <g class="a-ink">
+            <rect class="a-redsoft" x="18" y="40" width="90" height="100" rx="14" transform="rotate(-5 63 90)"></rect>
+            <rect fill="var(--blue-soft)" x="132" y="40" width="90" height="100" rx="14" transform="rotate(5 177 90)"></rect>
+            <rect class="a-red" x="30" y="52" width="32" height="32" rx="8" transform="rotate(-5 63 90)"></rect>
+            <rect class="a-blue" x="176" y="52" width="32" height="32" rx="8" transform="rotate(5 177 90)"></rect>
+            <circle class="a-yellow" cx="120" cy="92" r="24"></circle>
+          </g>
+          <text x="43" y="76" text-anchor="middle" transform="rotate(-5 63 90)" style="font:400 22px var(--font-title);fill:#fff">A</text>
+          <text x="192" y="76" text-anchor="middle" transform="rotate(5 177 90)" style="font:400 22px var(--font-title);fill:#fff">B</text>
+          <text x="120" y="99" text-anchor="middle" style="font:400 18px var(--font-title);fill:var(--ink)">OF</text>
+          <g stroke="var(--ink)" stroke-width="5" stroke-linecap="round">
+            <line x1="34" y1="104" x2="88" y2="100" transform="rotate(-5 63 90)"/><line x1="34" y1="120" x2="74" y2="117" transform="rotate(-5 63 90)"/>
+            <line x1="150" y1="104" x2="204" y2="108" transform="rotate(5 177 90)"/><line x1="150" y1="120" x2="190" y2="123" transform="rotate(5 177 90)"/>
+          </g>
+        </svg>
+      </div>
+      <h2>Would You Rather?</h2>
+      <p>Twee keuzes, geen ontsnapping. Kies samen A of B en bespreek waarom.</p>
+      <div class="meta">
+        <span class="chip-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="5" r="2.5" fill="currentColor"/><circle cx="8" cy="4" r="2.8" fill="currentColor"/><circle cx="12.5" cy="5" r="2.5" fill="currentColor"/><path d="M0 15c0-2.5 1.5-4.5 3.5-4.5M16 15c0-2.5-1.5-4.5-3.5-4.5M3.5 15c0-3 2-5 4.5-5s4.5 2 4.5 5" fill="currentColor"/></svg>Groep</span>
+        <span class="play">Spelen</span>
+      </div>
+    </a>
+    <a class="game" href="rankit.html">
+      <div class="art">
+        <svg viewBox="0 0 240 180" aria-hidden="true">
+          <g class="a-ink">
+            <rect class="a-yellow" x="88" y="62" width="64" height="98" rx="6"></rect>
+            <rect fill="#dfe6ee" x="26" y="92" width="64" height="68" rx="6"></rect>
+            <rect fill="#f3c79a" x="150" y="112" width="64" height="48" rx="6"></rect>
+          </g>
+          <text x="120" y="112" text-anchor="middle" style="font:400 40px var(--font-title);fill:var(--ink)">1</text>
+          <text x="58" y="136" text-anchor="middle" style="font:400 34px var(--font-title);fill:var(--ink)">2</text>
+          <text x="182" y="148" text-anchor="middle" style="font:400 30px var(--font-title);fill:var(--ink)">3</text>
+          <g class="a-ink"><path class="a-red" d="M120 14 L126 30 L143 30 L129 40 L134 54 L120 45 L106 54 L111 40 L97 30 L114 30 Z"></path></g>
+          <rect fill="var(--ink)" x="0" y="158" width="240" height="22"></rect>
+        </svg>
+      </div>
+      <h2>Rank It!</h2>
+      <p>Vijf opties, één volgorde. Rangschik vrij of blind, en vergelijk wie hetzelfde denkt.</p>
+      <div class="meta">
+        <span class="chip-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="5" r="2.5" fill="currentColor"/><circle cx="8" cy="4" r="2.8" fill="currentColor"/><circle cx="12.5" cy="5" r="2.5" fill="currentColor"/><path d="M0 15c0-2.5 1.5-4.5 3.5-4.5M16 15c0-2.5-1.5-4.5-3.5-4.5M3.5 15c0-3 2-5 4.5-5s4.5 2 4.5 5" fill="currentColor"/></svg>Groep</span>
+        <span class="play">Spelen</span>
+      </div>
+    </a>
+    <a class="game" href="rankitmusic.html">
+      <div class="art">
+        <svg viewBox="0 0 240 180" aria-hidden="true">
+          <g class="a-ink">
+            <circle fill="var(--ink)" cx="88" cy="96" r="58"></circle>
+            <circle fill="var(--red)" cx="88" cy="96" r="18"></circle>
+            <rect class="a-yellow" x="150" y="40" width="70" height="26" rx="6"></rect>
+            <rect fill="#dfe6ee" x="150" y="74" width="70" height="26" rx="6"></rect>
+            <rect fill="#f3c79a" x="150" y="108" width="70" height="26" rx="6"></rect>
+          </g>
+          <circle fill="none" stroke="#3a4760" stroke-width="2" cx="88" cy="96" r="44"></circle>
+          <circle fill="none" stroke="#3a4760" stroke-width="2" cx="88" cy="96" r="32"></circle>
+          <circle fill="var(--paper)" cx="88" cy="96" r="4"></circle>
+          <text x="164" y="60" text-anchor="middle" style="font:400 17px var(--font-title);fill:var(--ink)">1</text>
+          <text x="164" y="94" text-anchor="middle" style="font:400 17px var(--font-title);fill:var(--ink)">2</text>
+          <text x="164" y="128" text-anchor="middle" style="font:400 17px var(--font-title);fill:var(--ink)">3</text>
+          <g stroke="var(--ink)" stroke-width="4" stroke-linecap="round"><line x1="176" y1="53" x2="210" y2="53"/><line x1="176" y1="87" x2="204" y2="87"/><line x1="176" y1="121" x2="208" y2="121"/></g>
+          <g class="a-ink"><path fill="var(--yellow)" d="M196 150 v-34 l20 -5 v30"></path><circle class="a-yellow" cx="190" cy="152" r="7"></circle><circle class="a-yellow" cx="210" cy="143" r="7"></circle></g>
+        </svg>
+      </div>
+      <h2>Rank It! Music</h2>
+      <p>Vijf nummers van één artiest of een mix van artiesten. Rangschik vrij of blind.</p>
       <div class="meta">
         <span class="chip-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="5" r="2.5" fill="currentColor"/><circle cx="8" cy="4" r="2.8" fill="currentColor"/><circle cx="12.5" cy="5" r="2.5" fill="currentColor"/><path d="M0 15c0-2.5 1.5-4.5 3.5-4.5M16 15c0-2.5-1.5-4.5-3.5-4.5M3.5 15c0-3 2-5 4.5-5s4.5 2 4.5 5" fill="currentColor"/></svg>Groep</span>
         <span class="play">Spelen</span>

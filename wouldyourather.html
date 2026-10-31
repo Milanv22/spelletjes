@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Would You Rather</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* Gedeelde stijl van de spelletjessite: lucht met wolken, dikke inktranden, gele titels.
+   Bewust één vaste, vrolijke look (geen donkere variant). */
+:root {
+  --sky-top: #7cc8ef;
+  --sky-bottom: #c4ebfb;
+  --cloud: #ffffff;
+  --paper: #ffffff;
+  --ink: #1f2a3c;
+  --muted: #55667f;
+  --soft: #e9f4fb;
+  --guide: #d3e2ee;
+  --yellow: #ffcc2e;
+  --yellow-deep: #f2a900;
+  --yellow-soft: #fff3c4;
+  --red: #e0443a;
+  --red-soft: #fde2df;
+  --blue: #2f6fe0;
+  --blue-deep: #1d4fb8;
+  --blue-soft: #dce8fb;
+  --good: #1f9a5a;
+  --good-soft: #d9f5e5;
+  --bad: #e0443a;
+  --bad-soft: #fde2df;
+  --font-title: "Lilita One", "Arial Black", Impact, sans-serif;
+  --font-ui: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--sky-top); }
+body {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 70%) fixed;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 44px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.sky { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.cloud { position: absolute; fill: var(--cloud); opacity: .9; animation: drift linear infinite; }
+.cloud.c1 { width: 130px; top: 9%; left: -10%; animation-duration: 70s; }
+.cloud.c2 { width: 90px; top: 38%; left: -20%; animation-duration: 95s; animation-delay: -40s; opacity: .7; }
+.cloud.c3 { width: 160px; top: 70%; left: -25%; animation-duration: 120s; animation-delay: -75s; opacity: .6; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+
+.wrap { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+.back {
+  display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  padding: 7px 14px 7px 10px; border-radius: 999px;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+  color: var(--ink); text-decoration: none; font: 600 14px/1 var(--font-ui);
+  transition: transform .08s, box-shadow .08s;
+}
+.back:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
+.back:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.back:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.back svg { width: 16px; height: 16px; }
+
+.logo {
+  margin: 0;
+  font: 400 clamp(44px, 12vw, 72px)/0.95 var(--font-title);
+  letter-spacing: .03em;
+  color: var(--yellow);
+  -webkit-text-stroke: 6px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 var(--ink);
+  transform: rotate(-2deg);
+  text-wrap: balance;
+}
+.lede { margin: 0; color: var(--ink); opacity: .8; font-size: 15px; max-width: 44ch; }
+
+.card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 7px 0 var(--ink);
+  padding-block: 20px;
+  padding-inline: clamp(14px, 4.5vw, 26px);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+details.card:not([open]) { gap: 0; }
+
+/* Spelerskaarten (2 spelers) */
+.players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.player {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 16px; min-width: 0;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink);
+  transition: transform .2s, box-shadow .2s, background .2s;
+}
+.player.active { background: var(--yellow-soft); transform: translateY(-3px); box-shadow: 0 7px 0 var(--ink); }
+.who { display: flex; flex-direction: column; min-width: 0; }
+.player input {
+  font: 600 17px/1.2 var(--font-ui); color: var(--ink); background: transparent;
+  border: 0; border-bottom: 2px dashed transparent; padding: 1px 0; width: 100%; min-width: 0;
+}
+.player input:hover { border-bottom-color: var(--guide); }
+.player input:focus { outline: none; border-bottom-color: var(--ink); }
+.sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.player.active .sub { color: var(--ink); font-weight: 600; }
+.score { font: 400 30px/1 var(--font-title); font-variant-numeric: tabular-nums; }
+
+.status {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 36px; text-align: center;
+  font: 400 clamp(22px, 5.5vw, 28px)/1.1 var(--font-title); letter-spacing: .02em;
+}
+.status.flash { animation: bounce .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes bounce { from { transform: translateY(-10px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.btn {
+  font: 700 17px/1 var(--font-ui);
+  padding: 13px 20px; border-radius: 14px;
+  border: 3px solid var(--ink); background: var(--paper); color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink); cursor: pointer;
+  transition: transform .08s, box-shadow .08s;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.yellow { background: var(--yellow); }
+.btn.small { font-size: 14px; padding: 9px 14px; box-shadow: 0 3px 0 var(--ink); }
+.btn.danger.armed { background: var(--bad); color: #fff; }
+
+.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.hint { color: var(--ink); opacity: .75; font-size: 13px; margin: 0; max-width: 46ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .status.flash { animation: none !important; }
+  .player, .btn, .back { transition: none; }
+}
+</style>
+<style>
+/* Vraagkaart als held: "Zou je liever…", twee grote keuzekaarten A en B met een OF-stempel ertussen */
+.wrap { max-width: 720px; }
+.tagline { margin: 0; font-weight: 600; font-size: 15px; color: var(--ink); opacity: .85; max-width: 46ch; }
+
+.qcard { position: relative; overflow: hidden; gap: 16px; padding-block: 20px 24px; }
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.theme {
+  display: inline-flex; align-items: center; gap: 8px;
+  font: 400 15px/1 var(--font-title); letter-spacing: .05em; text-transform: uppercase;
+  padding: 7px 12px; border-radius: 10px; background: var(--cc); border: 3px solid var(--ink);
+}
+.count { font-size: 13px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.lead { margin: 0; font: 400 clamp(30px, 8vw, 44px)/1 var(--font-title); letter-spacing: .02em; }
+
+.choices { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch; }
+@media (max-width: 560px) { .choices { grid-template-columns: 1fr; } }
+.choice {
+  position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0;
+  padding: 16px 16px 18px; border-radius: 18px; border: 4px solid var(--ink);
+  background: var(--cbg); box-shadow: 0 6px 0 var(--ink);
+}
+.choice.a { --cbg: var(--red-soft); --cl: var(--red); }
+.choice.b { --cbg: var(--blue-soft); --cl: var(--blue); }
+.letter {
+  width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--cl); color: #fff; border: 3px solid var(--ink);
+  font: 400 26px/1 var(--font-title);
+}
+.choice p { margin: 0; font: 700 clamp(19px, 4.6vw, 24px)/1.25 var(--font-ui); text-wrap: balance; overflow-wrap: anywhere; }
+.or {
+  align-self: center; justify-self: center;
+  width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--yellow); border: 4px solid var(--ink); box-shadow: 0 4px 0 var(--ink);
+  font: 400 18px/1 var(--font-title); transform: rotate(-8deg);
+}
+@media (max-width: 560px) { .or { margin-block: -26px; position: relative; z-index: 2; } }
+.choices.enter .choice.a { animation: inL .4s cubic-bezier(.3, 1.4, .5, 1); }
+.choices.enter .choice.b { animation: inR .4s cubic-bezier(.3, 1.4, .5, 1) .06s both; }
+.choices.enter .or { animation: pop .45s cubic-bezier(.3, 1.6, .5, 1) .12s both; }
+@keyframes inL { from { transform: translateX(-24px) rotate(-1.5deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes inR { from { transform: translateX(24px) rotate(1.5deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes pop { from { transform: scale(.3) rotate(-30deg); } to { transform: scale(1) rotate(-8deg); } }
+
+.actions { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
+.btn.next { font-size: 19px; padding: 15px 20px; }
+.iconbtn { width: 52px; height: 52px; padding: 0; display: grid; place-items: center; }
+.iconbtn svg { width: 22px; height: 22px; }
+
+.countdown { position: absolute; inset: 0; display: grid; place-items: center; background: var(--yellow); z-index: 3; }
+.countdown span {
+  font: 400 clamp(90px, 28vw, 170px)/1 var(--font-title); color: var(--paper);
+  -webkit-text-stroke: 8px var(--ink); paint-order: stroke fill; text-shadow: 0 8px 0 var(--ink);
+  animation: boom .8s ease-out;
+}
+.countdown span.go { font-size: clamp(64px, 18vw, 120px); color: var(--red); }
+@keyframes boom { from { transform: scale(2.2); opacity: 0; } 40% { opacity: 1; } to { transform: scale(1); } }
+
+/* Uitklapblokken */
+details.fold > summary { cursor: pointer; font: 400 22px/1.1 var(--font-title); letter-spacing: .02em; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::after { content: "+"; font-size: 26px; }
+details.fold[open] > summary::after { content: "−"; }
+details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 4px; border-radius: 6px; }
+.fold-body { display: flex; flex-direction: column; gap: 16px; margin-top: 14px; }
+.fold-body h3 { margin: 0 0 6px; font: 700 15px/1.2 var(--font-ui); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.fold-body p { margin: 0 0 8px; color: var(--muted); font-size: 14px; }
+
+.filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 600 14px/1 var(--font-ui); padding: 8px 12px; border-radius: 999px;
+  border: 3px solid var(--ink); background: var(--cc, var(--yellow)); color: var(--ink); cursor: pointer;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.filter[aria-pressed="false"] { background: var(--paper); opacity: .5; box-shadow: none; transform: translateY(3px); }
+.filter .n { font-size: 12px; font-weight: 600; opacity: .6; font-variant-numeric: tabular-nums; }
+.filter:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 2px; }
+
+.own-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 520px) { .own-form { grid-template-columns: 1fr; } }
+.own-form .full { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.input {
+  min-width: 0; width: 100%; font: 600 16px/1.2 var(--font-ui);
+  padding: 10px 12px; border-radius: 12px; border: 3px solid var(--ink); background: var(--soft); color: var(--ink);
+}
+.input:focus { outline: none; box-shadow: 0 0 0 4px var(--yellow); }
+.input.a { background: var(--red-soft); }
+.input.b { background: var(--blue-soft); }
+.err { color: var(--bad); font-size: 14px; font-weight: 600; }
+.own { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.own-item { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; padding: 8px 10px; border-radius: 10px; background: var(--soft); }
+.own-item span { flex: 1; min-width: 0; }
+.own-item button { border: 0; background: transparent; cursor: pointer; color: var(--muted); font: 700 14px/1 var(--font-ui); }
+.own-item button:hover { color: var(--bad); }
+.small-note { font-size: 13px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .choices.enter .choice, .choices.enter .or, .countdown span { animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <svg class="cloud c1" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c2" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c3" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+</div>
+<div class="wrap">
+  <a class="back" href="./"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Alle spelletjes</a>
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h1 class="logo">WOULD YOU RATHER?</h1>
+    <p class="tagline">Twee keuzes, geen ontsnapping. Kies A of B, en leg maar eens uit waarom.</p>
+  </header>
+
+  <section class="card qcard" aria-live="polite">
+    <div class="qhead">
+      <span class="theme" id="theme"></span>
+      <span class="count" id="count"></span>
+    </div>
+    <p class="lead">Zou je liever…</p>
+    <div class="choices" id="choices">
+      <div class="choice a"><span class="letter" aria-hidden="true">A</span><p id="optA"></p></div>
+      <span class="or" aria-hidden="true">OF</span>
+      <div class="choice b"><span class="letter" aria-hidden="true">B</span><p id="optB"></p></div>
+    </div>
+    <div class="actions">
+      <button class="btn iconbtn" type="button" id="prev" aria-label="Vorige vraag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="btn yellow next" type="button" id="next">Volgende vraag</button>
+      <button class="btn iconbtn" type="button" id="cd" aria-label="Aftellen: 3, 2, 1, kies!" title="3, 2, 1, kies!"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M12 9v4l3 2M9 2h6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="countdown" id="countdown" hidden><span id="cdNum">3</span></div>
+  </section>
+
+  <details class="card fold" id="picker">
+    <summary>Kies thema's</summary>
+    <div class="fold-body">
+      <div class="filters" id="filters" role="group" aria-label="Thema's"></div>
+    </div>
+  </details>
+
+  <details class="card fold" id="ownBox">
+    <summary>Eigen dilemma's</summary>
+    <div class="fold-body">
+      <p>Schrijf een dilemma dat bij jullie groep past. Het komt in de stapel onder het thema Eigen.</p>
+      <div class="own-form">
+        <input class="input a" id="ownA" maxlength="140" placeholder="A: bijvoorbeeld nooit meer koffie" aria-label="Optie A">
+        <input class="input b" id="ownB" maxlength="140" placeholder="B: bijvoorbeeld nooit meer thee" aria-label="Optie B">
+        <div class="full">
+          <button class="btn small" type="button" id="ownAdd">Toevoegen</button>
+          <span class="err" id="ownErr" role="alert"></span>
+        </div>
+      </div>
+      <div class="own" id="ownList"></div>
+    </div>
+  </details>
+
+  <div class="foot">
+    <p class="hint">Iedereen kiest A of B buiten het spel, hardop of door te wijzen. Toetsenbord: pijltjes of spatie.</p>
+    <button class="btn small danger" id="fullReset" type="button">Volledig resetten</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const KEY = 'would-you-rather';
+  const $ = (id) => document.getElementById(id);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const THEMES = {
+    tijd: { label: 'Herinneringen & tijd', color: '#efdcfb' },
+    eten: { label: 'Eten & cultuur', color: 'var(--yellow)' },
+    reizen: { label: 'Reizen & avontuur', color: 'var(--good-soft)' },
+    vrijheid: { label: 'Vrijheid & levenskeuzes', color: '#d6f3f1' },
+    mensen: { label: 'Mensen & relaties', color: 'var(--red-soft)' },
+    krachten: { label: 'Superkrachten', color: 'var(--blue-soft)' },
+    eigen: { label: 'Eigen', color: '#ffe0b8' },
+  };
+
+  // [thema, optie A, optie B]. Nieuwe vragen achteraan per thema toevoegen.
+  const BANK = [
+    ['tijd', 'al je oude herinneringen vergeten', 'nooit meer nieuwe herinneringen kunnen maken'],
+    ['tijd', 'de tijd kunnen stilzetten', 'terug kunnen reizen in de tijd'],
+    ['tijd', 'één fantastische herinnering opnieuw beleven', 'een compleet nieuwe, onvergetelijke ervaring meemaken'],
+    ['tijd', 'je mooiste herinnering verliezen', 'je meest pijnlijke herinnering voor altijd blijven herinneren'],
+    ['tijd', 'je hele leven kunnen terugkijken als een film', 'één dag uit je toekomst mogen zien'],
+    ['tijd', 'tien jaar terug in de tijd kunnen', 'tien jaar vooruit kunnen kijken'],
+    ['tijd', 'je leven opnieuw beginnen met alles wat je nu weet', 'vijf extra gezonde jaren aan het eind van je leven krijgen'],
+    ['tijd', 'elke ochtend wakker worden zonder te weten welke dag het is', 'elke ochtend precies weten wat er die dag gaat gebeuren'],
+    ['tijd', 'één jaar uit je jeugd opnieuw beleven', 'één jaar vooruitspoelen en meteen weten hoe het afloopt'],
+
+    ['eten', 'nooit meer Aziatisch eten', 'nooit meer Zuid- en Midden-Amerikaans eten'],
+    ['eten', 'nooit meer pizza eten', 'nooit meer pasta eten'],
+    ['eten', 'nooit meer uit eten gaan', 'nooit meer zelf koken'],
+    ['eten', 'nooit meer zoetigheid eten', 'nooit meer hartig eten'],
+    ['eten', 'nooit meer streetfood eten', 'nooit meer fine dining'],
+    ['eten', 'de rest van je leven alleen nog water drinken', 'nooit meer kaas eten'],
+    ['eten', 'elke dag precies hetzelfde ontbijt eten', 'nooit meer ontbijten'],
+    ['eten', 'alleen nog eten wat een ander voor je kiest', 'alleen nog eten wat je zelf kookt, zonder recept'],
+    ['eten', 'nooit meer koffie drinken', 'nooit meer chocola eten'],
+
+    ['reizen', 'nooit meer buiten Europa reizen', 'nooit meer binnen Europa reizen'],
+    ['reizen', 'nooit meer naar het strand gaan', 'nooit meer naar de bergen gaan'],
+    ['reizen', 'nooit meer backpacken', 'nooit meer een luxe vakantie hebben'],
+    ['reizen', 'de rest van je leven op één plek wonen', 'ieder jaar verplicht naar een ander land verhuizen'],
+    ['reizen', 'altijd alleen reizen', 'nooit meer zonder reisgezelschap reizen'],
+    ['reizen', 'nooit meer vliegen', 'nooit meer met de auto op vakantie gaan'],
+    ['reizen', 'een jaar op een cruiseschip wonen', 'een jaar in een berghut zonder buren wonen'],
+    ['reizen', 'elke vakantie een verrassingsbestemming krijgen', 'de rest van je leven naar dezelfde vakantieplek gaan'],
+    ['reizen', 'de hele wereld zien in tien dagen', 'één land tien jaar lang echt leren kennen'],
+
+    ['vrijheid', '€5 miljoen krijgen, maar nooit meer het land uit mogen', 'je huidige leven houden met volledige reisvrijheid'],
+    ['vrijheid', 'nooit meer financiële zorgen hebben', 'nooit meer zorgen hebben over je gezondheid'],
+    ['vrijheid', 'je droombaan hebben met weinig vrije tijd', 'veel vrije tijd hebben met werk dat je niet leuk vindt'],
+    ['vrijheid', 'overal ter wereld kunnen wonen, maar steeds opnieuw moeten beginnen', 'je hele leven op één plek wonen met je ideale vriendenkring'],
+    ['vrijheid', 'nooit meer hoeven werken, maar ook nooit meer op vakantie mogen', 'werken tot je zeventigste en elk jaar drie maanden reizen'],
+    ['vrijheid', 'beroemd zijn zonder geld', 'rijk zijn zonder dat iemand je kent'],
+    ['vrijheid', 'vandaag €200.000 krijgen', 'over twintig jaar €1.000.000 krijgen'],
+    ['vrijheid', 'nooit meer een smartphone gebruiken', 'nooit meer een laptop of computer gebruiken'],
+
+    ['mensen', 'nooit meer nieuwe mensen ontmoeten', 'nooit meer contact hebben met mensen uit je verleden'],
+    ['mensen', 'iedereen die je ooit hebt ontmoet nog één keer zien', 'één persoon uit je verleden nog één keer spreken'],
+    ['mensen', 'altijd weten wanneer iemand tegen je liegt', 'zelf nooit meer kunnen liegen'],
+    ['mensen', 'een kleine vriendengroep die je door en door kent', 'een grote vriendengroep met veel verschillende mensen'],
+    ['mensen', 'met je beste vriend verhuizen naar een land waar je verder niemand kent', 'blijven wonen waar al je andere vrienden wonen, zonder je beste vriend'],
+    ['mensen', 'altijd eerlijk moeten zeggen wat je van iemands outfit vindt', 'nooit meer je mening mogen geven'],
+    ['mensen', 'dat iedereen een uur per dag je gedachten kan horen', 'dat iedereen je hele zoekgeschiedenis kan zien'],
+    ['mensen', 'altijd als eerste aankomen op een feest', 'altijd als laatste aankomen op een feest'],
+
+    ['krachten', 'telekinese hebben en voorwerpen verplaatsen met je gedachten', 'telepathie hebben en de gedachten van anderen lezen'],
+    ['krachten', 'kunnen vliegen', 'onzichtbaar kunnen worden'],
+    ['krachten', 'onder water kunnen ademen', 'je overal ter wereld direct naartoe kunnen teleporteren'],
+    ['krachten', 'de toekomst kunnen voorspellen', 'het verleden kunnen bekijken'],
+    ['krachten', 'nooit meer hoeven slapen', 'nooit meer moe kunnen worden'],
+    ['krachten', 'met dieren kunnen praten', 'elke taal ter wereld vloeiend spreken'],
+    ['krachten', 'je elke week een uur onzichtbaar kunnen maken', 'elke week een uur de tijd kunnen terugspoelen'],
+  ];
+
+  let store = { order: [], index: 0, themes: Object.keys(THEMES), known: Object.keys(THEMES), own: [] };
+  try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) store = Object.assign(store, s); } catch (e) {}
+  Object.keys(THEMES).forEach((k) => { if (!store.known.includes(k)) { store.known.push(k); if (!store.themes.includes(k)) store.themes.push(k); } });
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+
+  const esc = (s) => String(s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  function allQuestions() {
+    const list = [], n = {};
+    BANK.forEach(([t, a, b]) => { n[t] = n[t] || 0; list.push({ id: t + ':' + n[t]++, theme: t, a, b }); });
+    store.own.forEach((o) => list.push({ id: 'eigen:' + o.id, theme: 'eigen', a: o.a, b: o.b }));
+    return list;
+  }
+  const pool = () => allQuestions().filter((q) => store.themes.includes(q.theme));
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function reshuffle(first) {
+    const ids = shuffle(pool().map((q) => q.id));
+    if (first) { const k = ids.indexOf(first); if (k > 0) { ids.splice(k, 1); ids.unshift(first); } }
+    store.order = ids; store.index = 0; save();
+  }
+  function syncOrder() {
+    const valid = new Set(pool().map((q) => q.id));
+    store.order = store.order.filter((id) => valid.has(id));
+    const missing = [...valid].filter((id) => !store.order.includes(id));
+    if (missing.length) {
+      const rest = store.order.slice(store.index + 1);
+      store.order = store.order.slice(0, store.index + 1).concat(shuffle(rest.concat(missing)));
+    }
+    if (!store.order.length) store.order = shuffle([...valid]);
+    store.index = Math.min(store.index, Math.max(0, store.order.length - 1));
+    save();
+  }
+
+  function renderFilters() {
+    const all = allQuestions(), box = $('filters');
+    box.innerHTML = '';
+    Object.entries(THEMES).forEach(([k, t]) => {
+      if (k === 'eigen' && !store.own.length) return;
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'filter';
+      b.style.setProperty('--cc', t.color);
+      b.setAttribute('aria-pressed', String(store.themes.includes(k)));
+      b.innerHTML = `${esc(t.label)}<span class="n">${all.filter((q) => q.theme === k).length}</span>`;
+      b.addEventListener('click', () => {
+        const on = store.themes.includes(k);
+        if (on && store.themes.length === 1) return;
+        store.themes = on ? store.themes.filter((x) => x !== k) : store.themes.concat(k);
+        syncOrder(); renderFilters(); renderQuestion(true);
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function renderQuestion(animate) {
+    const byId = Object.fromEntries(allQuestions().map((q) => [q.id, q]));
+    const q = byId[store.order[store.index]];
+    if (!q) { $('optA').textContent = ''; $('optB').textContent = ''; $('count').textContent = 'Geen vragen in deze selectie'; return; }
+    const t = THEMES[q.theme];
+    $('theme').textContent = t.label;
+    $('theme').style.setProperty('--cc', t.color);
+    $('count').textContent = `Vraag ${store.index + 1} van ${store.order.length}`;
+    $('optA').textContent = cap(q.a);
+    $('optB').textContent = cap(q.b) + '?';
+    const ch = $('choices');
+    ch.classList.remove('enter');
+    if (animate && !reduce) { void ch.offsetWidth; ch.classList.add('enter'); }
+    $('prev').disabled = store.index === 0;
+    $('next').textContent = store.index === store.order.length - 1 ? 'Opnieuw schudden' : 'Volgende vraag';
+  }
+
+  function next() { hideCountdown(); if (store.index >= store.order.length - 1) reshuffle(); else { store.index++; save(); } renderQuestion(true); }
+  function prev() { hideCountdown(); if (store.index > 0) { store.index--; save(); renderQuestion(true); } }
+  $('next').addEventListener('click', next);
+  $('prev').addEventListener('click', prev);
+
+  let cdTimer = null;
+  function hideCountdown() { clearTimeout(cdTimer); $('countdown').hidden = true; }
+  function countdown() {
+    hideCountdown();
+    const num = $('cdNum'), steps = ['3', '2', '1', 'KIES!'];
+    let i = 0;
+    $('countdown').hidden = false;
+    const step = () => {
+      num.textContent = steps[i];
+      num.className = steps[i] === 'KIES!' ? 'go' : '';
+      num.style.animation = 'none'; void num.offsetWidth; num.style.animation = '';
+      i++;
+      cdTimer = setTimeout(i < steps.length ? step : hideCountdown, i < steps.length ? 800 : 1400);
+    };
+    step();
+  }
+  $('cd').addEventListener('click', countdown);
+  $('countdown').addEventListener('click', hideCountdown);
+
+  // Eigen dilemma's
+  const clean = (s) => s.trim().replace(/^zou je liever\s*/i, '').replace(/[?.!]+$/, '').replace(/^(of)\s+/i, '');
+  function renderOwn() {
+    const box = $('ownList');
+    box.innerHTML = store.own.length ? '' : '<span class="small-note">Nog geen eigen dilemma\'s.</span>';
+    store.own.forEach((o, i) => {
+      const d = document.createElement('div');
+      d.className = 'own-item';
+      d.innerHTML = `<span><b>A</b> ${esc(o.a)} <b>of B</b> ${esc(o.b)}</span><button type="button" aria-label="Verwijder dilemma">Verwijder</button>`;
+      d.querySelector('button').addEventListener('click', () => {
+        store.own.splice(i, 1);
+        syncOrder(); renderOwn(); renderFilters(); renderQuestion();
+      });
+      box.appendChild(d);
+    });
+  }
+  function addOwn() {
+    const a = clean($('ownA').value), b = clean($('ownB').value);
+    if (!a || !b) { $('ownErr').textContent = 'Vul zowel A als B in.'; return; }
+    $('ownErr').textContent = '';
+    store.own.push({ id: Date.now().toString(36), a: a.charAt(0).toLowerCase() + a.slice(1), b: b.charAt(0).toLowerCase() + b.slice(1) });
+    if (!store.themes.includes('eigen')) store.themes.push('eigen');
+    $('ownA').value = ''; $('ownB').value = '';
+    syncOrder(); renderOwn(); renderFilters(); renderQuestion();
+    $('ownA').focus();
+  }
+  $('ownAdd').addEventListener('click', addOwn);
+  ['ownA', 'ownB'].forEach((id) => $(id).addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); if (id === 'ownA' && !$('ownB').value.trim()) $('ownB').focus(); else addOwn(); }
+  }));
+
+  let armTimer = null;
+  function disarm() { clearTimeout(armTimer); const b = $('fullReset'); b.classList.remove('armed'); b.textContent = 'Volledig resetten'; }
+  $('fullReset').addEventListener('click', () => {
+    const b = $('fullReset');
+    if (!b.classList.contains('armed')) {
+      b.classList.add('armed'); b.textContent = 'Zeker weten? Klik nog een keer';
+      clearTimeout(armTimer); armTimer = setTimeout(disarm, 4000); return;
+    }
+    disarm();
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    store = { order: [], index: 0, themes: Object.keys(THEMES), known: Object.keys(THEMES), own: [] };
+    reshuffle(); renderAll();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SUMMARY' || e.target.tagName === 'BUTTON') return;
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+  });
+
+  function renderAll() { renderFilters(); renderOwn(); renderQuestion(); }
+  if (!store.order.length) reshuffle('tijd:0'); else syncOrder();
+  renderAll();
+})();
+</script>
+</body>
+</html>

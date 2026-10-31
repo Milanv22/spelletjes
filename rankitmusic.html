@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rank It Music</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* Gedeelde stijl van de spelletjessite: lucht met wolken, dikke inktranden, gele titels.
+   Bewust één vaste, vrolijke look (geen donkere variant). */
+:root {
+  --sky-top: #7cc8ef;
+  --sky-bottom: #c4ebfb;
+  --cloud: #ffffff;
+  --paper: #ffffff;
+  --ink: #1f2a3c;
+  --muted: #55667f;
+  --soft: #e9f4fb;
+  --guide: #d3e2ee;
+  --yellow: #ffcc2e;
+  --yellow-deep: #f2a900;
+  --yellow-soft: #fff3c4;
+  --red: #e0443a;
+  --red-soft: #fde2df;
+  --blue: #2f6fe0;
+  --blue-deep: #1d4fb8;
+  --blue-soft: #dce8fb;
+  --good: #1f9a5a;
+  --good-soft: #d9f5e5;
+  --bad: #e0443a;
+  --bad-soft: #fde2df;
+  --font-title: "Lilita One", "Arial Black", Impact, sans-serif;
+  --font-ui: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--sky-top); }
+body {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 70%) fixed;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 44px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.sky { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.cloud { position: absolute; fill: var(--cloud); opacity: .9; animation: drift linear infinite; }
+.cloud.c1 { width: 130px; top: 9%; left: -10%; animation-duration: 70s; }
+.cloud.c2 { width: 90px; top: 38%; left: -20%; animation-duration: 95s; animation-delay: -40s; opacity: .7; }
+.cloud.c3 { width: 160px; top: 70%; left: -25%; animation-duration: 120s; animation-delay: -75s; opacity: .6; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+
+.wrap { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+.back {
+  display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  padding: 7px 14px 7px 10px; border-radius: 999px;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+  color: var(--ink); text-decoration: none; font: 600 14px/1 var(--font-ui);
+  transition: transform .08s, box-shadow .08s;
+}
+.back:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
+.back:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.back:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.back svg { width: 16px; height: 16px; }
+
+.logo {
+  margin: 0;
+  font: 400 clamp(44px, 12vw, 72px)/0.95 var(--font-title);
+  letter-spacing: .03em;
+  color: var(--yellow);
+  -webkit-text-stroke: 6px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 var(--ink);
+  transform: rotate(-2deg);
+  text-wrap: balance;
+}
+.lede { margin: 0; color: var(--ink); opacity: .8; font-size: 15px; max-width: 44ch; }
+
+.card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 7px 0 var(--ink);
+  padding-block: 20px;
+  padding-inline: clamp(14px, 4.5vw, 26px);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+details.card:not([open]) { gap: 0; }
+
+/* Spelerskaarten (2 spelers) */
+.players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.player {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 16px; min-width: 0;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink);
+  transition: transform .2s, box-shadow .2s, background .2s;
+}
+.player.active { background: var(--yellow-soft); transform: translateY(-3px); box-shadow: 0 7px 0 var(--ink); }
+.who { display: flex; flex-direction: column; min-width: 0; }
+.player input {
+  font: 600 17px/1.2 var(--font-ui); color: var(--ink); background: transparent;
+  border: 0; border-bottom: 2px dashed transparent; padding: 1px 0; width: 100%; min-width: 0;
+}
+.player input:hover { border-bottom-color: var(--guide); }
+.player input:focus { outline: none; border-bottom-color: var(--ink); }
+.sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.player.active .sub { color: var(--ink); font-weight: 600; }
+.score { font: 400 30px/1 var(--font-title); font-variant-numeric: tabular-nums; }
+
+.status {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 36px; text-align: center;
+  font: 400 clamp(22px, 5.5vw, 28px)/1.1 var(--font-title); letter-spacing: .02em;
+}
+.status.flash { animation: bounce .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes bounce { from { transform: translateY(-10px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.btn {
+  font: 700 17px/1 var(--font-ui);
+  padding: 13px 20px; border-radius: 14px;
+  border: 3px solid var(--ink); background: var(--paper); color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink); cursor: pointer;
+  transition: transform .08s, box-shadow .08s;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.yellow { background: var(--yellow); }
+.btn.small { font-size: 14px; padding: 9px 14px; box-shadow: 0 3px 0 var(--ink); }
+.btn.danger.armed { background: var(--bad); color: #fff; }
+
+.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.hint { color: var(--ink); opacity: .75; font-size: 13px; margin: 0; max-width: 46ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .status.flash { animation: none !important; }
+  .player, .btn, .back { transition: none; }
+}
+</style>
+<style>
+/* Variantkeuze bovenaan, dan het onderwerp met een genummerde ladder van 5 plekken */
+.wrap { max-width: 680px; }
+.tagline { margin: 0; font-weight: 600; font-size: 15px; color: var(--ink); opacity: .85; max-width: 48ch; }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mode {
+  text-align: left; display: flex; flex-direction: column; gap: 4px;
+  padding: 12px 14px; border-radius: 16px; border: 3px solid var(--ink); background: var(--paper);
+  color: var(--ink); cursor: pointer; box-shadow: 0 4px 0 var(--ink);
+  font: inherit; transition: transform .1s, box-shadow .1s, background .15s;
+}
+.mode b { font: 400 18px/1.1 var(--font-title); letter-spacing: .02em; }
+.mode span { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.mode[aria-pressed="true"] { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); }
+.mode[aria-pressed="true"] span { color: var(--ink); }
+.mode:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+
+.qcard { gap: 16px; }
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tag { font: 400 15px/1 var(--font-title); letter-spacing: .05em; padding: 7px 12px; border-radius: 10px; background: var(--yellow); border: 3px solid var(--ink); }
+.count { font-size: 13px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.topic { margin: 0; font: 700 clamp(22px, 5.6vw, 30px)/1.2 var(--font-ui); text-wrap: balance; }
+.instr { margin: 0; color: var(--muted); font-size: 15px; }
+.instr b { color: var(--ink); }
+
+/* Ladder */
+.ladder { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.rung {
+  display: grid; grid-template-columns: 46px 1fr auto; align-items: center; gap: 12px;
+  min-height: 58px; padding: 6px 8px 6px 6px; border-radius: 14px;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+}
+.rank {
+  width: 46px; height: 46px; border-radius: 11px; display: grid; place-items: center;
+  font: 400 24px/1 var(--font-title); background: var(--soft); border: 3px solid var(--ink);
+}
+.rung:nth-child(1) .rank { background: var(--yellow); }
+.rung:nth-child(2) .rank { background: #dfe6ee; }
+.rung:nth-child(3) .rank { background: #f3c79a; }
+.item { font: 700 18px/1.25 var(--font-ui); min-width: 0; overflow-wrap: anywhere; }
+.arrows { display: flex; gap: 6px; }
+.arrow {
+  width: 42px; height: 42px; border-radius: 10px; border: 3px solid var(--ink); background: var(--paper);
+  display: grid; place-items: center; cursor: pointer; color: var(--ink);
+}
+.arrow svg { width: 18px; height: 18px; }
+.arrow:hover:not(:disabled) { background: var(--yellow); }
+.arrow:disabled { opacity: .3; cursor: default; }
+.arrow:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 1px; }
+.rung.moved { animation: nudge .35s ease-out; }
+@keyframes nudge { 0% { background: var(--yellow-soft); transform: scale(1.02); } 100% { background: var(--paper); transform: none; } }
+.ends { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--muted); padding-inline: 4px; }
+
+/* Blind */
+.reveal { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 14px; border-radius: 18px; background: var(--soft); border: 3px dashed var(--ink); text-align: center; }
+.reveal small { font-size: 13px; font-weight: 600; color: var(--muted); }
+.reveal .now {
+  font: 400 clamp(30px, 8vw, 44px)/1.05 var(--font-title); letter-spacing: .02em;
+  padding: 14px 22px; border-radius: 16px; background: var(--paper); border: 4px solid var(--ink); box-shadow: 0 6px 0 var(--ink);
+  overflow-wrap: anywhere; max-width: 100%;
+}
+.reveal .now.flip { animation: flip .45s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes flip { from { transform: rotateX(80deg) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+.deck { display: flex; gap: 6px; }
+.deck i { width: 22px; height: 30px; border-radius: 5px; background: var(--blue); border: 2.5px solid var(--ink); }
+.deck i.gone { background: transparent; border-style: dashed; opacity: .4; }
+.slot-btn {
+  width: 100%; text-align: left; min-height: 46px; border-radius: 10px; border: 3px dashed var(--ink);
+  background: var(--yellow-soft); color: var(--ink); font: 700 16px/1.2 var(--font-ui); padding: 10px 12px; cursor: pointer;
+}
+.slot-btn:hover { background: var(--yellow); border-style: solid; }
+.slot-btn:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 1px; }
+.rung.empty { background: var(--paper); box-shadow: none; border-style: dashed; }
+.rung.empty.wait .item { color: var(--muted); font-weight: 600; font-size: 15px; }
+.rung.just { animation: nudge .5s ease-out; }
+.done-box { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: var(--good-soft); border: 3px solid var(--good); }
+.done-box b { font: 400 22px/1.1 var(--font-title); color: var(--good); letter-spacing: .02em; }
+.done-box span { font-size: 14px; }
+
+.item .artist { display: block; font-size: 13px; font-weight: 600; color: var(--muted); }
+.reveal .now .artist { display: block; font: 600 15px/1.2 var(--font-ui); color: var(--muted); letter-spacing: 0; margin-top: 6px; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 600 14px/1 var(--font-ui); padding: 8px 12px; border-radius: 999px;
+  border: 3px solid var(--ink); background: var(--yellow); color: var(--ink); cursor: pointer; box-shadow: 0 3px 0 var(--ink);
+}
+.filter[aria-pressed="false"] { background: var(--paper); opacity: .5; box-shadow: none; transform: translateY(3px); }
+.filter .n { font-size: 12px; opacity: .6; }
+.filter:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 2px; }
+.playbtn {
+  --p: 0; flex: none; width: 42px; height: 42px; padding: 0; border-radius: 50%;
+  border: 3px solid var(--ink); color: var(--ink); cursor: pointer;
+  background: conic-gradient(var(--yellow) calc(var(--p) * 360deg), var(--paper) 0);
+  display: inline-grid; place-items: center;
+}
+.playbtn i { display: grid; place-items: center; }
+.playbtn svg { width: 16px; height: 16px; }
+.playbtn:hover:not(:disabled) { box-shadow: 0 0 0 3px var(--yellow); }
+.playbtn:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 2px; }
+.playbtn.on { background: conic-gradient(var(--yellow) calc(var(--p) * 360deg), var(--yellow-soft) 0); }
+.playbtn.loading svg { animation: spin .9s linear infinite; }
+.playbtn.missing { opacity: .4; }
+.playbtn:disabled { cursor: default; }
+.playbtn.big {
+  width: auto; height: auto; border-radius: 999px; padding: 10px 16px 10px 12px; gap: 8px;
+  display: inline-flex; align-items: center; font: 700 15px/1 var(--font-ui); box-shadow: 0 3px 0 var(--ink);
+  background: linear-gradient(90deg, var(--yellow) calc(var(--p) * 100%), var(--paper) 0);
+}
+.playbtn.big.on { background: linear-gradient(90deg, var(--yellow) calc(var(--p) * 100%), var(--yellow-soft) 0); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.reveal-tools { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.auto { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.auto input { width: 17px; height: 17px; accent-color: var(--ink); }
+.clipnote { margin: 0; padding: 8px 12px; border-radius: 10px; background: var(--yellow-soft); border: 2px dashed var(--ink); font-size: 14px; font-weight: 600; }
+.credit { font-size: 12px; }
+.rung .arrows { align-items: center; }
+.rung > .playbtn { margin-right: 2px; }
+.row-btns { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.row-btns .spacer { flex: 1; }
+.toast { font-size: 14px; font-weight: 600; color: var(--good); }
+.copybox { width: 100%; min-height: 120px; font: 500 14px/1.4 var(--font-ui); padding: 10px; border-radius: 10px; border: 2px solid var(--ink); background: var(--soft); color: var(--ink); }
+
+.actions { display: grid; grid-template-columns: auto 1fr; gap: 10px; }
+.btn.next { font-size: 19px; padding: 15px 20px; }
+.iconbtn { width: 52px; height: 52px; padding: 0; display: grid; place-items: center; }
+.iconbtn svg { width: 22px; height: 22px; }
+
+details.fold > summary { cursor: pointer; font: 400 22px/1.1 var(--font-title); letter-spacing: .02em; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::after { content: "+"; font-size: 26px; }
+details.fold[open] > summary::after { content: "−"; }
+details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 4px; border-radius: 6px; }
+.fold-body { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.fold-body p { margin: 0; color: var(--muted); font-size: 14px; }
+.own-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 520px) { .own-grid { grid-template-columns: 1fr; } }
+.own-grid .full { grid-column: 1 / -1; }
+.input {
+  min-width: 0; width: 100%; font: 600 16px/1.2 var(--font-ui);
+  padding: 10px 12px; border-radius: 12px; border: 3px solid var(--ink); background: var(--soft); color: var(--ink);
+}
+.input:focus { outline: none; box-shadow: 0 0 0 4px var(--yellow); }
+.err { color: var(--bad); font-size: 14px; font-weight: 600; }
+.own { display: flex; flex-direction: column; gap: 6px; }
+.own-item { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; padding: 8px 10px; border-radius: 10px; background: var(--soft); }
+.own-item span { flex: 1; min-width: 0; }
+.own-item button { border: 0; background: transparent; cursor: pointer; color: var(--muted); font: 700 14px/1 var(--font-ui); }
+.own-item button:hover { color: var(--bad); }
+.small-note { font-size: 13px; color: var(--muted); }
+
+@media (max-width: 420px) {
+  .rung { grid-template-columns: 40px 1fr auto; gap: 8px; }
+  .rank { width: 40px; height: 40px; font-size: 21px; }
+  .arrow { width: 38px; height: 38px; }
+  .arrows { gap: 4px; }
+  .rung .playbtn:not(.big) { width: 38px; height: 38px; }
+  .item { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rung.moved, .rung.just, .reveal .now.flip, .playbtn.loading svg { animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <svg class="cloud c1" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c2" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c3" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+</div>
+<div class="wrap">
+  <a class="back" href="./"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Alle spelletjes</a>
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h1 class="logo">RANK IT! MUSIC</h1>
+    <p class="tagline">Vijf nummers, één volgorde. Rangschik de hits van één artiest of een mix van artiesten, en ontdek wie dezelfde smaak heeft.</p>
+  </header>
+
+  <div class="modes" role="group" aria-label="Spelvariant">
+    <button type="button" class="mode" id="modeA" data-mode="a"><b>Vrij rangschikken</b><span>Je ziet alle vijf de opties en zet ze op volgorde.</span></button>
+    <button type="button" class="mode" id="modeB" data-mode="b"><b>Blind rangschikken</b><span>De opties komen één voor één. Elke plek is meteen vast.</span></button>
+  </div>
+
+  <div class="filters" id="types" role="group" aria-label="Soort onderwerp"></div>
+
+  <section class="card qcard">
+    <div class="qhead">
+      <span class="tag" id="modeTag"></span>
+      <span class="count" id="count"></span>
+    </div>
+    <p class="topic" id="topic"></p>
+    <p class="instr" id="instr"></p>
+    <p class="clipnote" id="clipNote" hidden>De fragmenten laden hier niet. Ze werken op de gewone website, zoals op GitHub Pages, met internet.</p>
+
+    <!-- Variant A -->
+    <div id="viewA">
+      <div class="ends" aria-hidden="true"><span id="endTop"></span><span id="endBot"></span></div>
+      <ol class="ladder" id="ladderA"></ol>
+    </div>
+
+    <!-- Variant B -->
+    <div id="viewB" hidden>
+      <div class="reveal" id="reveal">
+        <small id="revealLbl"></small>
+        <div class="now" id="now" aria-live="polite"></div>
+        <div class="reveal-tools">
+          <span id="nowPlay"></span>
+          <label class="auto"><input type="checkbox" id="autoplay" checked> Speel nieuw nummer vanzelf af</label>
+        </div>
+        <div class="deck" id="deck" aria-hidden="true"></div>
+      </div>
+      <div class="done-box" id="doneBox" hidden>
+        <b>Alle vijf geplaatst!</b>
+        <span id="doneText"></span>
+      </div>
+      <div class="ends" aria-hidden="true" style="margin-top:14px"><span id="endTopB"></span><span id="endBotB"></span></div>
+      <ol class="ladder" id="ladderB"></ol>
+    </div>
+
+    <div class="row-btns">
+      <button class="btn small" type="button" id="resetBtn">Reset ranking</button>
+      <button class="btn small" type="button" id="copyBtn">Kopieer ranking</button>
+      <span class="toast" id="toast" role="status"></span>
+    </div>
+    <textarea class="copybox" id="copyBox" readonly hidden aria-label="Ranking om te kopiëren"></textarea>
+
+    <div class="actions">
+      <button class="btn iconbtn" type="button" id="prev" aria-label="Vorig onderwerp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="btn yellow next" type="button" id="next">Volgend onderwerp</button>
+    </div>
+  </section>
+
+  <details class="card fold" id="ownBox">
+    <summary>Eigen lijstjes</summary>
+    <div class="fold-body">
+      <p>Bedenk een onderwerp met vijf nummers. Wil je de artiest erbij, schrijf dan "Titel – Artiest".</p>
+      <div class="own-grid">
+        <input class="input full" id="ownT" maxlength="80" placeholder="Onderwerp, bijvoorbeeld: Nummers van Frenna" aria-label="Onderwerp">
+        <input class="input" id="ownI0" maxlength="40" placeholder="Optie 1" aria-label="Optie 1">
+        <input class="input" id="ownI1" maxlength="40" placeholder="Optie 2" aria-label="Optie 2">
+        <input class="input" id="ownI2" maxlength="40" placeholder="Optie 3" aria-label="Optie 3">
+        <input class="input" id="ownI3" maxlength="40" placeholder="Optie 4" aria-label="Optie 4">
+        <input class="input" id="ownI4" maxlength="40" placeholder="Optie 5" aria-label="Optie 5">
+        <div class="full row-btns"><button class="btn small" type="button" id="ownAdd">Toevoegen</button><span class="err" id="ownErr" role="alert"></span></div>
+      </div>
+      <div class="own" id="ownList"></div>
+    </div>
+  </details>
+
+  <div class="foot">
+    <p class="hint">Iedereen maakt zijn eigen ranking, op papier of in zijn hoofd. Tik op ▶ om 10 seconden van een nummer te horen. Vergelijk daarna: wie denkt hetzelfde, en wie wijkt het meest af?</p>
+    <button class="btn small danger" id="fullReset" type="button">Volledig resetten</button>
+  </div>
+  <p class="hint credit">Fragmenten van 10 seconden zijn officiële previews van Apple Music.</p>
+</div>
+
+<script>
+(function () {
+  const KEY = 'rank-it-music';
+  const $ = (id) => document.getElementById(id);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const FAV = ['favoriet', 'minst favoriet'];
+
+  // Eén artiest: [artiest, [5 nummers]]
+  const ARTISTS = [
+    ['Ronnie Flex', ['Drank & drugs', 'Energie', 'Blijf bij mij', 'Gaan we weg?', 'Niemand']],
+    ['The Kid LAROI', ['Stay', 'Without You', 'Love Again', 'Thousand Miles', 'Girls']],
+    ['Justin Bieber', ['Baby', 'Sorry', 'Love Yourself', 'Peaches', 'Ghost']],
+    ['Post Malone', ['Circles', 'Rockstar', 'Sunflower', 'Congratulations', 'Better Now']],
+    ['The Weeknd', ['Blinding Lights', 'Starboy', 'Save Your Tears', 'The Hills', "Can't Feel My Face"]],
+    ['Rihanna', ['Umbrella', 'Diamonds', 'We Found Love', 'Work', 'Only Girl (In the World)']],
+    ['Katy Perry', ['Roar', 'Firework', 'Dark Horse', 'I Kissed a Girl', 'Teenage Dream']],
+    ['Snelle', ['Reünie', 'Smoorverliefd', '17 miljoen mensen', 'Blijven slapen', 'De overkant']],
+    ['Ed Sheeran', ['Shape of You', 'Perfect', 'Thinking Out Loud', 'Bad Habits', 'Photograph']],
+    ['Taylor Swift', ['Shake It Off', 'Blank Space', 'Love Story', 'Anti-Hero', 'Cruel Summer']],
+    ['Dua Lipa', ['Levitating', "Don't Start Now", 'New Rules', 'Physical', 'Houdini']],
+    ['Bruno Mars', ['Uptown Funk', 'Just the Way You Are', 'Locked Out of Heaven', '24K Magic', 'Grenade']],
+    ['Billie Eilish', ['Bad Guy', 'Birds of a Feather', 'Ocean Eyes', 'Lovely', 'What Was I Made For?']],
+    ['Drake', ['One Dance', 'Hotline Bling', "God's Plan", 'In My Feelings', 'Passionfruit']],
+    ['Coldplay', ['Yellow', 'Viva la Vida', 'The Scientist', 'Fix You', 'Paradise']],
+    ['Queen', ['Bohemian Rhapsody', "Don't Stop Me Now", 'We Will Rock You', 'Another One Bites the Dust', 'Somebody to Love']],
+    ['ABBA', ['Dancing Queen', 'Mamma Mia', 'Waterloo', 'Gimme! Gimme! Gimme!', 'The Winner Takes It All']],
+    ['Michael Jackson', ['Billie Jean', 'Thriller', 'Beat It', 'Smooth Criminal', 'Man in the Mirror']],
+    ['Boef', ['Habiba', 'Antwoord', 'Allang al niet meer', 'Guap', 'Herinnering']],
+    ['Bizzey', ['Ja!', 'Culo', 'Hij is van mij', 'Drama', 'Traag']],
+    ['Kraantje Pappie', ['Handen omhoog', 'Lil Craney', 'Drup', 'Moment', 'Liefde in de lucht']],
+    ['Josylvio', ['Ride or Die', 'Hey meisje', 'Catch Up', 'Gimma', 'Waarom zoeken naar liefde']],
+    ["Lil' Kleine", ['Drank & drugs', 'Niet omdat het moet', 'Krantenwijk', 'Alleen', '1, 2, 3']],
+    ['Ariana Grande', ['thank u, next', '7 rings', 'Positions', 'Side to Side', 'Problem']],
+    ['Lady Gaga', ['Poker Face', 'Bad Romance', 'Just Dance', 'Shallow', 'Born This Way']],
+    ['Beyoncé', ['Halo', 'Crazy in Love', 'Single Ladies', 'Irreplaceable', 'Drunk in Love']],
+    ['Miley Cyrus', ['Flowers', 'Wrecking Ball', 'Party in the U.S.A.', 'The Climb', 'Malibu']],
+    ['Olivia Rodrigo', ['drivers license', 'good 4 u', 'vampire', 'deja vu', 'traitor']],
+    ['Eminem', ['Lose Yourself', 'Without Me', 'The Real Slim Shady', 'Love the Way You Lie', 'Stan']],
+    ['Sabrina Carpenter', ['Espresso', 'Please Please Please', 'Feather', 'Taste', 'Nonsense']],
+    ['Maroon 5', ['Moves Like Jagger', 'Sugar', 'Payphone', 'Girls Like You', 'Memories']],
+    ['Imagine Dragons', ['Believer', 'Radioactive', 'Thunder', 'Demons', 'Enemy']],
+    ['Pitbull', ['Timber', 'Give Me Everything', 'Hotel Room Service', 'Fireball', 'I Know You Want Me']],
+    ['Black Eyed Peas', ['I Gotta Feeling', 'Where Is the Love?', 'Pump It', 'Boom Boom Pow', "Let's Get It Started"]],
+    ['Nicki Minaj', ['Super Bass', 'Starships', 'Anaconda', 'Pound the Alarm', 'Super Freaky Girl']],
+    ['Doja Cat', ['Say So', 'Kiss Me More', 'Paint the Town Red', 'Woman', 'Need to Know']],
+    ['Justin Timberlake', ["Can't Stop the Feeling!", 'SexyBack', 'Mirrors', 'Cry Me a River', 'Rock Your Body']],
+    ['Britney Spears', ['...Baby One More Time', 'Toxic', 'Oops!... I Did It Again', 'Circus', 'Womanizer']],
+  ];
+  // Mix: [thema, [5 keer "titel – artiest"]]
+  const MIXES = [
+    ['Zomerhits', ['Despacito – Luis Fonsi', 'Macarena – Los del Río', 'Mi Gente – J Balvin', 'Lean On – Major Lazer', 'Summer – Calvin Harris']],
+    ['Feestknallers', ['Mr. Brightside – The Killers', 'Freed from Desire – Gala', 'Sweet Caroline – Neil Diamond', 'I Gotta Feeling – Black Eyed Peas', 'Dancing Queen – ABBA']],
+    ['Nederlandstalige hits', ['Reünie – Snelle', 'Duurt te lang – Davina Michelle', 'Dromen zijn bedrog – Marco Borsato', 'Het is een nacht – Guus Meeuwis', 'Drank & drugs – Lil\' Kleine & Ronnie Flex']],
+    ['Karaoke-klassiekers', ['Bohemian Rhapsody – Queen', 'I Will Survive – Gloria Gaynor', "Livin' on a Prayer – Bon Jovi", 'Total Eclipse of the Heart – Bonnie Tyler', "Don't Stop Believin' – Journey"]],
+    ["Jaren '80", ['Billie Jean – Michael Jackson', 'Take On Me – a-ha', 'Like a Prayer – Madonna', "Sweet Child o' Mine – Guns N' Roses", 'Girls Just Want to Have Fun – Cyndi Lauper']],
+    ['Jaren 2000', ['Crazy in Love – Beyoncé', 'Hey Ya! – OutKast', 'Umbrella – Rihanna', 'Toxic – Britney Spears', 'Seven Nation Army – The White Stripes']],
+    ['Hits van nu', ['Blinding Lights – The Weeknd', 'Stay – The Kid LAROI & Justin Bieber', 'Flowers – Miley Cyrus', 'As It Was – Harry Styles', 'Espresso – Sabrina Carpenter']],
+    ['Liefdesliedjes', ['Perfect – Ed Sheeran', 'All of Me – John Legend', 'Someone Like You – Adele', 'I Will Always Love You – Whitney Houston', "Can't Help Falling in Love – Elvis Presley"]],
+    ['Hiphop', ['Lose Yourself – Eminem', 'Sicko Mode – Travis Scott', 'HUMBLE. – Kendrick Lamar', 'In da Club – 50 Cent', 'Rockstar – Post Malone']],
+    ['Filmmuziek', ['Let It Go – Idina Menzel', 'My Heart Will Go On – Céline Dion', 'Eye of the Tiger – Survivor', 'Shallow – Lady Gaga & Bradley Cooper', 'Skyfall – Adele']],
+    ['Rockklassiekers', ['Smells Like Teen Spirit – Nirvana', 'Highway to Hell – AC/DC', 'Hotel California – Eagles', 'Stairway to Heaven – Led Zeppelin', 'Wonderwall – Oasis']],
+    ['Dance', ['Titanium – David Guetta & Sia', 'Wake Me Up – Avicii', 'Animals – Martin Garrix', 'Insomnia – Faithless', 'One More Time – Daft Punk']],
+    ['Nederlandse hiphop-hits', ["Drank & drugs – Lil' Kleine & Ronnie Flex", 'Habiba – Boef', 'Ja! – Bizzey', 'Ride or Die – Josylvio', 'Verleden tijd – Frenna']],
+    ['Meer Nederlandse hiphop', ['Energie – Ronnie Flex & Frenna', 'Antwoord – Boef', 'Culo – Bizzey', 'Gimma – Josylvio', 'Lil Craney – Kraantje Pappie']],
+    ['Nederlandse feestrap', ['Handen omhoog – Kraantje Pappie & Jan Smit', 'Hey meisje – Josylvio', 'Drama – Bizzey & Boef', 'Op me monnie – Boef & Frenna', 'Hij is van mij – Kris Kross Amsterdam, Maan & Tabitha']],
+    ['Amerikaanse pophits van nu', ['Flowers – Miley Cyrus', 'Espresso – Sabrina Carpenter', 'vampire – Olivia Rodrigo', '7 rings – Ariana Grande', 'Kill Bill – SZA']],
+    ['Amerikaanse pophits uit de jaren 2010', ['Happy – Pharrell Williams', 'Party Rock Anthem – LMFAO', 'Uptown Funk – Mark Ronson & Bruno Mars', 'Shake It Off – Taylor Swift', 'Moves Like Jagger – Maroon 5']],
+    ['Amerikaanse feesthits', ['Timber – Pitbull & Kesha', 'Tik Tok – Kesha', 'Party in the U.S.A. – Miley Cyrus', 'Old Town Road – Lil Nas X', "Can't Stop the Feeling! – Justin Timberlake"]],
+    ['Amerikaanse divas', ['Halo – Beyoncé', 'Poker Face – Lady Gaga', 'thank u, next – Ariana Grande', 'Toxic – Britney Spears', 'Firework – Katy Perry']],
+    ['Amerikaanse hiphop-klassiekers', ['The Real Slim Shady – Eminem', 'Super Bass – Nicki Minaj', "God's Plan – Drake", 'Sicko Mode – Travis Scott', 'Gold Digger – Kanye West']],
+  ];
+  const TYPES = { artist: 'Eén artiest', mix: 'Mix van artiesten', own: 'Eigen' };
+
+  let store = { mode: 'a', order: [], index: 0, own: [], rankA: {}, blind: {}, types: ['artist', 'mix', 'own'] };
+  try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) store = Object.assign(store, s); } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+
+  const esc = (s) => String(s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  const song = (x) => { const k = x.indexOf(' – '); return k < 0 ? esc(x) : `${esc(x.slice(0, k))}<small class="artist">${esc(x.slice(k + 3))}</small>`; };
+  const icon = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  function topics() {
+    const list = [];
+    ARTISTS.forEach(([a, items], i) => list.push({ id: 'a' + i, type: 'artist', title: 'Nummers van ' + a, artist: a, items, ends: FAV }));
+    MIXES.forEach(([t, items], i) => list.push({ id: 'm' + i, type: 'mix', title: t, items, ends: FAV }));
+    store.own.forEach((o) => list.push({ id: 'o' + o.id, type: 'own', title: o.title, items: o.items, ends: FAV }));
+    const f = list.filter((t) => store.types.includes(t.type));
+    return f.length ? f : list;
+  }
+  const byId = () => Object.fromEntries(topics().map((t) => [t.id, t]));
+  function syncOrder(first) {
+    const ids = topics().map((t) => t.id);
+    const keep = store.order.filter((id) => ids.includes(id));
+    const missing = ids.filter((id) => !keep.includes(id));
+    if (!keep.length) {
+      store.order = shuffle(ids);
+      if (first) { const k = store.order.indexOf(first); store.order.splice(k, 1); store.order.unshift(first); }
+      store.index = 0;
+    } else {
+      store.order = keep.slice(0, store.index + 1).concat(shuffle(keep.slice(store.index + 1).concat(missing)));
+    }
+    store.index = Math.min(store.index, store.order.length - 1);
+    save();
+  }
+  const cur = () => byId()[store.order[store.index]];
+
+  // ---------- fragmenten (officiële Apple Music-previews) ----------
+  const CLIP = 10;
+  const PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
+  const STOP = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>';
+  const WAIT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
+  const audio = new Audio();
+  audio.preload = 'auto';
+  let blocked = false, playingKey = null, loadingKey = null, stopTimer = null, raf = 0, interacted = false, cbN = 0;
+  const missing = new Set();
+  const previewCache = {};
+  try { Object.assign(previewCache, JSON.parse(localStorage.getItem(KEY + '-previews') || '{}')); } catch (e) {}
+  const norm = (x) => String(x).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const mainArtist = (a) => String(a || '').split(/\s*(?:&|,|\bfeat\.?|\bft\.?|\bx\b)\s*/i)[0];
+  function songParts(item, t) {
+    const k = item.indexOf(' – ');
+    if (k >= 0) return { title: item.slice(0, k), artist: item.slice(k + 3) };
+    return { title: item, artist: (t && t.artist) || '' };
+  }
+  function jsonp(url) {
+    return new Promise((resolve, reject) => {
+      const cb = '__itc' + (++cbN);
+      const sc = document.createElement('script');
+      const done = () => { clearTimeout(timer); window[cb] = () => {}; sc.remove(); };
+      const timer = setTimeout(() => { done(); reject(new Error('timeout')); }, 9000);
+      window[cb] = (data) => { done(); resolve(data); };
+      sc.onerror = () => { done(); reject(new Error('blocked')); };
+      sc.src = url + '&callback=' + cb;
+      document.head.appendChild(sc);
+    });
+  }
+  function lookup(item, t) {
+    const { title, artist } = songParts(item, t);
+    const key = norm(title) + '|' + norm(artist);
+    if (key in previewCache) return Promise.resolve(previewCache[key]);
+    if (blocked) return Promise.resolve(null);
+    const term = encodeURIComponent((title + ' ' + mainArtist(artist)).trim());
+    return jsonp(`https://itunes.apple.com/search?term=${term}&entity=song&limit=20&country=NL`).then((d) => {
+      const res = ((d && d.results) || []).filter((r) => r.previewUrl);
+      const nt = norm(title), na = norm(mainArtist(artist));
+      const okA = (r) => { const ra = norm(r.artistName || ''); return !na || ra.includes(na) || na.includes(ra); };
+      const okT = (r) => { const rt = norm(r.trackName || ''); return rt === nt || rt.startsWith(nt + ' ') || nt.startsWith(rt + ' '); };
+      const exact = (r) => norm(r.trackName || '') === nt;
+      const pick = res.find((r) => okA(r) && exact(r)) || res.find((r) => okA(r) && okT(r)) || res.find((r) => okT(r) && exact(r)) || null;
+      const val = pick ? { url: pick.previewUrl, link: pick.trackViewUrl || '' } : null;
+      previewCache[key] = val;
+      try { localStorage.setItem(KEY + '-previews', JSON.stringify(previewCache)); } catch (e) {}
+      return val;
+    }, (err) => {
+      if (err && err.message === 'blocked') { blocked = true; $('clipNote').hidden = false; syncPlay(); }
+      return null;
+    });
+  }
+  function stopClip() {
+    clearTimeout(stopTimer); cancelAnimationFrame(raf);
+    audio.pause();
+    playingKey = null; loadingKey = null;
+    syncPlay();
+  }
+  async function playClip(item) {
+    interacted = true;
+    if (playingKey === item) { stopClip(); return; }
+    stopClip();
+    playingKey = item; loadingKey = item; syncPlay();
+    const p = await lookup(item, cur());
+    if (playingKey !== item) return;
+    loadingKey = null;
+    if (!p) { playingKey = null; missing.add(item); syncPlay(); return; }
+    audio.src = p.url;
+    try { audio.currentTime = 0; await audio.play(); } catch (e) { if (playingKey === item) { playingKey = null; syncPlay(); } return; }
+    if (playingKey !== item) return;
+    syncPlay();
+    const start = performance.now();
+    const tick = () => {
+      const f = Math.min(1, (performance.now() - start) / (CLIP * 1000));
+      document.querySelectorAll('.playbtn.on').forEach((b) => b.style.setProperty('--p', f));
+      if (f < 1 && playingKey === item) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    stopTimer = setTimeout(stopClip, CLIP * 1000);
+  }
+  audio.addEventListener('ended', stopClip);
+  function playBtn(item, big) {
+    const t = songParts(item).title;
+    return `<button type="button" class="playbtn${big ? ' big' : ''}" data-song="${esc(item)}" aria-label="Speel 10 seconden van ${esc(t)}"><i>${PLAY}</i>${big ? '<span>Speel fragment</span>' : ''}</button>`;
+  }
+  function syncPlay() {
+    document.querySelectorAll('.playbtn').forEach((b) => {
+      const it = b.dataset.song;
+      const on = it === playingKey && !loadingKey, wait = it === loadingKey;
+      b.classList.toggle('on', on);
+      b.classList.toggle('loading', wait);
+      b.classList.toggle('missing', blocked || missing.has(it));
+      b.disabled = blocked;
+      b.title = blocked ? 'Fragmenten werken alleen op de gewone website' : missing.has(it) ? 'Geen fragment gevonden' : '';
+      b.querySelector('i').innerHTML = wait ? WAIT : on ? STOP : PLAY;
+      if (!on) b.style.setProperty('--p', 0);
+      const lbl = b.querySelector('span');
+      if (lbl) lbl.textContent = on ? 'Stop fragment' : wait ? 'Laden…' : missing.has(it) ? 'Geen fragment' : 'Speel fragment';
+    });
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('.playbtn');
+    if (b && !b.disabled) playClip(b.dataset.song);
+  });
+  function prefetch() { const t = cur(); if (!blocked) t.items.forEach((x) => lookup(x, t)); }
+
+  // ---------- variant A ----------
+  function rankingA(t) {
+    let r = store.rankA[t.id];
+    if (!Array.isArray(r) || r.length !== 5 || !t.items.every((x) => r.includes(x))) { r = t.items.slice(); store.rankA[t.id] = r; save(); }
+    return r;
+  }
+  function renderA(movedIdx) {
+    const t = cur(), r = rankingA(t), ol = $('ladderA');
+    ol.innerHTML = '';
+    r.forEach((item, i) => {
+      const li = document.createElement('li');
+      li.className = 'rung' + (i === movedIdx ? ' moved' : '');
+      li.innerHTML = `<span class="rank">${i + 1}</span><span class="item">${song(item)}</span>
+        <span class="arrows">
+          ${playBtn(item)}
+          <button type="button" class="arrow" id="up${i}" aria-label="${esc(item)} omhoog" ${i === 0 ? 'disabled' : ''}>${icon('M6 15l6-6 6 6')}</button>
+          <button type="button" class="arrow" id="dn${i}" aria-label="${esc(item)} omlaag" ${i === 4 ? 'disabled' : ''}>${icon('M6 9l6 6 6-6')}</button>
+        </span>`;
+      li.querySelector('#up' + i).addEventListener('click', () => move(i, -1));
+      li.querySelector('#dn' + i).addEventListener('click', () => move(i, 1));
+      ol.appendChild(li);
+    });
+    syncPlay();
+  }
+  function move(i, d) {
+    const t = cur(), r = rankingA(t), j = i + d;
+    if (j < 0 || j > 4) return;
+    [r[i], r[j]] = [r[j], r[i]];
+    save(); renderA(j);
+    const btn = $((d < 0 ? 'up' : 'dn') + j);
+    (btn && !btn.disabled ? btn : $((d < 0 ? 'dn' : 'up') + j)).focus({ preventScroll: true });
+  }
+
+  // ---------- variant B ----------
+  function blindState(t) {
+    let b = store.blind[t.id];
+    if (!b || !Array.isArray(b.seq) || b.seq.length !== 5) { b = { seq: shuffle(t.items), slots: [null, null, null, null, null], step: 0 }; store.blind[t.id] = b; save(); }
+    return b;
+  }
+  function renderB(justSlot) {
+    const t = cur(), b = blindState(t), done = b.step >= 5;
+    $('reveal').hidden = done;
+    $('doneBox').hidden = !done;
+    if (!done) {
+      $('revealLbl').textContent = `Optie ${b.step + 1} van 5`;
+      const now = $('now');
+      if (now.dataset.v !== b.seq[b.step]) {
+        now.dataset.v = b.seq[b.step];
+        now.innerHTML = song(b.seq[b.step]);
+        now.classList.remove('flip');
+        if (!reduce) { void now.offsetWidth; now.classList.add('flip'); }
+        if (playingKey) stopClip();
+        $('nowPlay').innerHTML = playBtn(b.seq[b.step], true);
+        if (store.autoplay !== false && interacted) setTimeout(() => playClip(b.seq[b.step]), reduce ? 0 : 350);
+      }
+      $('deck').innerHTML = [0, 1, 2, 3, 4].map((i) => `<i class="${i <= b.step ? 'gone' : ''}"></i>`).join('');
+    } else {
+      $('doneText').textContent = 'Ze kwamen in deze volgorde: ' + b.seq.join(', ') + '. Vergelijk je ranking met de groep.';
+    }
+    const ol = $('ladderB');
+    ol.innerHTML = '';
+    b.slots.forEach((item, i) => {
+      const li = document.createElement('li');
+      li.className = 'rung' + (item ? '' : ' empty') + (i === justSlot ? ' just' : '') + (!item && done ? ' wait' : '');
+      if (item) li.innerHTML = `<span class="rank">${i + 1}</span><span class="item">${song(item)}</span>${playBtn(item)}`;
+      else li.innerHTML = `<span class="rank">${i + 1}</span><button type="button" class="slot-btn" id="slot${i}">Plaats op positie ${i + 1}</button><span></span>`;
+      ol.appendChild(li);
+      const sb = li.querySelector('.slot-btn');
+      if (sb) sb.addEventListener('click', () => place(i));
+    });
+    syncPlay();
+  }
+  function place(i) {
+    const t = cur(), b = blindState(t);
+    if (b.step >= 5 || b.slots[i]) return;
+    interacted = true;
+    b.slots[i] = b.seq[b.step];
+    b.step++;
+    if (b.step >= 5) stopClip();
+    save(); renderB(i);
+    const nextSlot = document.querySelector('.slot-btn');
+    if (nextSlot) nextSlot.focus({ preventScroll: true });
+  }
+
+  // ---------- algemeen ----------
+  function render() {
+    const t = cur();
+    const a = store.mode === 'a';
+    $('modeA').setAttribute('aria-pressed', String(a));
+    $('modeB').setAttribute('aria-pressed', String(!a));
+    $('modeTag').textContent = a ? 'VRIJ' : 'BLIND';
+    $('count').textContent = `Onderwerp ${store.index + 1} van ${store.order.length}`;
+    $('topic').textContent = t.title;
+    $('instr').innerHTML = a
+      ? `Zet de opties op volgorde van <b>1 (${esc(t.ends[0])})</b> tot <b>5 (${esc(t.ends[1])})</b>. Gebruik de pijltjes.`
+      : `Elke optie gaat meteen op een vaste plek, van <b>1 (${esc(t.ends[0])})</b> tot <b>5 (${esc(t.ends[1])})</b>. Je weet nog niet wat er komt.`;
+    ['endTop', 'endTopB'].forEach((id) => { $(id).textContent = '1 = ' + t.ends[0]; });
+    ['endBot', 'endBotB'].forEach((id) => { $(id).textContent = '5 = ' + t.ends[1]; });
+    $('viewA').hidden = !a;
+    $('viewB').hidden = a;
+    $('prev').disabled = store.index === 0;
+    $('next').textContent = store.index === store.order.length - 1 ? 'Opnieuw schudden' : 'Volgend onderwerp';
+    $('toast').textContent = ''; $('copyBox').hidden = true;
+    if (renderedTopic !== t.id) { stopClip(); renderedTopic = t.id; $('now').dataset.v = ''; }
+    if (a) renderA(); else renderB();
+    $('autoplay').checked = store.autoplay !== false;
+    prefetch();
+  }
+  let renderedTopic = null;
+
+  document.querySelectorAll('.mode').forEach((m) => m.addEventListener('click', () => { stopClip(); store.mode = m.dataset.mode; save(); render(); }));
+  $('autoplay').addEventListener('change', (e) => { store.autoplay = e.target.checked; save(); });
+  $('next').addEventListener('click', () => {
+    if (store.index >= store.order.length - 1) { store.order = shuffle(store.order); store.index = 0; }
+    else store.index++;
+    const t = cur(); delete store.rankA[t.id]; delete store.blind[t.id];
+    save(); render();
+  });
+  $('prev').addEventListener('click', () => { if (store.index > 0) { store.index--; save(); render(); } });
+
+  $('resetBtn').addEventListener('click', () => {
+    const t = cur();
+    if (store.mode === 'a') delete store.rankA[t.id]; else delete store.blind[t.id];
+    save(); render();
+  });
+
+  function rankingText() {
+    const t = cur();
+    const list = store.mode === 'a' ? rankingA(t) : blindState(t).slots.map((x) => x || '…');
+    return `Rank It! Music: ${t.title} (${store.mode === 'a' ? 'vrij' : 'blind'})\n` + list.map((x, i) => `${i + 1}. ${x}`).join('\n');
+  }
+  $('copyBtn').addEventListener('click', () => {
+    const text = rankingText();
+    const fallback = () => {
+      const box = $('copyBox'); box.value = text; box.hidden = false; box.focus(); box.select();
+      $('toast').textContent = 'Selecteer de tekst en kopieer hem.';
+    };
+    try {
+      navigator.clipboard.writeText(text).then(() => { $('toast').textContent = 'Gekopieerd'; $('copyBox').hidden = true; }, fallback);
+    } catch (e) { fallback(); }
+  });
+
+  // Eigen onderwerpen
+  let renderOwn = function () {
+    const box = $('ownList');
+    box.innerHTML = store.own.length ? '' : '<span class="small-note">Nog geen eigen onderwerpen.</span>';
+    store.own.forEach((o, i) => {
+      const d = document.createElement('div');
+      d.className = 'own-item';
+      d.innerHTML = `<span><b>${esc(o.title)}</b>: ${o.items.map(esc).join(', ')}</span><button type="button" aria-label="Verwijder onderwerp">Verwijder</button>`;
+      d.querySelector('button').addEventListener('click', () => { store.own.splice(i, 1); syncOrder(); renderOwn(); render(); });
+      box.appendChild(d);
+    });
+  };
+  $('ownAdd').addEventListener('click', () => {
+    const title = $('ownT').value.trim();
+    const items = [0, 1, 2, 3, 4].map((i) => $('ownI' + i).value.trim());
+    if (!title || items.some((x) => !x)) { $('ownErr').textContent = 'Vul een onderwerp en alle vijf de opties in.'; return; }
+    if (new Set(items.map((x) => x.toLowerCase())).size < 5) { $('ownErr').textContent = 'Gebruik vijf verschillende opties.'; return; }
+    $('ownErr').textContent = '';
+    store.own.push({ id: Date.now().toString(36), title, items });
+    ['ownT', 'ownI0', 'ownI1', 'ownI2', 'ownI3', 'ownI4'].forEach((id) => { $(id).value = ''; });
+    syncOrder(); renderOwn(); render();
+    $('ownT').focus();
+  });
+
+  let armTimer = null;
+  function disarm() { clearTimeout(armTimer); const b = $('fullReset'); b.classList.remove('armed'); b.textContent = 'Volledig resetten'; }
+  $('fullReset').addEventListener('click', () => {
+    const b = $('fullReset');
+    if (!b.classList.contains('armed')) {
+      b.classList.add('armed'); b.textContent = 'Zeker weten? Klik nog een keer';
+      clearTimeout(armTimer); armTimer = setTimeout(disarm, 4000); return;
+    }
+    disarm();
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    store = { mode: 'a', order: [], index: 0, own: [], rankA: {}, blind: {}, types: ['artist', 'mix', 'own'] };
+    syncOrder('a0'); renderOwn(); render();
+  });
+
+  // Soort onderwerpen kiezen
+  function renderTypes() {
+    const box = $('types');
+    box.innerHTML = '';
+    Object.entries(TYPES).forEach(([k, label]) => {
+      if (k === 'own' && !store.own.length) return;
+      const n = k === 'artist' ? ARTISTS.length : k === 'mix' ? MIXES.length : store.own.length;
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'filter';
+      b.setAttribute('aria-pressed', String(store.types.includes(k)));
+      b.innerHTML = `${label}<span class="n">${n}</span>`;
+      b.addEventListener('click', () => {
+        const on = store.types.includes(k);
+        const visible = store.types.filter((x) => x !== 'own' || store.own.length);
+        if (on && visible.length === 1) return;
+        store.types = on ? store.types.filter((x) => x !== k) : store.types.concat(k);
+        syncOrder(); renderTypes(); render();
+      });
+      box.appendChild(b);
+    });
+  }
+  const _renderOwn = renderOwn;
+  renderOwn = function () { _renderOwn(); renderTypes(); };
+
+  syncOrder('a0');
+  renderOwn();
+  render();
+})();
+</script>
+</body>
+</html>

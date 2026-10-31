@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dobbelen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* Gedeelde stijl van de spelletjessite: lucht met wolken, dikke inktranden, gele titels.
+   Bewust één vaste, vrolijke look (geen donkere variant). */
+:root {
+  --sky-top: #7cc8ef;
+  --sky-bottom: #c4ebfb;
+  --cloud: #ffffff;
+  --paper: #ffffff;
+  --ink: #1f2a3c;
+  --muted: #55667f;
+  --soft: #e9f4fb;
+  --guide: #d3e2ee;
+  --yellow: #ffcc2e;
+  --yellow-deep: #f2a900;
+  --yellow-soft: #fff3c4;
+  --red: #e0443a;
+  --red-soft: #fde2df;
+  --blue: #2f6fe0;
+  --blue-deep: #1d4fb8;
+  --blue-soft: #dce8fb;
+  --good: #1f9a5a;
+  --good-soft: #d9f5e5;
+  --bad: #e0443a;
+  --bad-soft: #fde2df;
+  --font-title: "Lilita One", "Arial Black", Impact, sans-serif;
+  --font-ui: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--sky-top); }
+body {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 70%) fixed;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 44px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.sky { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.cloud { position: absolute; fill: var(--cloud); opacity: .9; animation: drift linear infinite; }
+.cloud.c1 { width: 130px; top: 9%; left: -10%; animation-duration: 70s; }
+.cloud.c2 { width: 90px; top: 38%; left: -20%; animation-duration: 95s; animation-delay: -40s; opacity: .7; }
+.cloud.c3 { width: 160px; top: 70%; left: -25%; animation-duration: 120s; animation-delay: -75s; opacity: .6; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+
+.wrap { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+.back {
+  display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  padding: 7px 14px 7px 10px; border-radius: 999px;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+  color: var(--ink); text-decoration: none; font: 600 14px/1 var(--font-ui);
+  transition: transform .08s, box-shadow .08s;
+}
+.back:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
+.back:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.back:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.back svg { width: 16px; height: 16px; }
+
+.logo {
+  margin: 0;
+  font: 400 clamp(44px, 12vw, 72px)/0.95 var(--font-title);
+  letter-spacing: .03em;
+  color: var(--yellow);
+  -webkit-text-stroke: 6px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 var(--ink);
+  transform: rotate(-2deg);
+  text-wrap: balance;
+}
+.lede { margin: 0; color: var(--ink); opacity: .8; font-size: 15px; max-width: 44ch; }
+
+.card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 7px 0 var(--ink);
+  padding-block: 20px;
+  padding-inline: clamp(14px, 4.5vw, 26px);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+details.card:not([open]) { gap: 0; }
+
+/* Spelerskaarten (2 spelers) */
+.players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.player {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 16px; min-width: 0;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink);
+  transition: transform .2s, box-shadow .2s, background .2s;
+}
+.player.active { background: var(--yellow-soft); transform: translateY(-3px); box-shadow: 0 7px 0 var(--ink); }
+.who { display: flex; flex-direction: column; min-width: 0; }
+.player input {
+  font: 600 17px/1.2 var(--font-ui); color: var(--ink); background: transparent;
+  border: 0; border-bottom: 2px dashed transparent; padding: 1px 0; width: 100%; min-width: 0;
+}
+.player input:hover { border-bottom-color: var(--guide); }
+.player input:focus { outline: none; border-bottom-color: var(--ink); }
+.sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.player.active .sub { color: var(--ink); font-weight: 600; }
+.score { font: 400 30px/1 var(--font-title); font-variant-numeric: tabular-nums; }
+
+.status {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 36px; text-align: center;
+  font: 400 clamp(22px, 5.5vw, 28px)/1.1 var(--font-title); letter-spacing: .02em;
+}
+.status.flash { animation: bounce .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes bounce { from { transform: translateY(-10px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.btn {
+  font: 700 17px/1 var(--font-ui);
+  padding: 13px 20px; border-radius: 14px;
+  border: 3px solid var(--ink); background: var(--paper); color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink); cursor: pointer;
+  transition: transform .08s, box-shadow .08s;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.yellow { background: var(--yellow); }
+.btn.small { font-size: 14px; padding: 9px 14px; box-shadow: 0 3px 0 var(--ink); }
+.btn.danger.armed { background: var(--bad); color: #fff; }
+
+.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.hint { color: var(--ink); opacity: .75; font-size: 13px; margin: 0; max-width: 46ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .status.flash { animation: none !important; }
+  .player, .btn, .back { transition: none; }
+}
+</style>
+<style>
+/* Speelveld: dobbelstenen en gooiknop bovenaan, scoreformulier eronder als een ingevuld blokje */
+.wrap { max-width: 720px; }
+.logo-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.tagline { margin: 0; font-weight: 600; font-size: 14px; color: var(--ink); opacity: .8; }
+
+/* Spelers kiezen */
+.plist { display: flex; flex-direction: column; gap: 8px; }
+.prow { display: flex; gap: 8px; align-items: center; }
+.prow .num { width: 32px; height: 32px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--yellow); border: 3px solid var(--ink); font: 400 16px/1 var(--font-title); }
+.prow input {
+  flex: 1; min-width: 0; font: 600 17px/1.2 var(--font-ui); padding: 10px 12px; border-radius: 12px;
+  border: 3px solid var(--ink); background: var(--soft); color: var(--ink);
+}
+.prow input:focus { outline: none; box-shadow: 0 0 0 4px var(--yellow); }
+.x { width: 38px; height: 38px; flex: none; border-radius: 10px; border: 3px solid var(--ink); background: var(--paper); color: var(--ink); font: 700 18px/1 var(--font-ui); cursor: pointer; }
+.x:hover { background: var(--bad-soft); }
+.x:focus-visible { outline: 3px solid var(--yellow-deep); }
+.setup-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
+h2 { margin: 0; font: 700 24px/1.15 var(--font-ui); text-wrap: balance; }
+.muted { margin: 0; color: var(--muted); }
+
+/* Beurt */
+.turn { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.who-turn { font: 400 clamp(22px, 5.5vw, 28px)/1.1 var(--font-title); letter-spacing: .02em; }
+.rolls { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); font-weight: 600; }
+.rolls i { width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--yellow); }
+.rolls i.used { background: var(--paper); }
+
+.dice { display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(8px, 2.5vw, 16px); padding-block: 6px 2px; }
+.die-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.die {
+  width: 100%; max-width: 84px; aspect-ratio: 1; padding: 13%;
+  display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+  background: var(--paper); border: 4px solid var(--ink); border-radius: 20%;
+  box-shadow: 0 5px 0 var(--ink); cursor: pointer;
+  transition: transform .15s, box-shadow .15s, background .15s;
+}
+.die:disabled { cursor: default; }
+.die:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 3px; }
+.die.blank { background: var(--soft); }
+.die.blank .pip { visibility: hidden; }
+.die.held { background: var(--yellow); transform: translateY(-6px); box-shadow: 0 11px 0 var(--ink); }
+.die.rolling { animation: tumble .45s ease-out; }
+@keyframes tumble {
+  0% { transform: rotate(0) scale(1); }
+  30% { transform: rotate(-24deg) scale(.86) translateY(-10px); }
+  60% { transform: rotate(18deg) scale(1.06); }
+  100% { transform: rotate(0) scale(1); }
+}
+.pip { width: 74%; aspect-ratio: 1; border-radius: 50%; background: var(--ink); place-self: center; visibility: hidden; }
+.pip.on { visibility: visible; }
+.hold-tag { font: 400 13px/1 var(--font-title); letter-spacing: .06em; padding: 4px 7px; border-radius: 6px; background: var(--ink); color: var(--yellow); visibility: hidden; }
+.die-wrap.held .hold-tag { visibility: visible; }
+
+.rollbar { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.btn.big { font-size: 20px; padding: 15px 28px; }
+.pick {
+  display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;
+  padding: 10px 12px; border-radius: 14px; background: var(--yellow-soft); border: 3px dashed var(--ink);
+  font-weight: 600; text-align: center;
+}
+.helper { margin: 0; text-align: center; color: var(--muted); font-size: 14px; min-height: 1.45em; }
+
+/* Scoreformulier */
+.sheet-wrap { overflow-x: auto; margin-inline: -4px; padding-inline: 4px; }
+table.sheet { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
+.sheet th, .sheet td { padding: 0; border-bottom: 2px solid var(--soft); }
+.sheet thead th {
+  font: 400 16px/1.1 var(--font-title); letter-spacing: .02em; padding: 8px 6px; text-align: center;
+  border-bottom: 3px solid var(--ink); white-space: nowrap; max-width: 110px; overflow: hidden; text-overflow: ellipsis;
+}
+.sheet thead th:first-child { text-align: left; padding-left: 4px; }
+.sheet thead th.cur { background: var(--yellow); border-radius: 10px 10px 0 0; }
+.sheet .cat { text-align: left; padding: 6px 8px 6px 4px; min-width: 132px; }
+.cat b { display: block; font-weight: 700; font-size: 15px; line-height: 1.2; }
+.cat small { display: block; color: var(--muted); font-size: 12px; line-height: 1.25; }
+.sheet td.val { text-align: center; min-width: 58px; font: 600 17px/1 var(--font-ui); }
+.sheet td.cur { background: var(--yellow-soft); }
+.sheet td.val .zero { color: var(--muted); }
+.cellbtn {
+  width: calc(100% - 8px); margin: 3px 4px; padding: 8px 2px; border-radius: 10px;
+  border: 2px dashed var(--ink); background: var(--paper); color: var(--muted);
+  font: 600 17px/1 var(--font-ui); cursor: pointer;
+}
+.cellbtn.pos { color: var(--good); border-color: var(--good); }
+.cellbtn:hover { background: var(--yellow); color: var(--ink); border-style: solid; border-color: var(--ink); }
+.cellbtn.sel { background: var(--yellow); color: var(--ink); border: 3px solid var(--ink); }
+.cellbtn:focus-visible { outline: 3px solid var(--yellow-deep); }
+.sheet tr.sum th, .sheet tr.sum td { background: var(--soft); }
+.sheet tr.sum .cat b { font-size: 14px; }
+.sheet tr.total th, .sheet tr.total td { border-top: 3px solid var(--ink); border-bottom: 0; }
+.sheet tr.total td.val { font: 400 24px/1 var(--font-title); padding-block: 10px; }
+.sheet tr.split th, .sheet tr.split td { border-bottom: 3px solid var(--ink); }
+.progress { font-size: 12px; color: var(--muted); font-weight: 600; }
+.progress.done { color: var(--good); }
+
+/* Einde */
+.podium { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.podium li { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; border: 3px solid var(--ink); background: var(--paper); }
+.podium li:first-child { background: var(--yellow); box-shadow: 0 4px 0 var(--ink); }
+.podium .place { font: 400 22px/1 var(--font-title); width: 30px; }
+.podium .pname { flex: 1; font-weight: 700; font-size: 17px; min-width: 0; overflow-wrap: anywhere; }
+.podium .pts { font: 400 24px/1 var(--font-title); }
+.end-title { margin: 0; text-align: center; font: 400 34px/1.1 var(--font-title); letter-spacing: .02em; text-wrap: balance; }
+
+/* Spelregels */
+details.rules > summary { cursor: pointer; font: 400 22px/1.1 var(--font-title); letter-spacing: .02em; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+details.rules > summary::-webkit-details-marker { display: none; }
+details.rules > summary::after { content: "+"; font-size: 26px; }
+details.rules[open] > summary::after { content: "−"; }
+details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 4px; border-radius: 6px; }
+.rules-body { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; font-size: 15px; }
+.rules-body p, .rules-body ul { margin: 0; }
+.rules-body ul { padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.rules-body h3 { margin: 6px 0 0; font: 700 16px/1.2 var(--font-ui); }
+
+@media (max-width: 520px) {
+  .cat small { display: none; }
+  .sheet .cat { min-width: 96px; }
+  .sheet td.val { min-width: 50px; }
+  .cellbtn { font-size: 16px; padding: 7px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .die.rolling { animation: none !important; }
+  .die { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <svg class="cloud c1" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c2" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c3" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+</div>
+<div class="wrap">
+  <a class="back" href="./"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Alle spelletjes</a>
+  <header class="logo-row">
+    <h1 class="logo">DOBBELEN</h1>
+    <p class="tagline">Volgens de klassieke Yahtzee-regels</p>
+  </header>
+
+  <!-- Spelers kiezen -->
+  <section class="card" id="setup">
+    <h2>Wie doen er mee?</h2>
+    <p class="muted">Speel alleen of met maximaal zes spelers. Jullie spelen om de beurt op hetzelfde scherm.</p>
+    <div class="plist" id="plist"></div>
+    <div class="setup-actions">
+      <button class="btn" type="button" id="addP">+ Speler</button>
+      <button class="btn yellow" type="button" id="startGame">Start spel</button>
+    </div>
+  </section>
+
+  <!-- Spelen -->
+  <section class="card" id="play" hidden>
+    <div class="turn">
+      <span class="who-turn" id="whoTurn"></span>
+      <span class="rolls" id="rolls" aria-label=""></span>
+    </div>
+    <div class="dice" id="dice"></div>
+    <div class="rollbar">
+      <button class="btn yellow big" type="button" id="rollBtn">Gooien</button>
+    </div>
+    <div class="pick" id="pick" hidden>
+      <span id="pickText"></span>
+      <button class="btn small yellow" type="button" id="pickBtn">Noteer</button>
+    </div>
+    <p class="helper" id="helper" aria-live="polite"></p>
+  </section>
+
+  <!-- Einde -->
+  <section class="card" id="end" hidden>
+    <p class="end-title" id="endTitle"></p>
+    <ol class="podium" id="podium"></ol>
+    <div class="setup-actions">
+      <button class="btn" type="button" id="otherPlayers">Andere spelers</button>
+      <button class="btn yellow" type="button" id="again">Nog een keer</button>
+    </div>
+  </section>
+
+  <!-- Scoreformulier -->
+  <section class="card" id="sheetCard" hidden>
+    <div class="sheet-wrap">
+      <table class="sheet" id="sheet"></table>
+    </div>
+  </section>
+
+  <details class="card rules" id="rules">
+    <summary>Spelregels</summary>
+    <div class="rules-body">
+      <p>Iedere speler krijgt 13 beurten en vult in elke beurt precies één vak in. Wie aan het eind de meeste punten heeft, wint.</p>
+      <h3>Een beurt</h3>
+      <ul>
+        <li>Je gooit maximaal 3 keer met 5 dobbelstenen.</li>
+        <li>Na een worp tik je de stenen aan die je wilt houden. Die worden geel en gooi je niet opnieuw. Je kunt ze weer losmaken.</li>
+        <li>Je mag na elke worp stoppen en een vak kiezen. Na de derde worp moet je kiezen.</li>
+        <li>Past je worp nergens? Dan noteer je een 0 in een vak naar keuze. Dat heet schrappen.</li>
+      </ul>
+      <h3>Bovenste deel</h3>
+      <ul>
+        <li>Enen tot en met zessen: tel alleen de stenen met dat getal. Drie vieren bij Vieren is 12.</li>
+        <li>Haal je in het bovenste deel samen 63 of meer, dan krijg je 35 bonuspunten. 63 is drie van elk getal.</li>
+      </ul>
+      <h3>Onderste deel</h3>
+      <ul>
+        <li>Three of a kind: minstens 3 gelijk. Score is alle 5 stenen samen.</li>
+        <li>Carré: minstens 4 gelijk. Score is alle 5 stenen samen.</li>
+        <li>Full house: 3 gelijk plus 2 gelijk. Altijd 25.</li>
+        <li>Kleine straat: 4 opeenvolgende getallen. Altijd 30.</li>
+        <li>Grote straat: 5 opeenvolgende getallen. Altijd 40.</li>
+        <li>Yahtzee: 5 gelijk. Altijd 50.</li>
+        <li>Kans: elke worp telt. Score is alle 5 stenen samen.</li>
+      </ul>
+      <h3>Nog een Yahtzee</h3>
+      <ul>
+        <li>Staat er al 50 bij Yahtzee? Dan krijg je voor elke volgende Yahtzee 100 bonuspunten. Staat er een 0, dan niet.</li>
+        <li>Je noteert die worp dan als joker: eerst in het bijpassende bovenste vak. Is dat vol, dan in een vrij vak onderaan, waar hij altijd past. Full house geeft dan 25, kleine straat 30 en grote straat 40. Is ook onderaan alles vol, dan schrap je een vrij vak bovenaan.</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="foot">
+    <p class="hint">Toetsenbord: spatie om te gooien, 1 tot 5 om een steen vast te houden. Het spel wordt bewaard als je de pagina sluit.</p>
+    <button class="btn small danger" id="fullReset" type="button">Volledig resetten</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const KEY = 'dobbelen-spel';
+  const $ = (id) => document.getElementById(id);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const CATS = [
+    { k: 'n1', name: 'Enen', hint: 'Tel alle enen', up: 1 },
+    { k: 'n2', name: 'Tweeën', hint: 'Tel alle tweeën', up: 2 },
+    { k: 'n3', name: 'Drieën', hint: 'Tel alle drieën', up: 3 },
+    { k: 'n4', name: 'Vieren', hint: 'Tel alle vieren', up: 4 },
+    { k: 'n5', name: 'Vijven', hint: 'Tel alle vijven', up: 5 },
+    { k: 'n6', name: 'Zessen', hint: 'Tel alle zessen', up: 6 },
+    { k: 'tok', name: 'Three of a kind', hint: '3 gelijk, alle ogen samen' },
+    { k: 'fok', name: 'Carré', hint: '4 gelijk, alle ogen samen' },
+    { k: 'fh', name: 'Full house', hint: '3 + 2 gelijk, 25 punten' },
+    { k: 'ss', name: 'Kleine straat', hint: '4 op een rij, 30 punten' },
+    { k: 'ls', name: 'Grote straat', hint: '5 op een rij, 40 punten' },
+    { k: 'yz', name: 'Yahtzee', hint: '5 gelijk, 50 punten' },
+    { k: 'ch', name: 'Kans', hint: 'Alle ogen samen' },
+  ];
+  const UPPER = CATS.filter((c) => c.up), LOWER = CATS.filter((c) => !c.up);
+  const catByKey = Object.fromEntries(CATS.map((c) => [c.k, c]));
+  const PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+
+  let S = null;          // spelstand
+  let names = ['Speler 1', 'Speler 2'];
+  let selected = null;   // gekozen vak, wacht op bevestiging
+  let rolling = false;
+
+  // ---------- opslaan ----------
+  function save() { try { localStorage.setItem(KEY, JSON.stringify({ S, names })); } catch (e) {} }
+  try {
+    const d = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (d) { if (Array.isArray(d.names) && d.names.length) names = d.names.slice(0, 6); if (d.S && d.S.players) S = d.S; }
+  } catch (e) {}
+
+  const esc = (s) => String(s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const pname = (i) => (S.players[i].name.trim() || ('Speler ' + (i + 1)));
+
+  // ---------- regels ----------
+  function counts(d) { const c = [0, 0, 0, 0, 0, 0, 0]; d.forEach((v) => c[v]++); return c; }
+  const sum = (d) => d.reduce((a, b) => a + b, 0);
+  const isYahtzee = (d) => d.every((v) => v === d[0]);
+  function hasRun(c, len) {
+    let run = 0;
+    for (let v = 1; v <= 6; v++) { run = c[v] ? run + 1 : 0; if (run >= len) return true; }
+    return false;
+  }
+  function baseScore(k, d) {
+    const c = counts(d), s = sum(d), max = Math.max(...c);
+    const cat = catByKey[k];
+    if (cat.up) return c[cat.up] * cat.up;
+    switch (k) {
+      case 'tok': return max >= 3 ? s : 0;
+      case 'fok': return max >= 4 ? s : 0;
+      case 'fh': return c.includes(3) && c.includes(2) ? 25 : 0;
+      case 'ss': return hasRun(c, 4) ? 30 : 0;
+      case 'ls': return hasRun(c, 5) ? 40 : 0;
+      case 'yz': return max === 5 ? 50 : 0;
+      case 'ch': return s;
+    }
+    return 0;
+  }
+  // Welke vakken mag je kiezen, en wat scoren ze? Houdt rekening met de jokerregels.
+  function options(p, d) {
+    const sc = p.scores, open = (k) => sc[k] == null;
+    const out = {};
+    const joker = isYahtzee(d) && sc.yz != null;
+    if (!joker) {
+      CATS.forEach((c) => { if (open(c.k)) out[c.k] = baseScore(c.k, d); });
+      return { out, joker: false, bonus: false };
+    }
+    const bonus = sc.yz === 50;
+    const v = d[0], upKey = 'n' + v;
+    if (open(upKey)) out[upKey] = baseScore(upKey, d);
+    else {
+      const lowOpen = LOWER.filter((c) => open(c.k));
+      if (lowOpen.length) {
+        lowOpen.forEach((c) => {
+          out[c.k] = c.k === 'fh' ? 25 : c.k === 'ss' ? 30 : c.k === 'ls' ? 40 : sum(d);
+        });
+      } else {
+        UPPER.forEach((c) => { if (open(c.k)) out[c.k] = 0; });
+      }
+    }
+    return { out, joker: true, bonus };
+  }
+  function totals(p) {
+    const sc = p.scores;
+    const upper = UPPER.reduce((a, c) => a + (sc[c.k] || 0), 0);
+    const upFilled = UPPER.every((c) => sc[c.k] != null);
+    const upBonus = upper >= 63 ? 35 : 0;
+    const lower = LOWER.reduce((a, c) => a + (sc[c.k] || 0), 0);
+    return { upper, upFilled, upBonus, lower, yzBonus: p.yzBonus, total: upper + upBonus + lower + p.yzBonus };
+  }
+
+  // ---------- spelers kiezen ----------
+  function renderSetup() {
+    const list = $('plist');
+    list.innerHTML = '';
+    names.forEach((n, i) => {
+      const row = document.createElement('div');
+      row.className = 'prow';
+      row.innerHTML = `<span class="num" aria-hidden="true">${i + 1}</span><input id="pn${i}" maxlength="14" aria-label="Naam speler ${i + 1}">`;
+      const inp = row.querySelector('input');
+      inp.value = n;
+      inp.addEventListener('input', () => { names[i] = inp.value; save(); });
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); startGame(); } });
+      if (names.length > 1) {
+        const x = document.createElement('button');
+        x.type = 'button'; x.className = 'x'; x.textContent = '×';
+        x.setAttribute('aria-label', 'Verwijder speler ' + (i + 1));
+        x.addEventListener('click', () => { names.splice(i, 1); save(); renderSetup(); });
+        row.appendChild(x);
+      }
+      list.appendChild(row);
+    });
+    $('addP').hidden = names.length >= 6;
+  }
+  $('addP').addEventListener('click', () => {
+    if (names.length >= 6) return;
+    names.push('Speler ' + (names.length + 1)); save(); renderSetup();
+    const last = $('pn' + (names.length - 1)); last.focus(); last.select();
+  });
+  $('startGame').addEventListener('click', startGame);
+
+  function newState() {
+    return {
+      players: names.map((n, i) => ({ name: n.trim() || ('Speler ' + (i + 1)), scores: Object.fromEntries(CATS.map((c) => [c.k, null])), yzBonus: 0 })),
+      cur: 0, dice: [1, 2, 3, 4, 5], held: [false, false, false, false, false], rolls: 0, over: false,
+    };
+  }
+  function startGame() {
+    names = names.map((n, i) => n.trim() || ('Speler ' + (i + 1)));
+    S = newState(); selected = null; save();
+    view();
+  }
+
+  // ---------- schermen ----------
+  function view() {
+    const playing = S && !S.over;
+    $('setup').hidden = !!S;
+    $('play').hidden = !playing;
+    $('end').hidden = !(S && S.over);
+    $('sheetCard').hidden = !S;
+    if (!S) { renderSetup(); return; }
+    if (S.over) renderEnd(); else renderPlay();
+    renderSheet();
+  }
+
+  // ---------- dobbelstenen ----------
+  const diceEls = [];
+  for (let i = 0; i < 5; i++) {
+    const w = document.createElement('div');
+    w.className = 'die-wrap';
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'die'; b.id = 'die' + i;
+    for (let j = 0; j < 9; j++) { const p = document.createElement('span'); p.className = 'pip'; b.appendChild(p); }
+    b.addEventListener('click', () => toggleHold(i));
+    const tag = document.createElement('span');
+    tag.className = 'hold-tag'; tag.textContent = 'VAST';
+    w.append(b, tag);
+    $('dice').appendChild(w);
+    diceEls.push({ w, b });
+  }
+  function paintDie(i, v) {
+    const pips = diceEls[i].b.children;
+    for (let j = 0; j < 9; j++) pips[j].classList.toggle('on', PIPS[v].includes(j));
+  }
+
+  function renderPlay() {
+    const p = S.players[S.cur];
+    $('whoTurn').textContent = S.players.length > 1 ? `${pname(S.cur)} is aan de beurt` : `Beurt ${13 - CATS.filter((c) => p.scores[c.k] == null).length + 1} van 13`;
+    const rolls = $('rolls');
+    rolls.innerHTML = 'Worpen ' + [0, 1, 2].map((i) => `<i class="${i < S.rolls ? 'used' : ''}"></i>`).join('');
+    rolls.setAttribute('aria-label', `${3 - S.rolls} worpen over`);
+    diceEls.forEach(({ w, b }, i) => {
+      paintDie(i, S.dice[i]);
+      b.classList.toggle('blank', S.rolls === 0);
+      b.classList.toggle('held', S.held[i] && S.rolls > 0);
+      w.classList.toggle('held', S.held[i] && S.rolls > 0);
+      b.disabled = S.rolls === 0 || S.rolls >= 3 || rolling;
+      b.setAttribute('aria-label', S.rolls === 0 ? `Steen ${i + 1}, nog niet gegooid` : `Steen ${i + 1}: ${S.dice[i]}${S.held[i] ? ', vastgehouden' : ''}`);
+      b.setAttribute('aria-pressed', String(!!S.held[i]));
+    });
+    const rb = $('rollBtn');
+    const allHeld = S.held.every(Boolean) && S.rolls > 0;
+    rb.disabled = S.rolls >= 3 || rolling || allHeld;
+    rb.textContent = S.rolls === 0 ? 'Gooien' : S.rolls >= 3 ? 'Kies een vak' : `Nog een keer gooien (${3 - S.rolls})`;
+
+    let help = '';
+    if (S.rolls === 0) help = 'Gooi de dobbelstenen om je beurt te beginnen.';
+    else if (S.rolls < 3) help = allHeld ? 'Alle stenen staan vast. Kies een vak of maak een steen los.' : 'Tik op een steen om hem vast te houden, of tik meteen op een vak om je score te noteren.';
+    else help = 'Je hebt 3 keer gegooid. Tik op een vak om je score te noteren.';
+    if (S.rolls > 0 && isYahtzee(S.dice)) {
+      const o = options(p, S.dice);
+      if (o.bonus) help = 'Weer een Yahtzee! Je krijgt 100 bonuspunten. Kies waar je hem als joker noteert.';
+      else if (o.joker) help = 'Yahtzee! Het Yahtzee-vak is al gebruikt, dus je noteert hem als joker.';
+      else if (p.scores.yz == null) help = 'Yahtzee! Noteer hem voor 50 punten, of kies een ander vak.';
+    }
+    $('helper').textContent = help;
+    renderPick();
+  }
+
+  function renderPick() {
+    if (selected && S && !S.over && S.rolls > 0) {
+      const o = options(S.players[S.cur], S.dice);
+      if (!(selected in o.out)) selected = null;
+    } else selected = null;
+    $('pick').hidden = !selected;
+    if (selected) {
+      const o = options(S.players[S.cur], S.dice);
+      const v = o.out[selected];
+      $('pickText').textContent = `${v} punt${v === 1 ? '' : 'en'} bij ${catByKey[selected].name}${o.bonus ? ' + 100 bonus' : ''}?`;
+    }
+  }
+
+  function toggleHold(i) {
+    if (!S || S.over || S.rolls === 0 || S.rolls >= 3 || rolling) return;
+    S.held[i] = !S.held[i]; save(); renderPlay();
+  }
+
+  function roll() {
+    if (!S || S.over || S.rolls >= 3 || rolling) return;
+    if (S.rolls > 0 && S.held.every(Boolean)) return;
+    if (S.rolls === 0) S.held = [false, false, false, false, false];
+    selected = null;
+    const final = S.dice.map((v, i) => (S.held[i] && S.rolls > 0 ? v : 1 + Math.floor(Math.random() * 6)));
+    S.rolls++;
+    const moving = S.dice.map((_, i) => !(S.held[i] && S.rolls > 1));
+    rolling = true;
+    renderPlay();
+    const finish = () => {
+      S.dice = final; rolling = false; save();
+      renderPlay(); renderSheet();
+      if (S.rolls >= 3 || S.held.every(Boolean)) {}
+    };
+    if (reduce) { finish(); return; }
+    diceEls.forEach(({ b }, i) => {
+      if (!moving[i]) return;
+      b.classList.remove('blank', 'rolling'); void b.offsetWidth; b.classList.add('rolling');
+    });
+    let ticks = 0;
+    const t = setInterval(() => {
+      ticks++;
+      moving.forEach((m, i) => { if (m) paintDie(i, 1 + Math.floor(Math.random() * 6)); });
+      if (ticks >= 6) { clearInterval(t); diceEls.forEach(({ b }) => b.classList.remove('rolling')); finish(); }
+    }, 70);
+  }
+  $('rollBtn').addEventListener('click', roll);
+
+  // ---------- noteren ----------
+  function choose(k) {
+    if (!S || S.over || S.rolls === 0 || rolling) return;
+    const o = options(S.players[S.cur], S.dice);
+    if (!(k in o.out)) return;
+    selected = k;
+    commit();
+  }
+  function commit() {
+    if (!selected) return;
+    const p = S.players[S.cur];
+    const o = options(p, S.dice);
+    if (!(selected in o.out)) return;
+    p.scores[selected] = o.out[selected];
+    if (o.bonus) p.yzBonus += 100;
+    selected = null;
+    // volgende speler
+    S.cur = (S.cur + 1) % S.players.length;
+    S.rolls = 0; S.held = [false, false, false, false, false];
+    S.over = S.players.every((pl) => CATS.every((c) => pl.scores[c.k] != null));
+    save(); view();
+    if (!S.over) $('rollBtn').focus({ preventScroll: true });
+  }
+  $('pickBtn').addEventListener('click', commit);
+
+  // ---------- scoreformulier ----------
+  function renderSheet() {
+    if (!S) return;
+    const tbl = $('sheet');
+    const cur = S.over ? -1 : S.cur;
+    const opts = !S.over && S.rolls > 0 && !rolling ? options(S.players[S.cur], S.dice).out : null;
+    const T = S.players.map(totals);
+    const head = `<thead><tr><th scope="col">Vak</th>${S.players.map((p, i) => `<th scope="col" class="${i === cur ? 'cur' : ''}" title="${esc(pname(i))}">${esc(pname(i))}</th>`).join('')}</tr></thead>`;
+    const cell = (i, k) => {
+      const v = S.players[i].scores[k];
+      const curCls = i === cur ? ' cur' : '';
+      if (v != null) return `<td class="val${curCls}">${v === 0 ? '<span class="zero">0</span>' : v}</td>`;
+      if (i === cur && opts && k in opts) {
+        const pv = opts[k];
+        return `<td class="val${curCls}"><button type="button" class="cellbtn${pv > 0 ? ' pos' : ''}${selected === k ? ' sel' : ''}" data-k="${k}" aria-label="${catByKey[k].name}: ${pv} punten">${pv}</button></td>`;
+      }
+      return `<td class="val${curCls}"></td>`;
+    };
+    const row = (c, extra = '') => `<tr class="${extra}"><th scope="row" class="cat"><b>${c.name}</b><small>${c.hint}</small></th>${S.players.map((_, i) => cell(i, c.k)).join('')}</tr>`;
+    let body = '<tbody>';
+    UPPER.forEach((c) => { body += row(c); });
+    body += `<tr class="sum"><th scope="row" class="cat"><b>Subtotaal boven</b><small>63 of meer geeft bonus</small></th>${T.map((t, i) => `<td class="val${i === cur ? ' cur' : ''}">${t.upper}<div class="progress${t.upper >= 63 ? ' done' : ''}">${t.upper >= 63 ? 'bonus!' : 'nog ' + (63 - t.upper)}</div></td>`).join('')}</tr>`;
+    body += `<tr class="sum split"><th scope="row" class="cat"><b>Bonus</b><small>35 punten</small></th>${T.map((t, i) => `<td class="val${i === cur ? ' cur' : ''}">${t.upBonus ? 35 : (t.upFilled ? '<span class="zero">0</span>' : '')}</td>`).join('')}</tr>`;
+    LOWER.forEach((c) => { body += row(c); });
+    body += `<tr class="sum"><th scope="row" class="cat"><b>Yahtzee-bonus</b><small>100 per extra Yahtzee</small></th>${T.map((t, i) => `<td class="val${i === cur ? ' cur' : ''}">${t.yzBonus || ''}</td>`).join('')}</tr>`;
+    body += `<tr class="total"><th scope="row" class="cat"><b>Totaal</b></th>${T.map((t, i) => `<td class="val${i === cur ? ' cur' : ''}">${t.total}</td>`).join('')}</tr>`;
+    body += '</tbody>';
+    tbl.innerHTML = head + body;
+    tbl.querySelectorAll('.cellbtn').forEach((b) => b.addEventListener('click', () => choose(b.dataset.k)));
+  }
+
+  // ---------- einde ----------
+  function renderEnd() {
+    const ranked = S.players.map((p, i) => ({ i, t: totals(p).total })).sort((a, b) => b.t - a.t);
+    const top = ranked[0].t;
+    const winners = ranked.filter((r) => r.t === top);
+    $('endTitle').textContent = S.players.length === 1 ? `Je eindscore is ${top}!`
+      : winners.length > 1 ? `Gelijkspel met ${top} punten!` : `${pname(winners[0].i)} wint met ${top} punten!`;
+    $('podium').innerHTML = ranked.map((r, n) => `<li><span class="place">${n + 1}</span><span class="pname">${esc(pname(r.i))}</span><span class="pts">${r.t}</span></li>`).join('');
+  }
+  $('again').addEventListener('click', () => { names = S.players.map((p) => p.name); S = newState(); save(); view(); });
+  $('otherPlayers').addEventListener('click', () => { names = S.players.map((p) => p.name); S = null; save(); view(); });
+
+  // ---------- resetten ----------
+  let armTimer = null;
+  function disarm() { clearTimeout(armTimer); const b = $('fullReset'); b.classList.remove('armed'); b.textContent = 'Volledig resetten'; }
+  $('fullReset').addEventListener('click', () => {
+    const b = $('fullReset');
+    if (!b.classList.contains('armed')) {
+      b.classList.add('armed'); b.textContent = 'Zeker weten? Klik nog een keer';
+      clearTimeout(armTimer); armTimer = setTimeout(disarm, 4000); return;
+    }
+    disarm();
+    S = null; names = ['Speler 1', 'Speler 2']; selected = null;
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    view();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!S || S.over) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SUMMARY') return;
+    if (e.key === ' ' && !(e.target.tagName === 'BUTTON')) { e.preventDefault(); roll(); }
+    else if (e.key >= '1' && e.key <= '5') { toggleHold(+e.key - 1); }
+  });
+
+  view();
+})();
+</script>
+</body>
+</html>
