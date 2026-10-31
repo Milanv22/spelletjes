@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spelletjeskast</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* Gedeelde stijl van de spelletjessite: lucht met wolken, dikke inktranden, gele titels.
+   Bewust één vaste, vrolijke look (geen donkere variant). */
+:root {
+  --sky-top: #7cc8ef;
+  --sky-bottom: #c4ebfb;
+  --cloud: #ffffff;
+  --paper: #ffffff;
+  --ink: #1f2a3c;
+  --muted: #55667f;
+  --soft: #e9f4fb;
+  --guide: #d3e2ee;
+  --yellow: #ffcc2e;
+  --yellow-deep: #f2a900;
+  --yellow-soft: #fff3c4;
+  --red: #e0443a;
+  --red-soft: #fde2df;
+  --blue: #2f6fe0;
+  --blue-deep: #1d4fb8;
+  --blue-soft: #dce8fb;
+  --good: #1f9a5a;
+  --good-soft: #d9f5e5;
+  --bad: #e0443a;
+  --bad-soft: #fde2df;
+  --font-title: "Lilita One", "Arial Black", Impact, sans-serif;
+  --font-ui: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--sky-top); }
+body {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 70%) fixed;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 44px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.sky { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.cloud { position: absolute; fill: var(--cloud); opacity: .9; animation: drift linear infinite; }
+.cloud.c1 { width: 130px; top: 9%; left: -10%; animation-duration: 70s; }
+.cloud.c2 { width: 90px; top: 38%; left: -20%; animation-duration: 95s; animation-delay: -40s; opacity: .7; }
+.cloud.c3 { width: 160px; top: 70%; left: -25%; animation-duration: 120s; animation-delay: -75s; opacity: .6; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+
+.wrap { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+.back {
+  display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  padding: 7px 14px 7px 10px; border-radius: 999px;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+  color: var(--ink); text-decoration: none; font: 600 14px/1 var(--font-ui);
+  transition: transform .08s, box-shadow .08s;
+}
+.back:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
+.back:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.back:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.back svg { width: 16px; height: 16px; }
+
+.logo {
+  margin: 0;
+  font: 400 clamp(44px, 12vw, 72px)/0.95 var(--font-title);
+  letter-spacing: .03em;
+  color: var(--yellow);
+  -webkit-text-stroke: 6px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 var(--ink);
+  transform: rotate(-2deg);
+  text-wrap: balance;
+}
+.lede { margin: 0; color: var(--ink); opacity: .8; font-size: 15px; max-width: 44ch; }
+
+.card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 7px 0 var(--ink);
+  padding-block: 20px;
+  padding-inline: clamp(14px, 4.5vw, 26px);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+/* Spelerskaarten (2 spelers) */
+.players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.player {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 16px; min-width: 0;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink);
+  transition: transform .2s, box-shadow .2s, background .2s;
+}
+.player.active { background: var(--yellow-soft); transform: translateY(-3px); box-shadow: 0 7px 0 var(--ink); }
+.who { display: flex; flex-direction: column; min-width: 0; }
+.player input {
+  font: 600 17px/1.2 var(--font-ui); color: var(--ink); background: transparent;
+  border: 0; border-bottom: 2px dashed transparent; padding: 1px 0; width: 100%; min-width: 0;
+}
+.player input:hover { border-bottom-color: var(--guide); }
+.player input:focus { outline: none; border-bottom-color: var(--ink); }
+.sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.player.active .sub { color: var(--ink); font-weight: 600; }
+.score { font: 400 30px/1 var(--font-title); font-variant-numeric: tabular-nums; }
+
+.status {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 36px; text-align: center;
+  font: 400 clamp(22px, 5.5vw, 28px)/1.1 var(--font-title); letter-spacing: .02em;
+}
+.status.flash { animation: bounce .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes bounce { from { transform: translateY(-10px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.btn {
+  font: 700 17px/1 var(--font-ui);
+  padding: 13px 20px; border-radius: 14px;
+  border: 3px solid var(--ink); background: var(--paper); color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink); cursor: pointer;
+  transition: transform .08s, box-shadow .08s;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.yellow { background: var(--yellow); }
+.btn.small { font-size: 14px; padding: 9px 14px; box-shadow: 0 3px 0 var(--ink); }
+.btn.danger.armed { background: var(--bad); color: #fff; }
+
+.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.hint { color: var(--ink); opacity: .75; font-size: 13px; margin: 0; max-width: 46ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .status.flash { animation: none !important; }
+  .player, .btn, .back { transition: none; }
+}
+</style>
+<style>
+/* Startpagina: grote titel, drie speelkaarten met een tekeningetje van elk spel */
+.wrap.wide { max-width: 940px; gap: 26px; }
+.hero { display: flex; flex-direction: column; gap: 14px; padding-top: 8px; }
+.hero .logo { font-size: clamp(50px, 14vw, 96px); }
+
+.games { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 22px; }
+.game {
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 14px 14px 18px;
+  background: var(--paper);
+  border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 7px 0 var(--ink);
+  color: var(--ink); text-decoration: none;
+  transition: transform .12s, box-shadow .12s;
+}
+.game:hover { transform: translateY(-4px) rotate(-.6deg); box-shadow: 0 11px 0 var(--ink); }
+.game:active { transform: translateY(4px); box-shadow: 0 3px 0 var(--ink); }
+.game:focus-visible { outline: 5px solid var(--yellow-deep); outline-offset: 3px; }
+.art { aspect-ratio: 4 / 3; border-radius: 14px; border: 3px solid var(--ink); background: var(--soft); overflow: hidden; }
+.art svg { display: block; width: 100%; height: 100%; }
+.game h2 { margin: 0; font: 400 28px/1 var(--font-title); letter-spacing: .02em; text-wrap: balance; }
+.game p { margin: 0; color: var(--muted); font-size: 15px; }
+.meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; flex-wrap: wrap; }
+.chip-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 600 13px/1 var(--font-ui); padding: 6px 10px; border-radius: 999px;
+  background: var(--soft); border: 2px solid var(--ink);
+}
+.chip-tag svg { width: 14px; height: 14px; }
+.play {
+  font: 700 16px/1 var(--font-ui); padding: 10px 16px; border-radius: 12px;
+  background: var(--yellow); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+}
+
+/* Tekeningetjes */
+.a-ink { stroke: var(--ink); stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; }
+.a-board { fill: var(--blue); }
+.a-hole { fill: var(--soft); }
+.a-red { fill: var(--red); }
+.a-yellow { fill: var(--yellow); }
+.a-blue { fill: var(--blue); }
+.a-redsoft { fill: var(--red-soft); }
+.a-dot { fill: var(--ink); }
+.a-line-r { stroke: var(--red); stroke-width: 9; stroke-linecap: round; }
+.a-line-b { stroke: var(--blue); stroke-width: 9; stroke-linecap: round; }
+.a-line-o { stroke: var(--ink); stroke-width: 15; stroke-linecap: round; }
+.a-mark { font: 400 34px/1 var(--font-title); fill: var(--red); stroke: var(--ink); stroke-width: 5px; paint-order: stroke fill; }
+.a-wood { fill: #9a5a2c; stroke: #5b3216; stroke-width: 3; stroke-linejoin: round; }
+.a-rope { stroke: #e3b23c; stroke-width: 5; stroke-linecap: round; }
+.a-skin { fill: #fff; }
+.a-grass { fill: #7bc96f; }
+.a-slot { stroke: var(--ink); stroke-width: 5; stroke-linecap: round; }
+.a-letter { font: 400 30px/1 var(--font-title); fill: var(--ink); }
+
+.tips { display: flex; gap: 12px; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <svg class="cloud c1" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c2" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c3" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+</div>
+<div class="wrap wide">
+  <header class="hero">
+    <h1 class="logo">SPELLETJES</h1>
+    <p class="lede">Klassieke spelletjes om samen te spelen op één scherm. Pak een telefoon of laptop, zet hem tussen jullie in en kies een spel.</p>
+  </header>
+
+  <main class="games">
+    <a class="game" href="vieropeenrij.html">
+      <div class="art">
+        <svg viewBox="0 0 240 180" aria-hidden="true">
+          <rect class="a-board a-ink" x="30" y="22" width="180" height="140" rx="14"></rect>
+          <g id="holes"></g>
+          <!-- 5 kolommen x 4 rijen, schijven -->
+          <g class="a-ink">
+            <circle class="a-hole" cx="60" cy="50" r="13"></circle><circle class="a-hole" cx="90" cy="50" r="13"></circle><circle class="a-hole" cx="120" cy="50" r="13"></circle><circle class="a-hole" cx="150" cy="50" r="13"></circle><circle class="a-yellow" cx="180" cy="50" r="13"></circle>
+            <circle class="a-hole" cx="60" cy="80" r="13"></circle><circle class="a-hole" cx="90" cy="80" r="13"></circle><circle class="a-hole" cx="120" cy="80" r="13"></circle><circle class="a-red" cx="150" cy="80" r="13"></circle><circle class="a-yellow" cx="180" cy="80" r="13"></circle>
+            <circle class="a-hole" cx="60" cy="110" r="13"></circle><circle class="a-yellow" cx="90" cy="110" r="13"></circle><circle class="a-red" cx="120" cy="110" r="13"></circle><circle class="a-yellow" cx="150" cy="110" r="13"></circle><circle class="a-red" cx="180" cy="110" r="13"></circle>
+            <circle class="a-red" cx="60" cy="140" r="13"></circle><circle class="a-red" cx="90" cy="140" r="13"></circle><circle class="a-yellow" cx="120" cy="140" r="13"></circle><circle class="a-red" cx="150" cy="140" r="13"></circle><circle class="a-yellow" cx="180" cy="140" r="13"></circle>
+          </g>
+        </svg>
+      </div>
+      <h2>4 op een Rij</h2>
+      <p>Laat om de beurt een schijf vallen. Wie als eerste vier op een lijn heeft, wint.</p>
+      <div class="meta">
+        <span class="chip-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="5" cy="5" r="3" fill="currentColor"/><circle cx="11" cy="5" r="3" fill="currentColor"/><path d="M0 15c0-3 2-5 5-5s5 2 5 5M6 15c0-3 2-5 5-5s5 2 5 5" fill="currentColor"/></svg>2 spelers</span>
+        <span class="play">Spelen</span>
+      </div>
+    </a>
+
+    <a class="game" href="kamertjeverhuren.html">
+      <div class="art">
+        <svg viewBox="0 0 240 180" aria-hidden="true">
+          <rect class="a-redsoft" x="80" y="60" width="40" height="40"></rect>
+          <g>
+            <line class="a-line-o" x1="40" y1="20" x2="80" y2="20"></line><line class="a-line-r" x1="40" y1="20" x2="80" y2="20"></line>
+            <line class="a-line-o" x1="80" y1="60" x2="120" y2="60"></line><line class="a-line-b" x1="80" y1="60" x2="120" y2="60"></line>
+            <line class="a-line-o" x1="80" y1="100" x2="120" y2="100"></line><line class="a-line-r" x1="80" y1="100" x2="120" y2="100"></line>
+            <line class="a-line-o" x1="80" y1="60" x2="80" y2="100"></line><line class="a-line-r" x1="80" y1="60" x2="80" y2="100"></line>
+            <line class="a-line-o" x1="120" y1="60" x2="120" y2="100"></line><line class="a-line-b" x1="120" y1="60" x2="120" y2="100"></line>
+            <line class="a-line-o" x1="160" y1="20" x2="160" y2="60"></line><line class="a-line-b" x1="160" y1="20" x2="160" y2="60"></line>
+            <line class="a-line-o" x1="160" y1="100" x2="200" y2="100"></line><line class="a-line-r" x1="160" y1="100" x2="200" y2="100"></line>
+            <line class="a-line-o" x1="40" y1="100" x2="40" y2="140"></line><line class="a-line-b" x1="40" y1="100" x2="40" y2="140"></line>
+            <line class="a-line-o" x1="120" y1="140" x2="160" y2="140"></line><line class="a-line-b" x1="120" y1="140" x2="160" y2="140"></line>
+            <line class="a-line-o" x1="200" y1="100" x2="200" y2="140"></line><line class="a-line-r" x1="200" y1="100" x2="200" y2="140"></line>
+          </g>
+          <text class="a-mark" x="100" y="81" text-anchor="middle" dominant-baseline="central">M</text>
+          <g class="a-dot">
+            <circle cx="40" cy="20" r="6"/><circle cx="80" cy="20" r="6"/><circle cx="120" cy="20" r="6"/><circle cx="160" cy="20" r="6"/><circle cx="200" cy="20" r="6"/>
+            <circle cx="40" cy="60" r="6"/><circle cx="80" cy="60" r="6"/><circle cx="120" cy="60" r="6"/><circle cx="160" cy="60" r="6"/><circle cx="200" cy="60" r="6"/>
+            <circle cx="40" cy="100" r="6"/><circle cx="80" cy="100" r="6"/><circle cx="120" cy="100" r="6"/><circle cx="160" cy="100" r="6"/><circle cx="200" cy="100" r="6"/>
+            <circle cx="40" cy="140" r="6"/><circle cx="80" cy="140" r="6"/><circle cx="120" cy="140" r="6"/><circle cx="160" cy="140" r="6"/><circle cx="200" cy="140" r="6"/>
+          </g>
+        </svg>
+      </div>
+      <h2>Kamertje Verhuren</h2>
+      <p>Trek lijntjes tussen de stippen. Maak je een kamertje dicht, dan is het van jou.</p>
+      <div class="meta">
+        <span class="chip-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="5" cy="5" r="3" fill="currentColor"/><circle cx="11" cy="5" r="3" fill="currentColor"/><path d="M0 15c0-3 2-5 5-5s5 2 5 5M6 15c0-3 2-5 5-5s5 2 5 5" fill="currentColor"/></svg>2 spelers</span>
+        <span class="play">Spelen</span>
+      </div>
+    </a>
+
+    <a class="game" href="galgje.html">
+      <div class="art">
+        <svg viewBox="0 0 240 180" aria-hidden="true">
+          <rect class="a-grass" x="0" y="160" width="240" height="20"></rect>
+          <rect class="a-wood" x="22" y="150" width="76" height="12" rx="3"></rect>
+          <rect class="a-wood" x="48" y="22" width="14" height="130" rx="3"></rect>
+          <rect class="a-wood" x="44" y="16" width="86" height="14" rx="3"></rect>
+          <polygon class="a-wood" points="61,62 61,74 92,30 80,30"></polygon>
+          <line class="a-rope" x1="112" y1="30" x2="112" y2="46"></line>
+          <circle class="a-skin a-ink" cx="112" cy="60" r="14"></circle>
+          <circle class="a-dot" cx="107" cy="57" r="2.2"></circle><circle class="a-dot" cx="117" cy="57" r="2.2"></circle>
+          <path class="a-ink" fill="none" d="M106 64 Q112 70 118 64"></path>
+          <path class="a-skin a-ink" d="M106 74 H118 L122 100 H102 Z"></path>
+          <path class="a-ink" fill="none" d="M104 80 L92 90 M120 80 L132 90"></path>
+          <text class="a-letter" x="166" y="122" text-anchor="middle">A</text>
+          <line class="a-slot" x1="140" y1="130" x2="152" y2="130"></line>
+          <line class="a-slot" x1="160" y1="130" x2="172" y2="130"></line>
+          <line class="a-slot" x1="180" y1="130" x2="192" y2="130"></line>
+          <line class="a-slot" x1="200" y1="130" x2="212" y2="130"></line>
+        </svg>
+      </div>
+      <h2>Galgje</h2>
+      <p>Eén iemand bedenkt een geheim woord, de rest raadt samen letter voor letter.</p>
+      <div class="meta">
+        <span class="chip-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="5" r="2.5" fill="currentColor"/><circle cx="8" cy="4" r="2.8" fill="currentColor"/><circle cx="12.5" cy="5" r="2.5" fill="currentColor"/><path d="M0 15c0-2.5 1.5-4.5 3.5-4.5M16 15c0-2.5-1.5-4.5-3.5-4.5M3.5 15c0-3 2-5 4.5-5s4.5 2 4.5 5" fill="currentColor"/></svg>Groep</span>
+        <span class="play">Spelen</span>
+      </div>
+    </a>
+  </main>
+
+  <div class="tips">
+    <p class="hint">Scores en namen worden in deze browser onthouden. Elk spel heeft een knop om alles op 0 te zetten.</p>
+  </div>
+</div>
+</body>
+</html>

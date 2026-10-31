@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kamertje Verhuren</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* Gedeelde stijl van de spelletjessite: lucht met wolken, dikke inktranden, gele titels.
+   Bewust één vaste, vrolijke look (geen donkere variant). */
+:root {
+  --sky-top: #7cc8ef;
+  --sky-bottom: #c4ebfb;
+  --cloud: #ffffff;
+  --paper: #ffffff;
+  --ink: #1f2a3c;
+  --muted: #55667f;
+  --soft: #e9f4fb;
+  --guide: #d3e2ee;
+  --yellow: #ffcc2e;
+  --yellow-deep: #f2a900;
+  --yellow-soft: #fff3c4;
+  --red: #e0443a;
+  --red-soft: #fde2df;
+  --blue: #2f6fe0;
+  --blue-deep: #1d4fb8;
+  --blue-soft: #dce8fb;
+  --good: #1f9a5a;
+  --good-soft: #d9f5e5;
+  --bad: #e0443a;
+  --bad-soft: #fde2df;
+  --font-title: "Lilita One", "Arial Black", Impact, sans-serif;
+  --font-ui: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--sky-top); }
+body {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 70%) fixed;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 44px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.sky { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.cloud { position: absolute; fill: var(--cloud); opacity: .9; animation: drift linear infinite; }
+.cloud.c1 { width: 130px; top: 9%; left: -10%; animation-duration: 70s; }
+.cloud.c2 { width: 90px; top: 38%; left: -20%; animation-duration: 95s; animation-delay: -40s; opacity: .7; }
+.cloud.c3 { width: 160px; top: 70%; left: -25%; animation-duration: 120s; animation-delay: -75s; opacity: .6; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+
+.wrap { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+.back {
+  display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  padding: 7px 14px 7px 10px; border-radius: 999px;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+  color: var(--ink); text-decoration: none; font: 600 14px/1 var(--font-ui);
+  transition: transform .08s, box-shadow .08s;
+}
+.back:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
+.back:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.back:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.back svg { width: 16px; height: 16px; }
+
+.logo {
+  margin: 0;
+  font: 400 clamp(44px, 12vw, 72px)/0.95 var(--font-title);
+  letter-spacing: .03em;
+  color: var(--yellow);
+  -webkit-text-stroke: 6px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 var(--ink);
+  transform: rotate(-2deg);
+  text-wrap: balance;
+}
+.lede { margin: 0; color: var(--ink); opacity: .8; font-size: 15px; max-width: 44ch; }
+
+.card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 7px 0 var(--ink);
+  padding-block: 20px;
+  padding-inline: clamp(14px, 4.5vw, 26px);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+/* Spelerskaarten (2 spelers) */
+.players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.player {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 16px; min-width: 0;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink);
+  transition: transform .2s, box-shadow .2s, background .2s;
+}
+.player.active { background: var(--yellow-soft); transform: translateY(-3px); box-shadow: 0 7px 0 var(--ink); }
+.who { display: flex; flex-direction: column; min-width: 0; }
+.player input {
+  font: 600 17px/1.2 var(--font-ui); color: var(--ink); background: transparent;
+  border: 0; border-bottom: 2px dashed transparent; padding: 1px 0; width: 100%; min-width: 0;
+}
+.player input:hover { border-bottom-color: var(--guide); }
+.player input:focus { outline: none; border-bottom-color: var(--ink); }
+.sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.player.active .sub { color: var(--ink); font-weight: 600; }
+.score { font: 400 30px/1 var(--font-title); font-variant-numeric: tabular-nums; }
+
+.status {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 36px; text-align: center;
+  font: 400 clamp(22px, 5.5vw, 28px)/1.1 var(--font-title); letter-spacing: .02em;
+}
+.status.flash { animation: bounce .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes bounce { from { transform: translateY(-10px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.btn {
+  font: 700 17px/1 var(--font-ui);
+  padding: 13px 20px; border-radius: 14px;
+  border: 3px solid var(--ink); background: var(--paper); color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink); cursor: pointer;
+  transition: transform .08s, box-shadow .08s;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.yellow { background: var(--yellow); }
+.btn.small { font-size: 14px; padding: 9px 14px; box-shadow: 0 3px 0 var(--ink); }
+.btn.danger.armed { background: var(--bad); color: #fff; }
+
+.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.hint { color: var(--ink); opacity: .75; font-size: 13px; margin: 0; max-width: 46ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .status.flash { animation: none !important; }
+  .player, .btn, .back { transition: none; }
+}
+</style>
+<style>
+/* Speelveld: wit papier met inktrand; stippen, dikke lijntjes met inktrand, gekleurde kamertjes */
+.paper { padding: 4%; background: var(--paper); border-radius: 16px; border: 3px solid var(--ink); }
+svg.field { display: block; width: 100%; height: auto; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+
+.box { fill: transparent; transition: fill .3s; }
+.box.p1 { fill: var(--red-soft); }
+.box.p2 { fill: var(--blue-soft); }
+.mark {
+  font-family: var(--font-title); font-size: 50px;
+  text-anchor: middle; dominant-baseline: central;
+  stroke: var(--ink); stroke-width: 6px; paint-order: stroke fill; stroke-linejoin: round;
+  opacity: 0; transform-box: fill-box; transform-origin: center; pointer-events: none;
+}
+.mark.p1 { fill: var(--red); opacity: 1; animation: stamp .4s cubic-bezier(.3, 1.6, .5, 1); }
+.mark.p2 { fill: var(--blue); opacity: 1; animation: stamp .4s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes stamp { from { transform: scale(.3); } to { transform: scale(1); } }
+
+.edge { cursor: pointer; outline: none; }
+.edge line { stroke-linecap: round; }
+.edge .hit { stroke: transparent; stroke-width: 36; pointer-events: stroke; }
+.edge .out { stroke: transparent; stroke-width: 20; }
+.edge .vis { stroke: var(--guide); stroke-width: 6; transition: stroke .12s, stroke-width .12s; }
+.edge:hover .vis, .edge:focus-visible .vis { stroke: var(--hover); stroke-width: 12; opacity: .55; }
+.edge:focus-visible .vis { opacity: .85; }
+.edge.taken { cursor: default; }
+.edge.taken .out { stroke: var(--ink); }
+.edge.taken .vis { stroke-width: 12; opacity: 1; animation: draw .25s ease-out; }
+.edge.taken.p1 .vis { stroke: var(--red); }
+.edge.taken.p2 .vis { stroke: var(--blue); }
+.edge.last .out { stroke-width: 24; }
+@keyframes draw { from { stroke-width: 3; } }
+svg[data-p="1"] { --hover: var(--red); }
+svg[data-p="2"] { --hover: var(--blue); }
+svg.over .edge { cursor: default; }
+svg.over .edge:not(.taken) .vis { stroke: var(--guide) !important; stroke-width: 6 !important; opacity: 1 !important; }
+.dot { fill: var(--ink); pointer-events: none; }
+
+.swatch { width: 30px; height: 12px; border-radius: 6px; flex: none; border: 3px solid var(--ink); background: var(--pc); }
+.player[data-p="1"] { --pc: var(--red); }
+.player[data-p="2"] { --pc: var(--blue); }
+
+.toolbar { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.sizes { display: flex; gap: 4px; align-items: center; padding: 4px; border-radius: 14px; background: var(--soft); border: 3px solid var(--ink); }
+.sizes span { font-size: 13px; font-weight: 600; color: var(--muted); padding: 0 6px 0 8px; }
+.sizes button {
+  font: 400 16px/1 var(--font-title); font-variant-numeric: tabular-nums;
+  padding: 8px 10px; border-radius: 9px; border: 0; background: transparent; color: var(--ink); cursor: pointer;
+}
+.sizes button[aria-pressed="true"] { background: var(--yellow); box-shadow: inset 0 0 0 2px var(--ink); }
+.sizes button:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 1px; }
+.controls { justify-content: flex-end; }
+
+@media (prefers-reduced-motion: reduce) {
+  .edge.taken .vis, .mark.p1, .mark.p2 { animation: none !important; }
+  .box, .edge .vis { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <svg class="cloud c1" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c2" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c3" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+</div>
+<div class="wrap">
+  <a class="back" href="./"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Alle spelletjes</a>
+  <header>
+    <h1 class="logo">KAMERTJE VERHUREN</h1>
+  </header>
+
+  <section class="players" aria-label="Spelers en score">
+    <div class="player" data-p="1">
+      <span class="swatch" aria-hidden="true"></span>
+      <div class="who">
+        <input id="name1" value="Speler 1" maxlength="16" aria-label="Naam speler 1 (rood)">
+        <span class="sub" id="wins1">0 keer gewonnen</span>
+      </div>
+      <span class="score" id="score1" aria-label="Kamertjes speler 1">0</span>
+    </div>
+    <div class="player" data-p="2">
+      <span class="swatch" aria-hidden="true"></span>
+      <div class="who">
+        <input id="name2" value="Speler 2" maxlength="16" aria-label="Naam speler 2 (blauw)">
+        <span class="sub" id="wins2">0 keer gewonnen</span>
+      </div>
+      <span class="score" id="score2" aria-label="Kamertjes speler 2">0</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <div class="paper">
+      <svg class="field" id="board" role="group" aria-label="Speelveld"></svg>
+    </div>
+    <div class="toolbar">
+      <div class="sizes" role="group" aria-label="Aantal kamertjes">
+        <span>Kamers</span>
+        <button type="button" id="size3" data-n="3">3×3</button>
+        <button type="button" id="size4" data-n="4">4×4</button>
+        <button type="button" id="size5" data-n="5">5×5</button>
+        <button type="button" id="size6" data-n="6">6×6</button>
+      </div>
+      <div class="controls">
+        <button class="btn" id="undo" type="button">Zet terug</button>
+        <button class="btn yellow" id="newgame" type="button">Nieuw spel</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <p class="hint">Trek om de beurt een lijntje tussen twee stippen. Maak je een kamertje dicht, dan is het van jou en ben je nog een keer.</p>
+    <button class="btn small danger" id="fullReset" type="button">Volledig resetten</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const S = 100, M = 24, KEY = 'kamertje-verhuren';
+  const NS = 'http://www.w3.org/2000/svg';
+  const $ = (id) => document.getElementById(id);
+  const svg = $('board'), statusEl = $('status');
+
+  let n = 4, H, V, B, boxEls, markEls, edgeEls, current, starter = 1, moves, over, lastEdge = null;
+  let wins = { 1: 0, 2: 0 };
+
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (s) {
+      wins = s.wins || wins;
+      if (s.n >= 3 && s.n <= 6) n = s.n;
+      if (s.names) { $('name1').value = s.names[1] || 'Speler 1'; $('name2').value = s.names[2] || 'Speler 2'; }
+    }
+  } catch (e) {}
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify({ wins, n, names: { 1: $('name1').value, 2: $('name2').value } })); } catch (e) {}
+  }
+  const name = (p) => ($('name' + p).value.trim() || ('Speler ' + p));
+  const initial = (p) => name(p).charAt(0).toUpperCase();
+  const swatch = (p) => `<span class="swatch" style="--pc:var(--${p === 1 ? 'red' : 'blue'})" aria-hidden="true"></span>`;
+  const esc = (s) => s.replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const el = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+
+  function build() {
+    svg.innerHTML = '';
+    const size = n * S;
+    svg.setAttribute('viewBox', `${-M} ${-M} ${size + 2 * M} ${size + 2 * M}`);
+    H = Array.from({ length: n + 1 }, () => Array(n).fill(0));
+    V = Array.from({ length: n }, () => Array(n + 1).fill(0));
+    B = Array.from({ length: n }, () => Array(n).fill(0));
+    boxEls = []; markEls = []; edgeEls = {};
+
+    const gBoxes = el('g', {}), gEdges = el('g', {}), gMarks = el('g', {}), gDots = el('g', {});
+    for (let r = 0; r < n; r++) {
+      boxEls.push([]); markEls.push([]);
+      for (let c = 0; c < n; c++) {
+        const rect = el('rect', { class: 'box', x: c * S, y: r * S, width: S, height: S });
+        const t = el('text', { class: 'mark', x: c * S + S / 2, y: r * S + S / 2 + 2 });
+        gBoxes.append(rect); gMarks.append(t);
+        boxEls[r].push(rect); markEls[r].push(t);
+      }
+    }
+    const addEdge = (type, r, c, x1, y1, x2, y2, label) => {
+      const g = el('g', { class: 'edge', tabindex: '0', role: 'button', 'aria-label': label });
+      g.append(el('line', { class: 'hit', x1, y1, x2, y2 }), el('line', { class: 'out', x1, y1, x2, y2 }), el('line', { class: 'vis', x1, y1, x2, y2 }));
+      g.addEventListener('click', () => play(type, r, c));
+      g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(type, r, c); } });
+      gEdges.append(g);
+      edgeEls[type + r + '-' + c] = g;
+    };
+    for (let r = 0; r <= n; r++) for (let c = 0; c < n; c++)
+      addEdge('h', r, c, c * S, r * S, (c + 1) * S, r * S, `Liggend lijntje, rij ${r + 1}, vak ${c + 1}`);
+    for (let r = 0; r < n; r++) for (let c = 0; c <= n; c++)
+      addEdge('v', r, c, c * S, r * S, c * S, (r + 1) * S, `Staand lijntje, rij ${r + 1}, kolom ${c + 1}`);
+    for (let r = 0; r <= n; r++) for (let c = 0; c <= n; c++)
+      gDots.append(el('circle', { class: 'dot', cx: c * S, cy: r * S, r: 10 }));
+    svg.append(gBoxes, gEdges, gMarks, gDots);
+  }
+
+  function newGame(first) {
+    current = first; moves = []; over = false; lastEdge = null;
+    build();
+    document.querySelectorAll('.sizes button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.n === n)));
+    update();
+  }
+
+  const isBoxDone = (r, c) => H[r][c] && H[r + 1][c] && V[r][c] && V[r][c + 1];
+  const count = (p) => B.flat().filter((x) => x === p).length;
+
+  function play(type, r, c) {
+    if (over) return;
+    const arr = type === 'h' ? H : V;
+    if (arr[r][c]) return;
+    arr[r][c] = current;
+    const cand = type === 'h' ? [[r - 1, c], [r, c]] : [[r, c - 1], [r, c]];
+    const claimed = [];
+    for (const [br, bc] of cand) {
+      if (br >= 0 && br < n && bc >= 0 && bc < n && !B[br][bc] && isBoxDone(br, bc)) { B[br][bc] = current; claimed.push([br, bc]); }
+    }
+    moves.push({ type, r, c, p: current, claimed });
+    const g = edgeEls[type + r + '-' + c];
+    g.classList.add('taken', 'p' + current);
+    g.setAttribute('tabindex', '-1'); g.setAttribute('aria-disabled', 'true');
+    setLast(g);
+    claimed.forEach(([br, bc]) => paintBox(br, bc, current));
+
+    if (B.flat().every(Boolean)) {
+      over = true;
+      const a = count(1), b = count(2);
+      if (a !== b) wins[a > b ? 1 : 2]++;
+      save();
+    } else if (!claimed.length) {
+      current = current === 1 ? 2 : 1;
+    }
+    update(claimed.length > 0);
+  }
+
+  function paintBox(r, c, p) {
+    boxEls[r][c].setAttribute('class', p ? 'box p' + p : 'box');
+    markEls[r][c].setAttribute('class', p ? 'mark p' + p : 'mark');
+    markEls[r][c].textContent = p ? initial(p) : '';
+  }
+  function setLast(g) { if (lastEdge) lastEdge.classList.remove('last'); lastEdge = g; if (g) g.classList.add('last'); }
+
+  function undo() {
+    if (!moves.length) return;
+    const m = moves.pop();
+    if (over) { const a = count(1), b = count(2); if (a !== b) wins[a > b ? 1 : 2]--; save(); }
+    (m.type === 'h' ? H : V)[m.r][m.c] = 0;
+    const g = edgeEls[m.type + m.r + '-' + m.c];
+    g.classList.remove('taken', 'p1', 'p2', 'last');
+    g.setAttribute('tabindex', '0'); g.removeAttribute('aria-disabled');
+    m.claimed.forEach(([br, bc]) => { B[br][bc] = 0; paintBox(br, bc, 0); });
+    const prev = moves[moves.length - 1];
+    setLast(prev ? edgeEls[prev.type + prev.r + '-' + prev.c] : null);
+    over = false; current = m.p;
+    update();
+  }
+
+  function update(bonus) {
+    $('score1').textContent = count(1);
+    $('score2').textContent = count(2);
+    [1, 2].forEach((p) => {
+      const active = !over && p === current;
+      document.querySelector(`.player[data-p="${p}"]`).classList.toggle('active', active);
+      $('wins' + p).textContent = active ? 'is aan zet' : `${wins[p]} keer gewonnen`;
+    });
+    svg.dataset.p = current;
+    svg.classList.toggle('over', over);
+
+    statusEl.classList.remove('flash');
+    let flash = false;
+    if (over) {
+      const a = count(1), b = count(2);
+      if (a === b) statusEl.innerHTML = `<span>Gelijkspel, ${a} tegen ${b}</span>`;
+      else { const w = a > b ? 1 : 2; statusEl.innerHTML = `${swatch(w)}<span>${esc(name(w))} wint met ${Math.max(a, b)} tegen ${Math.min(a, b)}!</span>`; }
+      flash = true;
+    } else if (bonus) {
+      statusEl.innerHTML = `${swatch(current)}<span>Kamertje voor ${esc(name(current))}! Nog een keer</span>`;
+      flash = true;
+    } else {
+      statusEl.innerHTML = `${swatch(current)}<span>${esc(name(current))} is aan zet</span>`;
+    }
+    if (flash) { void statusEl.offsetWidth; statusEl.classList.add('flash'); }
+    $('undo').disabled = moves.length === 0;
+  }
+
+  $('newgame').addEventListener('click', () => { starter = starter === 1 ? 2 : 1; newGame(starter); });
+  $('undo').addEventListener('click', undo);
+  document.querySelectorAll('.sizes button').forEach((b) => b.addEventListener('click', () => { n = +b.dataset.n; save(); newGame(starter); }));
+  ['name1', 'name2'].forEach((id) => $(id).addEventListener('input', () => {
+    save();
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (B[r][c]) markEls[r][c].textContent = initial(B[r][c]);
+    update();
+  }));
+
+  let armTimer = null;
+  function disarm() { clearTimeout(armTimer); const b = $('fullReset'); b.classList.remove('armed'); b.textContent = 'Volledig resetten'; }
+  $('fullReset').addEventListener('click', () => {
+    const b = $('fullReset');
+    if (!b.classList.contains('armed')) {
+      b.classList.add('armed'); b.textContent = 'Zeker weten? Klik nog een keer';
+      clearTimeout(armTimer); armTimer = setTimeout(disarm, 4000); return;
+    }
+    disarm();
+    wins = { 1: 0, 2: 0 }; n = 4;
+    $('name1').value = 'Speler 1'; $('name2').value = 'Speler 2';
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    starter = 1; newGame(1);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'Backspace' || (e.key === 'z' && (e.ctrlKey || e.metaKey))) { e.preventDefault(); undo(); }
+  });
+
+  newGame(starter);
+})();
+</script>
+</body>
+</html>
