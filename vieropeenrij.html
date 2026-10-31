@@ -151,6 +151,99 @@ details.card:not([open]) { gap: 0; }
   .cloud, .status.flash { animation: none !important; }
   .player, .btn, .back { transition: none; }
 }
+
+/* ---- Online-schermen (gedeeld) ---- */
+.ol-where { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ol-mode {
+  text-align: left; display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  padding: 12px 14px; border-radius: 16px; border: 3px solid var(--ink); background: var(--paper);
+  color: var(--ink); cursor: pointer; box-shadow: 0 4px 0 var(--ink); font: inherit;
+  transition: transform .1s, box-shadow .1s, background .15s;
+}
+.ol-mode b { font: 400 18px/1.1 var(--font-title); letter-spacing: .02em; }
+.ol-mode span { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.ol-mode[aria-pressed="true"] { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); }
+.ol-mode[aria-pressed="true"] span { color: var(--ink); }
+.ol-mode:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.ol-wrap { display: flex; flex-direction: column; gap: 18px; }
+.ol-card { gap: 12px; }
+.ol-h2 { margin: 0; font: 700 22px/1.2 var(--font-ui); text-wrap: balance; }
+.ol-muted { margin: 0; color: var(--muted); }
+.ol-small { font-size: 13px; font-weight: 600; color: var(--muted); }
+.ol-label { font-weight: 700; font-size: 14px; margin-bottom: -6px; }
+.ol-input {
+  min-width: 0; width: 100%; font: 600 17px/1.2 var(--font-ui);
+  padding: 11px 13px; border-radius: 12px; border: 3px solid var(--ink); background: var(--soft); color: var(--ink);
+}
+.ol-input:focus { outline: none; box-shadow: 0 0 0 4px var(--yellow); }
+.ol-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .ol-split { grid-template-columns: 1fr; } }
+.ol-box { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 16px; background: var(--soft); border: 3px dashed var(--ink); min-width: 0; }
+.ol-box b { font: 400 19px/1.1 var(--font-title); letter-spacing: .02em; }
+.ol-box span { font-size: 14px; color: var(--muted); }
+.ol-join { display: flex; gap: 8px; }
+.ol-code-in { font: 400 22px/1 var(--font-title); letter-spacing: .2em; text-transform: uppercase; text-align: center; flex: 1; background: var(--paper); }
+.ol-room { padding-block: 14px; gap: 10px; }
+.ol-room-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ol-room-code { display: flex; flex-direction: column; }
+.ol-room-code b { font: 400 34px/1 var(--font-title); letter-spacing: .14em; user-select: all; -webkit-user-select: all; }
+.ol-share { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ol-copy-msg { font-size: 13px; font-weight: 600; color: var(--good); }
+.ol-copy-msg:empty { display: none; }
+.ol-players { display: flex; flex-wrap: wrap; gap: 6px; }
+.ol-pl { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 2px solid var(--ink); background: var(--paper); font-weight: 700; font-size: 14px; }
+.ol-pl.me { background: var(--yellow-soft); }
+.ol-pl.off { opacity: .45; border-style: dashed; }
+.ol-pl small { font-size: 11px; font-weight: 600; color: var(--muted); }
+.ol-pl i { font-style: normal; font-size: 12px; font-weight: 600; color: var(--muted); }
+.ol-pl i.ok { color: var(--good); }
+.ol-pl b { font: 400 15px/1 var(--font-title); padding: 2px 6px; border-radius: 6px; background: var(--yellow); }
+.ol-msg { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--soft); font-size: 14px; font-weight: 600; }
+.ol-msg.bad { background: var(--bad-soft); color: #9a2a22; }
+.ol-retry { align-self: flex-start; }
+/* bouwstenen voor de spelschermen */
+.ol-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ol-tag { font: 400 15px/1 var(--font-title); letter-spacing: .05em; padding: 7px 12px; border-radius: 10px; background: var(--yellow); border: 3px solid var(--ink); }
+.ol-q { margin: 0; font: 700 clamp(21px, 5.4vw, 28px)/1.25 var(--font-ui); text-wrap: balance; }
+.ol-cta { font-size: 19px; padding: 15px 20px; }
+.ol-hostrow { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding-top: 10px; border-top: 3px dashed var(--soft); }
+.ol-box-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 14px; border-radius: 14px; background: var(--soft); border: 3px dashed var(--ink); }
+.ol-box-line b { font: 700 17px/1.25 var(--font-ui); flex: 1; min-width: 160px; }
+.ol-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.ol-choice {
+  text-align: left; padding: 12px 14px; border-radius: 14px; border: 3px solid var(--ink); background: var(--paper);
+  color: var(--ink); font: 700 17px/1.2 var(--font-ui); cursor: pointer; box-shadow: 0 3px 0 var(--ink); min-width: 0; overflow-wrap: anywhere;
+}
+.ol-choice:hover:not(:disabled) { background: var(--yellow-soft); }
+.ol-choice[aria-pressed="true"] { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 5px 0 var(--ink); }
+.ol-choice:disabled { cursor: default; opacity: .6; }
+.ol-choice:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 2px; }
+.ol-done { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 14px; background: var(--good-soft); border: 3px solid var(--good); }
+.ol-done b { font: 400 20px/1.1 var(--font-title); color: var(--good); letter-spacing: .02em; }
+.ol-bars { display: flex; flex-direction: column; gap: 8px; }
+.ol-bar { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 12px; border: 3px solid var(--ink); background: var(--paper); overflow: hidden; }
+.ol-bar::before { content: ""; position: absolute; inset: 0 auto 0 0; width: calc(var(--w, 0) * 1%); background: var(--bc, var(--yellow-soft)); transition: width .6s ease-out; }
+.ol-bar > * { position: relative; }
+.ol-bar .row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.ol-bar b { font: 700 17px/1.2 var(--font-ui); min-width: 0; overflow-wrap: anywhere; }
+.ol-bar .n { font: 400 20px/1 var(--font-title); white-space: nowrap; }
+.ol-bar small { font-size: 13px; color: var(--muted); font-weight: 600; }
+.ol-bar.win { --bc: var(--yellow); }
+.ol-scores { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.ol-scores li { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 10px; background: var(--paper); border: 2px solid var(--ink); }
+.ol-scores li span { flex: 1; font-weight: 700; }
+.ol-scores li b { font: 400 18px/1 var(--font-title); }
+.ol-scores li:first-child { background: var(--yellow); }
+.ol-scores li.me { box-shadow: inset 0 0 0 2px var(--ink); }
+.ol-seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.ol-seg button { font: 600 14px/1 var(--font-ui); padding: 8px 12px; border-radius: 999px; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; }
+.ol-seg button[aria-pressed="true"] { background: var(--yellow); }
+.ol-check { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ol-check input { width: 18px; height: 18px; accent-color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .ol-bar::before { transition: none; } }
+.ol-solo { display: flex; flex-direction: column; gap: 18px; }
+.ol-solo[hidden] { display: none !important; }
+
 </style>
 <style>
 /* Speelbord: blauw rek met inktrand, gaten met rand, schijven vallen achter het front langs */
@@ -326,6 +419,7 @@ details.card:not([open]) { gap: 0; }
       <span class="muted small">Jouw lobbycode</span>
       <div class="code-big" id="codeBig" aria-live="polite"></div>
       <p class="muted" id="waitText">Wachten op tegenstander…</p>
+      <p class="muted small">Tip: wissel je even van app, bijvoorbeeld om de link te delen, dan blijft de lobby gewoon open.</p>
       <div class="share-row">
         <button class="btn yellow" type="button" id="shareBtn" hidden>Deel link</button>
         <button class="btn" type="button" id="copyLink">Kopieer link</button>
@@ -649,9 +743,10 @@ details.card:not([open]) { gap: 0; }
   function leaveOnline() {
     try { if (NET.conn) NET.conn.close(); } catch (e) {}
     try { if (NET.peer) NET.peer.destroy(); } catch (e) {}
-    clearTimeout(NET.joinTimer);
+    clearTimeout(NET.joinTimer); clearTimeout(NET.retryTimer);
+    keepAwake(false);
     const ls = NET.localSave;
-    Object.assign(NET, { on: false, role: null, me: 0, peer: null, conn: null, code: '', opp: '', state: 'idle', localSave: null, guestId: '' });
+    Object.assign(NET, { on: false, role: null, me: 0, peer: null, conn: null, code: '', opp: '', state: 'idle', localSave: null, guestId: '', joined: false, tries: 0 });
     $('name1').readOnly = false; $('name2').readOnly = false;
     if (ls) {
       scores = ls.scores; $('name1').value = ls.n1; $('name2').value = ls.n2;
@@ -670,7 +765,7 @@ details.card:not([open]) { gap: 0; }
     loadPeer().then(() => {
       const code = newCode();
       const peer = new window.Peer(PEER_PREFIX + code, peerOpts());
-      peer.on('open', () => {
+      wireHostPeer(peer, () => {
         enterOnline('host');
         NET.peer = peer; NET.code = code; NET.state = 'waiting';
         newGame(1);
@@ -678,15 +773,35 @@ details.card:not([open]) { gap: 0; }
         $('linkBox').value = lobbyLink(code);
         $('waitText').textContent = 'Wachten op tegenstander…';
         showLobby('wait'); netMsg(''); $('hostBtn').disabled = false;
-      });
-      peer.on('connection', (c) => attach(c));
-      peer.on('disconnected', () => { if (NET.peer === peer && !peer.destroyed) setTimeout(() => { try { peer.reconnect(); } catch (e) {} }, 1500); });
-      peer.on('error', (err) => {
+        keepAwake(true);
+      }, (err) => {
         if (err.type === 'unavailable-id' && tries < 3) { peer.destroy(); host(tries + 1); return; }
-        if (NET.peer !== peer) { $('hostBtn').disabled = false; netMsg(errText(err), true); peer.destroy(); return; }
-        if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') netMsg('Verbinding met de koppeldienst haperde. We proberen het opnieuw…', true);
+        $('hostBtn').disabled = false; netMsg(errText(err), true); peer.destroy();
       });
     }).catch(() => { $('hostBtn').disabled = false; netMsg(libError(), true); });
+  }
+
+  // Koppeldienst-verbinding van de host bewaken en zo nodig herstellen
+  function wireHostPeer(peer, onFirstOpen, onFirstError) {
+    let opened = false;
+    peer.on('open', () => { if (!opened) { opened = true; if (onFirstOpen) onFirstOpen(); } });
+    peer.on('connection', (c) => attach(c));
+    peer.on('disconnected', () => { if (NET.peer === peer && !peer.destroyed) setTimeout(() => hostRevive(), 1500); });
+    peer.on('close', () => { if (NET.peer === peer && NET.on) setTimeout(() => hostRevive(), 1500); });
+    peer.on('error', (err) => {
+      if (!opened && NET.peer !== peer) { if (onFirstError) onFirstError(err); return; }
+      if (err.type === 'unavailable-id') { setTimeout(() => hostRevive(true), 5000); return; }
+      if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(err.type)) setTimeout(() => hostRevive(), 3000);
+    });
+  }
+  function hostRevive(force) {
+    if (!NET.on || NET.role !== 'host') return;
+    const p = NET.peer;
+    if (p && !p.destroyed && !force) { if (p.disconnected) { try { p.reconnect(); } catch (e) {} } return; }
+    try { if (p && !p.destroyed) p.destroy(); } catch (e) {}
+    const peer = new window.Peer(PEER_PREFIX + NET.code, peerOpts());
+    NET.peer = peer;
+    wireHostPeer(peer);
   }
 
   // ---- Meedoen ----
@@ -702,7 +817,7 @@ details.card:not([open]) { gap: 0; }
         const peer = new window.Peer(peerOpts());
         peer.on('open', () => {
           if (!NET.on) enterOnline('guest');
-          NET.peer = peer; NET.code = code; NET.state = 'connecting';
+          NET.peer = peer; NET.code = code; NET.state = NET.joined ? 'lost' : 'connecting';
           connectToHost();
         });
         peer.on('disconnected', () => { if (NET.peer === peer && !peer.destroyed) setTimeout(() => { try { peer.reconnect(); } catch (e) {} }, 1500); });
@@ -710,11 +825,12 @@ details.card:not([open]) { gap: 0; }
           $('joinBtn').disabled = false;
           if (err.type === 'peer-unavailable') {
             clearTimeout(NET.joinTimer);
-            if (NET.state === 'lost') { netMsg('De lobby is niet meer bereikbaar. Vraag om een nieuwe code.', true); return; }
+            if (NET.joined) { scheduleRejoin(4000); return; }
             netMsg('Geen lobby gevonden met code ' + code + '. Klopt de code?', true);
             leaveIfNotPlaying();
             return;
           }
+          if (NET.joined) { scheduleRejoin(4000); return; }
           netMsg(errText(err), true);
         });
       };
@@ -722,7 +838,7 @@ details.card:not([open]) { gap: 0; }
     }).catch(() => { $('joinBtn').disabled = false; netMsg(libError(), true); });
   }
   function leaveIfNotPlaying() {
-    if (NET.on && NET.role === 'guest' && NET.state !== 'connected' && NET.state !== 'lost') {
+    if (NET.on && NET.role === 'guest' && !NET.joined && NET.state !== 'connected') {
       try { NET.peer.destroy(); } catch (e) {}
       const ls = NET.localSave; NET.on = false; NET.peer = null; NET.state = 'idle';
       $('name1').readOnly = false; $('name2').readOnly = false;
@@ -738,12 +854,22 @@ details.card:not([open]) { gap: 0; }
     NET.joinTimer = setTimeout(() => {
       if (!c.open) {
         $('joinBtn').disabled = false;
+        if (NET.joined) { try { c.close(); } catch (e) {} scheduleRejoin(1000); return; }
         netMsg('Het lukt niet om verbinding te maken. Probeer een ander netwerk (bijvoorbeeld wifi in plaats van 4G) of vraag om een nieuwe code.', true);
-        if (NET.state !== 'lost') leaveIfNotPlaying();
+        leaveIfNotPlaying();
       }
-    }, 15000);
+    }, 20000);
   }
-  $('rejoinBtn').addEventListener('click', () => { netMsg('Opnieuw verbinden…'); join(NET.code); });
+  // Automatisch opnieuw verbinden als de gast de verbinding kwijtraakt
+  function scheduleRejoin(delay) {
+    if (!NET.on || NET.role !== 'guest' || NET.state === 'connected') return;
+    clearTimeout(NET.retryTimer);
+    NET.tries = (NET.tries || 0) + 1;
+    if (NET.tries > 40) { netMsg('Je tegenstander is niet bereikbaar. Tik op Opnieuw verbinden om het nog eens te proberen.', true); NET.tries = 0; return; }
+    netMsg(`Verbinding weg. Opnieuw verbinden… (poging ${NET.tries})`, true);
+    NET.retryTimer = setTimeout(() => { if (NET.state !== 'connected') join(NET.code); }, delay);
+  }
+  $('rejoinBtn').addEventListener('click', () => { NET.tries = 0; netMsg('Opnieuw verbinden…'); join(NET.code); });
 
   // ---- Verbinding en berichten ----
   function attach(c) {
@@ -755,20 +881,20 @@ details.card:not([open]) { gap: 0; }
       $('joinBtn').disabled = false;
       send({ t: 'hello', name: myNameVal(), id: CLIENT_ID });
     });
-    c.on('data', (m) => handle(m, c));
+    c.on('data', (m) => { if (c === NET.conn) NET.lastSeen = Date.now(); handle(m, c); });
     c.on('close', () => {
-      if (NET.role === 'guest' && NET.conn === c && NET.state === 'connecting') {
+      if (NET.role === 'guest' && NET.conn === c && NET.state === 'connecting' && !NET.joined) {
         netMsg('Meedoen lukte niet: deze lobby is al vol of gesloten.', true); leaveIfNotPlaying(); return;
       }
       if (NET.conn !== c || !NET.on) return;
       NET.conn = null; NET.state = 'lost';
       if (NET.role === 'host') {
-        $('waitText').textContent = NET.opp + ' is weg. Wachten tot je tegenstander terugkomt…';
+        $('waitText').textContent = NET.opp + ' is even weg. Het spel blijft staan tot je tegenstander terugkomt.';
         showLobby('wait');
-        netMsg('De verbinding is verbroken. Het spel blijft staan; je tegenstander kan met dezelfde code terugkomen.', true);
+        netMsg('De verbinding is verbroken. Je tegenstander verbindt vanzelf opnieuw, of komt terug via dezelfde link.', true);
       } else {
         showLobby('conn'); $('rejoinBtn').hidden = false;
-        netMsg('De verbinding is verbroken. Tik op Opnieuw verbinden.', true);
+        scheduleRejoin(1000);
       }
       update();
     });
@@ -781,7 +907,7 @@ details.card:not([open]) { gap: 0; }
         if (NET.role !== 'host') return;
         if (NET.conn && NET.conn !== c && NET.conn.open && m.id !== NET.guestId) { try { c.send({ t: 'full' }); } catch (e) {} return; }
         if (NET.conn && NET.conn !== c) { const old = NET.conn; NET.conn = null; try { old.close(); } catch (e) {} }
-        NET.conn = c; NET.guestId = m.id || '';
+        NET.conn = c; NET.guestId = m.id || ''; NET.lastSeen = Date.now();
         NET.opp = String(m.name || 'Speler 2').slice(0, 16);
         $('name2').value = NET.opp;
         NET.state = 'connected';
@@ -809,6 +935,8 @@ details.card:not([open]) { gap: 0; }
         break;
       }
       case 'needSync': if (NET.role === 'host') sendSync(); break;
+      case 'ping': send({ t: 'pong' }); break;
+      case 'pong': break;
       case 'askNew': if (NET.role === 'host' && over) hostNewGame(); break;
       case 'new': if (NET.role === 'guest') { newGame(+m.starter); } break;
       case 'name':
@@ -830,6 +958,9 @@ details.card:not([open]) { gap: 0; }
     send({ t: 'new', starter: s });
   }
   function onConnected() {
+    NET.joined = true; NET.tries = 0; NET.lastSeen = Date.now();
+    clearTimeout(NET.retryTimer);
+    keepAwake(true);
     $('rejoinBtn').hidden = true;
     netMsg('');
     showLobby('conn'); renderConn(); update();
@@ -841,6 +972,35 @@ details.card:not([open]) { gap: 0; }
   $('leaveBtn').addEventListener('click', () => leaveOnline());
   $('leaveBtn2').addEventListener('click', () => leaveOnline());
   $('myName').addEventListener('input', () => save());
+
+  // Hartslag: merk een dode verbinding snel op
+  setInterval(() => {
+    if (!NET.on || !NET.conn || !NET.conn.open) return;
+    send({ t: 'ping' });
+    if (NET.state === 'connected' && Date.now() - (NET.lastSeen || 0) > 20000) { try { NET.conn.close(); } catch (e) {} }
+  }, 4000);
+
+  // Scherm aan houden tijdens online spelen
+  let wake = null;
+  async function keepAwake(on) {
+    try {
+      if (on && !wake && 'wakeLock' in navigator && document.visibilityState === 'visible') {
+        wake = await navigator.wakeLock.request('screen');
+        wake.addEventListener('release', () => { wake = null; });
+      } else if (!on && wake) { const w = wake; wake = null; await w.release(); }
+    } catch (e) { wake = null; }
+  }
+
+  // Terug in de app: verbinding meteen controleren en herstellen
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !NET.on) return;
+    NET.lastSeen = Date.now();
+    keepAwake(true);
+    if (NET.role === 'host') hostRevive();
+    else if (NET.peer && !NET.peer.destroyed && NET.peer.disconnected) { try { NET.peer.reconnect(); } catch (e) {} }
+    if (NET.role === 'guest' && NET.state !== 'connected') { NET.tries = 0; join(NET.code); }
+    else send({ t: 'ping' });
+  });
 
   // ---- Delen ----
   const lobbyLink = (code) => location.origin + location.pathname + '#lobby-' + code;

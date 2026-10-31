@@ -151,6 +151,99 @@ details.card:not([open]) { gap: 0; }
   .cloud, .status.flash { animation: none !important; }
   .player, .btn, .back { transition: none; }
 }
+
+/* ---- Online-schermen (gedeeld) ---- */
+.ol-where { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ol-mode {
+  text-align: left; display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  padding: 12px 14px; border-radius: 16px; border: 3px solid var(--ink); background: var(--paper);
+  color: var(--ink); cursor: pointer; box-shadow: 0 4px 0 var(--ink); font: inherit;
+  transition: transform .1s, box-shadow .1s, background .15s;
+}
+.ol-mode b { font: 400 18px/1.1 var(--font-title); letter-spacing: .02em; }
+.ol-mode span { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.ol-mode[aria-pressed="true"] { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); }
+.ol-mode[aria-pressed="true"] span { color: var(--ink); }
+.ol-mode:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.ol-wrap { display: flex; flex-direction: column; gap: 18px; }
+.ol-card { gap: 12px; }
+.ol-h2 { margin: 0; font: 700 22px/1.2 var(--font-ui); text-wrap: balance; }
+.ol-muted { margin: 0; color: var(--muted); }
+.ol-small { font-size: 13px; font-weight: 600; color: var(--muted); }
+.ol-label { font-weight: 700; font-size: 14px; margin-bottom: -6px; }
+.ol-input {
+  min-width: 0; width: 100%; font: 600 17px/1.2 var(--font-ui);
+  padding: 11px 13px; border-radius: 12px; border: 3px solid var(--ink); background: var(--soft); color: var(--ink);
+}
+.ol-input:focus { outline: none; box-shadow: 0 0 0 4px var(--yellow); }
+.ol-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .ol-split { grid-template-columns: 1fr; } }
+.ol-box { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 16px; background: var(--soft); border: 3px dashed var(--ink); min-width: 0; }
+.ol-box b { font: 400 19px/1.1 var(--font-title); letter-spacing: .02em; }
+.ol-box span { font-size: 14px; color: var(--muted); }
+.ol-join { display: flex; gap: 8px; }
+.ol-code-in { font: 400 22px/1 var(--font-title); letter-spacing: .2em; text-transform: uppercase; text-align: center; flex: 1; background: var(--paper); }
+.ol-room { padding-block: 14px; gap: 10px; }
+.ol-room-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ol-room-code { display: flex; flex-direction: column; }
+.ol-room-code b { font: 400 34px/1 var(--font-title); letter-spacing: .14em; user-select: all; -webkit-user-select: all; }
+.ol-share { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ol-copy-msg { font-size: 13px; font-weight: 600; color: var(--good); }
+.ol-copy-msg:empty { display: none; }
+.ol-players { display: flex; flex-wrap: wrap; gap: 6px; }
+.ol-pl { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 2px solid var(--ink); background: var(--paper); font-weight: 700; font-size: 14px; }
+.ol-pl.me { background: var(--yellow-soft); }
+.ol-pl.off { opacity: .45; border-style: dashed; }
+.ol-pl small { font-size: 11px; font-weight: 600; color: var(--muted); }
+.ol-pl i { font-style: normal; font-size: 12px; font-weight: 600; color: var(--muted); }
+.ol-pl i.ok { color: var(--good); }
+.ol-pl b { font: 400 15px/1 var(--font-title); padding: 2px 6px; border-radius: 6px; background: var(--yellow); }
+.ol-msg { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--soft); font-size: 14px; font-weight: 600; }
+.ol-msg.bad { background: var(--bad-soft); color: #9a2a22; }
+.ol-retry { align-self: flex-start; }
+/* bouwstenen voor de spelschermen */
+.ol-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ol-tag { font: 400 15px/1 var(--font-title); letter-spacing: .05em; padding: 7px 12px; border-radius: 10px; background: var(--yellow); border: 3px solid var(--ink); }
+.ol-q { margin: 0; font: 700 clamp(21px, 5.4vw, 28px)/1.25 var(--font-ui); text-wrap: balance; }
+.ol-cta { font-size: 19px; padding: 15px 20px; }
+.ol-hostrow { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding-top: 10px; border-top: 3px dashed var(--soft); }
+.ol-box-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 14px; border-radius: 14px; background: var(--soft); border: 3px dashed var(--ink); }
+.ol-box-line b { font: 700 17px/1.25 var(--font-ui); flex: 1; min-width: 160px; }
+.ol-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.ol-choice {
+  text-align: left; padding: 12px 14px; border-radius: 14px; border: 3px solid var(--ink); background: var(--paper);
+  color: var(--ink); font: 700 17px/1.2 var(--font-ui); cursor: pointer; box-shadow: 0 3px 0 var(--ink); min-width: 0; overflow-wrap: anywhere;
+}
+.ol-choice:hover:not(:disabled) { background: var(--yellow-soft); }
+.ol-choice[aria-pressed="true"] { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 5px 0 var(--ink); }
+.ol-choice:disabled { cursor: default; opacity: .6; }
+.ol-choice:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 2px; }
+.ol-done { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 14px; background: var(--good-soft); border: 3px solid var(--good); }
+.ol-done b { font: 400 20px/1.1 var(--font-title); color: var(--good); letter-spacing: .02em; }
+.ol-bars { display: flex; flex-direction: column; gap: 8px; }
+.ol-bar { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 12px; border: 3px solid var(--ink); background: var(--paper); overflow: hidden; }
+.ol-bar::before { content: ""; position: absolute; inset: 0 auto 0 0; width: calc(var(--w, 0) * 1%); background: var(--bc, var(--yellow-soft)); transition: width .6s ease-out; }
+.ol-bar > * { position: relative; }
+.ol-bar .row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.ol-bar b { font: 700 17px/1.2 var(--font-ui); min-width: 0; overflow-wrap: anywhere; }
+.ol-bar .n { font: 400 20px/1 var(--font-title); white-space: nowrap; }
+.ol-bar small { font-size: 13px; color: var(--muted); font-weight: 600; }
+.ol-bar.win { --bc: var(--yellow); }
+.ol-scores { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.ol-scores li { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 10px; background: var(--paper); border: 2px solid var(--ink); }
+.ol-scores li span { flex: 1; font-weight: 700; }
+.ol-scores li b { font: 400 18px/1 var(--font-title); }
+.ol-scores li:first-child { background: var(--yellow); }
+.ol-scores li.me { box-shadow: inset 0 0 0 2px var(--ink); }
+.ol-seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.ol-seg button { font: 600 14px/1 var(--font-ui); padding: 8px 12px; border-radius: 999px; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; }
+.ol-seg button[aria-pressed="true"] { background: var(--yellow); }
+.ol-check { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ol-check input { width: 18px; height: 18px; accent-color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .ol-bar::before { transition: none; } }
+.ol-solo { display: flex; flex-direction: column; gap: 18px; }
+.ol-solo[hidden] { display: none !important; }
+
 </style>
 <style>
 /* Speelveld: dobbelstenen en gooiknop bovenaan, scoreformulier eronder als een ingevuld blokje */
@@ -295,6 +388,7 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
   </header>
 
   <!-- Spelers kiezen -->
+  <div id="dbSolo" class="ol-solo">
   <section class="card" id="setup">
     <h2>Wie doen er mee?</h2>
     <p class="muted">Speel alleen of met maximaal zes spelers. Jullie spelen om de beurt op hetzelfde scherm.</p>
@@ -304,6 +398,7 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
       <button class="btn yellow" type="button" id="startGame">Start spel</button>
     </div>
   </section>
+  </div>
 
   <!-- Spelen -->
   <section class="card" id="play" hidden>
@@ -380,6 +475,496 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
 </div>
 
 <script>
+/* NetRoom: lobby-laag bovenop PeerJS voor 2 tot 8 spelers.
+   De maker van de lobby is spelleider (host): zijn apparaat bewaart de officiële stand
+   en stuurt die naar iedereen. De anderen sturen alleen hun acties door. */
+window.NetRoom = function (opts) {
+  const PREFIX = opts.prefix;
+  const KEY = opts.storeKey;
+  const MAX = opts.maxPlayers || 8;
+  const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let ME = '';
+  try { ME = localStorage.getItem(KEY + '-id') || ''; } catch (e) {}
+  if (!ME) { ME = Math.random().toString(36).slice(2, 10); try { localStorage.setItem(KEY + '-id', ME); } catch (e) {} }
+
+  const R = {
+    on: false, role: null, code: '', name: '', peer: null, conns: new Map(), hostConn: null,
+    players: {}, status: 'idle', joined: false, tries: 0, lastSeen: new Map(),
+    retryTimer: 0, joinTimer: 0, reviveTimer: 0,
+  };
+  const emit = (type, data) => { try { if (opts.onEvent) opts.onEvent(type, data); } catch (e) { console.error(e); } };
+  const setStatus = (status, msg, bad) => { R.status = status; emit('status', { status, msg: msg || '', bad: !!bad }); };
+
+  // ---- PeerJS pas laden als het nodig is ----
+  let lib = null;
+  function loadLib() {
+    if (window.Peer) return Promise.resolve();
+    if (lib) return lib;
+    const urls = ['https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js', 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js'];
+    lib = urls.reduce((p, url) => p.catch(() => new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = url; s.onload = res; s.onerror = () => { s.remove(); rej(); };
+      document.head.appendChild(s);
+    })), Promise.reject()).then(() => { if (!window.Peer) throw new Error('nolib'); });
+    lib.catch(() => { lib = null; });
+    return lib;
+  }
+  const peerOpts = () => Object.assign({ debug: 0 }, window.PEER_OPTIONS || {});
+  const newCode = () => Array.from({ length: 5 }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join('');
+  const libError = () => 'Online spelen kon niet starten. Het werkt alleen op de gewone website (zoals GitHub Pages) met internet.';
+  function errText(err) {
+    switch (err && err.type) {
+      case 'browser-incompatible': return 'Deze browser ondersteunt online spelen niet. Probeer Chrome, Edge, Firefox of Safari.';
+      case 'network': case 'server-error': case 'socket-error': case 'socket-closed': return 'Geen verbinding met de koppeldienst. Controleer je internet en probeer het opnieuw.';
+      case 'webrtc': return 'De directe verbinding lukte niet. Probeer een ander netwerk, bijvoorbeeld wifi in plaats van 4G.';
+      default: return 'Er ging iets mis met de verbinding. Probeer het opnieuw.';
+    }
+  }
+  const publicPlayers = () => Object.entries(R.players).map(([id, p]) => ({ id, name: p.name, online: !!p.online, host: R.role === 'host' ? id === ME : !!p.host }));
+
+  // ================= SPELLEIDER =================
+  function makeHostPeer(code, onOpen, onFirstError) {
+    const peer = new window.Peer(PREFIX + code, peerOpts());
+    let opened = false;
+    peer.on('open', () => { if (!opened) { opened = true; if (onOpen) onOpen(peer); } });
+    peer.on('connection', (conn) => {
+      conn.on('data', (m) => hostData(m, conn));
+      conn.on('close', () => hostClose(conn));
+      conn.on('error', () => {});
+    });
+    peer.on('disconnected', () => { if (R.peer === peer && !peer.destroyed) scheduleRevive(false, 1500); });
+    peer.on('close', () => { if (R.peer === peer && R.on) scheduleRevive(true, 1500); });
+    peer.on('error', (err) => {
+      if (!opened) { if (onFirstError) onFirstError(err, peer); return; }
+      if (R.peer !== peer) return;
+      if (err.type === 'unavailable-id') scheduleRevive(true, 5000);
+      else if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(err.type)) scheduleRevive(false, 3000);
+    });
+    return peer;
+  }
+  function scheduleRevive(force, delay) { clearTimeout(R.reviveTimer); R.reviveTimer = setTimeout(() => revive(force), delay); }
+  function revive(force) {
+    if (!R.on || R.role !== 'host') return;
+    const p = R.peer;
+    if (p && !p.destroyed && !force) { if (p.disconnected) { try { p.reconnect(); } catch (e) {} } return; }
+    try { if (p && !p.destroyed) p.destroy(); } catch (e) {}
+    R.peer = makeHostPeer(R.code, null, (err) => { if (err.type === 'unavailable-id') scheduleRevive(true, 5000); else scheduleRevive(true, 4000); });
+  }
+
+  function host(name, code) {
+    R.name = name;
+    setStatus('connecting', code ? 'Lobby wordt hersteld…' : 'Lobby wordt gemaakt…');
+    return loadLib().then(() => new Promise((resolve, reject) => {
+      const attempt = (n) => {
+        const c = code || newCode();
+        makeHostPeer(c, (peer) => {
+          Object.assign(R, { on: true, role: 'host', code: c, peer, joined: true });
+          R.players[ME] = Object.assign(R.players[ME] || {}, { name, online: true });
+          keepAwake(true);
+          setStatus('hosting');
+          emit('players', publicPlayers());
+          resolve(c);
+        }, (err, peer) => {
+          try { peer.destroy(); } catch (e) {}
+          if (err.type === 'unavailable-id' && n < (code ? 8 : 3)) { setTimeout(() => attempt(n + 1), code ? 3000 : 0); return; }
+          setStatus('error', errText(err), true); reject(err);
+        });
+      };
+      attempt(0);
+    }), (e) => { setStatus('error', libError(), true); throw e; });
+  }
+
+  function hostData(m, conn) {
+    if (!m || typeof m !== 'object') return;
+    if (m.t === 'hello') {
+      const id = String(m.id || '').slice(0, 20);
+      if (!id || id === ME) { try { conn.send({ t: 'full' }); } catch (e) {} return; }
+      const known = !!R.players[id];
+      if (!known && Object.keys(R.players).length >= MAX) { try { conn.send({ t: 'full' }); } catch (e) {} return; }
+      const old = R.conns.get(id);
+      if (old && old !== conn) { R.conns.delete(id); try { old.close(); } catch (e) {} }
+      R.conns.set(id, conn); conn._id = id; R.lastSeen.set(id, Date.now());
+      R.players[id] = Object.assign(R.players[id] || {}, { name: String(m.name || 'Speler').slice(0, 16), online: true });
+      try { conn.send({ t: 'welcome', you: id, code: R.code }); } catch (e) {}
+      emit('join', { id, known });
+      emit('players', publicPlayers());
+      broadcast();
+      return;
+    }
+    const id = conn._id;
+    if (!id || R.conns.get(id) !== conn) return;
+    R.lastSeen.set(id, Date.now());
+    if (m.t === 'ping') { try { conn.send({ t: 'pong' }); } catch (e) {} return; }
+    if (m.t === 'act') emit('action', { from: id, a: m.a });
+    if (m.t === 'name' && R.players[id]) { R.players[id].name = String(m.name || 'Speler').slice(0, 16); emit('players', publicPlayers()); broadcast(); }
+  }
+  function hostClose(conn) {
+    const id = conn._id;
+    if (!id || R.conns.get(id) !== conn) return;
+    R.conns.delete(id);
+    if (R.players[id]) R.players[id].online = false;
+    emit('leave', { id });
+    emit('players', publicPlayers());
+    broadcast();
+  }
+  function broadcast() {
+    if (R.role !== 'host') return;
+    const players = publicPlayers();
+    R.conns.forEach((c, id) => { if (c.open) { try { c.send({ t: 'state', s: opts.getState(id), players }); } catch (e) {} } });
+    emit('state', { s: opts.getState(ME), players });
+  }
+
+  // ================= MEESPELER =================
+  function join(code, name) {
+    R.name = name;
+    if (!R.joined) setStatus('connecting', 'Verbinden met lobby ' + code + '…');
+    return loadLib().then(() => {
+      R.code = code;
+      if (R.peer && !R.peer.destroyed && R.peer.open && !R.peer.disconnected) { connectHost(); return; }
+      try { if (R.peer && !R.peer.destroyed) R.peer.destroy(); } catch (e) {}
+      const peer = new window.Peer(peerOpts());
+      R.peer = peer;
+      peer.on('open', () => { if (R.peer !== peer) return; R.on = true; R.role = 'guest'; connectHost(); });
+      peer.on('disconnected', () => { if (R.peer === peer && !peer.destroyed) setTimeout(() => { try { peer.reconnect(); } catch (e) {} }, 1500); });
+      peer.on('error', (err) => {
+        if (R.peer !== peer) return;
+        clearTimeout(R.joinTimer);
+        if (R.joined) { scheduleRejoin(4000); return; }
+        if (err.type === 'peer-unavailable') fail('Geen lobby gevonden met code ' + code + '. Klopt de code?');
+        else fail(errText(err));
+      });
+    }, () => fail(libError()));
+  }
+  function fail(msg) { cleanup(); setStatus('error', msg, true); }
+  function connectHost() {
+    const c = R.peer.connect(PREFIX + R.code, { reliable: true });
+    c.on('open', () => {
+      if (R.hostConn && R.hostConn !== c) { try { R.hostConn.close(); } catch (e) {} }
+      R.hostConn = c; clearTimeout(R.joinTimer); R.lastSeen.set('host', Date.now());
+      try { c.send({ t: 'hello', id: ME, name: R.name }); } catch (e) {}
+    });
+    c.on('data', (m) => { if (c !== R.hostConn) return; R.lastSeen.set('host', Date.now()); guestData(m, c); });
+    c.on('close', () => {
+      if (c !== R.hostConn) return;
+      R.hostConn = null;
+      if (!R.joined) { fail('Meedoen lukte niet: deze lobby is al vol of gesloten.'); return; }
+      scheduleRejoin(1000);
+    });
+    c.on('error', () => {});
+    clearTimeout(R.joinTimer);
+    R.joinTimer = setTimeout(() => {
+      if (c.open) return;
+      try { c.close(); } catch (e) {}
+      if (R.joined) scheduleRejoin(1000);
+      else fail('Het lukt niet om verbinding te maken. Probeer een ander netwerk (bijvoorbeeld wifi in plaats van 4G) of vraag om een nieuwe code.');
+    }, 20000);
+  }
+  function guestData(m, c) {
+    if (!m || typeof m !== 'object') return;
+    if (m.t === 'welcome') {
+      R.joined = true; R.tries = 0; clearTimeout(R.retryTimer);
+      keepAwake(true); setStatus('connected'); emit('joined', { code: R.code });
+    } else if (m.t === 'state') {
+      if (Array.isArray(m.players)) { R.players = {}; m.players.forEach((p) => { R.players[p.id] = p; }); }
+      emit('state', { s: m.s, players: m.players || [] });
+    } else if (m.t === 'full') {
+      R.hostConn = null; try { c.close(); } catch (e) {}
+      fail('Deze lobby is al vol.');
+    }
+  }
+  function scheduleRejoin(delay) {
+    if (!R.on || R.role !== 'guest') return;
+    clearTimeout(R.retryTimer);
+    R.tries += 1;
+    if (R.tries > 40) { R.tries = 0; setStatus('lost', 'De spelleider is niet bereikbaar. Tik op Opnieuw verbinden om het nog eens te proberen.', true); return; }
+    setStatus('lost', `Verbinding weg. Opnieuw verbinden… (poging ${R.tries})`, true);
+    R.retryTimer = setTimeout(() => { if (!R.hostConn || !R.hostConn.open) join(R.code, R.name); }, delay);
+  }
+
+  // ================= GEDEELD =================
+  function action(a) {
+    if (R.role === 'host') { emit('action', { from: ME, a }); return true; }
+    if (R.hostConn && R.hostConn.open) { try { R.hostConn.send({ t: 'act', a }); return true; } catch (e) {} }
+    return false;
+  }
+  function setName(name) {
+    R.name = String(name || '').slice(0, 16);
+    if (R.role === 'host' && R.players[ME]) { R.players[ME].name = R.name; emit('players', publicPlayers()); broadcast(); }
+    else if (R.hostConn && R.hostConn.open) { try { R.hostConn.send({ t: 'name', name: R.name }); } catch (e) {} }
+  }
+  function cleanup() {
+    clearTimeout(R.retryTimer); clearTimeout(R.joinTimer); clearTimeout(R.reviveTimer);
+    R.conns.forEach((c) => { try { c.close(); } catch (e) {} });
+    try { if (R.hostConn) R.hostConn.close(); } catch (e) {}
+    try { if (R.peer && !R.peer.destroyed) R.peer.destroy(); } catch (e) {}
+    keepAwake(false);
+    Object.assign(R, { on: false, role: null, code: '', peer: null, conns: new Map(), hostConn: null, players: {}, joined: false, tries: 0, lastSeen: new Map() });
+  }
+  function leave() { cleanup(); setStatus('idle'); }
+  function retry() { R.tries = 0; if (R.role === 'guest') join(R.code, R.name); }
+  function seedPlayers(list) {
+    R.players = {};
+    (list || []).forEach((p) => { if (p && p.id) R.players[p.id] = { name: p.name, online: false }; });
+  }
+
+  // Hartslag: merk dode verbindingen snel op
+  setInterval(() => {
+    if (!R.on) return;
+    const now = Date.now();
+    if (R.role === 'host') {
+      R.conns.forEach((c, id) => {
+        if (!c.open) return;
+        try { c.send({ t: 'ping' }); } catch (e) {}
+        if (now - (R.lastSeen.get(id) || now) > 20000) { try { c.close(); } catch (e) {} hostClose(c); }
+      });
+    } else if (R.hostConn && R.hostConn.open) {
+      try { R.hostConn.send({ t: 'ping' }); } catch (e) {}
+      if (now - (R.lastSeen.get('host') || now) > 20000) { try { R.hostConn.close(); } catch (e) {} }
+    }
+  }, 4000);
+
+  // Scherm aan houden
+  let wake = null;
+  async function keepAwake(on) {
+    try {
+      if (on && !wake && 'wakeLock' in navigator && document.visibilityState === 'visible') {
+        wake = await navigator.wakeLock.request('screen');
+        wake.addEventListener('release', () => { wake = null; });
+      } else if (!on && wake) { const w = wake; wake = null; await w.release(); }
+    } catch (e) { wake = null; }
+  }
+
+  // Terug in de app: meteen controleren en herstellen
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !R.on) return;
+    const now = Date.now();
+    R.lastSeen.forEach((v, k) => R.lastSeen.set(k, now));
+    keepAwake(true);
+    if (R.role === 'host') revive(false);
+    else if (!R.hostConn || !R.hostConn.open) { R.tries = 0; join(R.code, R.name); }
+    else { try { R.hostConn.send({ t: 'ping' }); } catch (e) {} }
+  });
+
+  return {
+    me: ME, host, join, leave, retry, action, broadcast, setName, seedPlayers,
+    get role() { return R.role; }, get code() { return R.code; }, get on() { return R.on; },
+    get status() { return R.status; }, players: publicPlayers,
+    link: (code) => location.origin + location.pathname + '#lobby-' + code,
+  };
+};
+</script>
+<script>
+/* OnlineShell: gedeelde online-schermen voor alle spellen (bovenop NetRoom).
+   Het spel levert alleen zijn eigen spelregels: fresh, publicState, onAction en render. */
+window.OnlineShell = function (cfg) {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const KEY = 'spelletjes-' + cfg.game + '-online';
+  const anchor = $(cfg.soloId);
+
+  anchor.insertAdjacentHTML('beforebegin', `
+    <div class="ol-where" role="group" aria-label="Waar speel je">
+      <button type="button" class="ol-mode" id="olWhereSolo" aria-pressed="true"><b>Op één scherm</b><span>${esc(cfg.soloText || 'Samen aan één telefoon of laptop.')}</span></button>
+      <button type="button" class="ol-mode" id="olWhereOnline" aria-pressed="false"><b>Online spelen</b><span>${esc(cfg.onlineText || 'Ieder op een eigen apparaat, via een lobbycode.')}</span></button>
+    </div>`);
+  anchor.insertAdjacentHTML(cfg.onlineBefore ? 'beforebegin' : 'afterend', `
+    <section class="ol-wrap" id="olWrap" hidden>
+      <div class="card ol-card" id="olStart">
+        <h2 class="ol-h2">${esc(cfg.startTitle || 'Speel online')}</h2>
+        <p class="ol-muted">${esc(cfg.startText || 'Maak een lobby en stuur de code of link naar de anderen. Heb je een code gekregen? Vul hem hieronder in.')}</p>
+        <label class="ol-label" for="olName">Jouw naam</label>
+        <input class="ol-input" id="olName" maxlength="16" placeholder="Bijvoorbeeld Milan" autocomplete="nickname">
+        <div class="ol-split">
+          <div class="ol-box">
+            <b>Nieuwe lobby</b>
+            <span>${esc(cfg.hostText || 'Jij bent de spelleider.')}</span>
+            <button class="btn yellow" type="button" id="olHostBtn">Lobby maken</button>
+          </div>
+          <div class="ol-box">
+            <b>Meedoen</b>
+            <span>Vul de code van de spelleider in.</span>
+            <div class="ol-join">
+              <input class="ol-input ol-code-in" id="olCodeIn" maxlength="5" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Lobbycode">
+              <button class="btn" type="button" id="olJoinBtn">Meedoen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card ol-card ol-room" id="olRoom" hidden>
+        <div class="ol-room-top">
+          <div class="ol-room-code"><span class="ol-small">Lobbycode</span><b id="olCodeBig"></b></div>
+          <div class="ol-share">
+            <button class="btn small yellow" type="button" id="olShareBtn" hidden>Deel link</button>
+            <button class="btn small" type="button" id="olCopyBtn">Kopieer link</button>
+            <button class="btn small" type="button" id="olLeaveBtn">Verlaten</button>
+          </div>
+        </div>
+        <span class="ol-copy-msg" id="olCopyMsg" role="status"></span>
+        <input class="ol-input" id="olLinkBox" readonly hidden aria-label="Lobbylink">
+        <span class="ol-small" id="olYou"></span>
+        <div class="ol-players" id="olPlayers" aria-label="Spelers"></div>
+      </div>
+
+      <p class="ol-msg" id="olMsg" role="status" hidden></p>
+      <button class="btn small yellow ol-retry" type="button" id="olRetryBtn" hidden>Opnieuw verbinden</button>
+      <section class="card ol-card ol-stage" id="olStage" hidden aria-live="polite"></section>
+    </section>`);
+
+  let G = null, S = null, P = [], where = false;
+  const room = window.NetRoom ? window.NetRoom({
+    prefix: 'spelletjes-' + cfg.game + '-', storeKey: KEY, maxPlayers: cfg.maxPlayers || 8,
+    getState: (id) => (G ? cfg.publicState(G, id, room.players()) : null), onEvent,
+  }) : null;
+
+  const api = {
+    me: room ? room.me : 'me',
+    get G() { return G; }, get S() { return S; }, get P() { return P; },
+    isHost: () => !!room && room.role === 'host',
+    inRoom: () => !!room && room.on,
+    where: () => where,
+    active: () => where && !!room && room.on && !!S,
+    push, act: (a) => (room ? room.action(a) : false),
+    name: (id) => { const p = P.find((x) => x.id === id) || (room ? room.players().find((x) => x.id === id) : null); return p ? p.name : 'Speler'; },
+    hostPlayers: () => (room ? room.players() : []),
+    rerender: () => render(),
+    leave: () => leave(),
+    esc,
+  };
+
+  function myName() { return ($('olName').value.trim() || 'Speler').slice(0, 16); }
+  try { $('olName').value = localStorage.getItem('spelletjes-online-name') || ''; } catch (e) {}
+  $('olName').addEventListener('input', () => {
+    try { localStorage.setItem('spelletjes-online-name', $('olName').value); } catch (e) {}
+    if (room && room.on) room.setName(myName());
+  });
+
+  function setWhere(online) {
+    where = online;
+    $('olWhereSolo').setAttribute('aria-pressed', String(!online));
+    $('olWhereOnline').setAttribute('aria-pressed', String(online));
+    if (!cfg.keepSolo) anchor.hidden = online;
+    $('olWrap').hidden = !online;
+    if (!online && room && room.on) leave(true);
+    if (cfg.onWhere) cfg.onWhere(online, api);
+    render();
+  }
+  $('olWhereSolo').addEventListener('click', () => setWhere(false));
+  $('olWhereOnline').addEventListener('click', () => setWhere(true));
+
+  const cleanCode = (v) => v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+  function msg(text, bad) { const m = $('olMsg'); m.textContent = text || ''; m.hidden = !text; m.classList.toggle('bad', !!bad); }
+
+  $('olHostBtn').addEventListener('click', () => {
+    if (!room) return msg('Online spelen kon niet starten.', true);
+    $('olHostBtn').disabled = true;
+    G = cfg.fresh(api);
+    room.host(myName()).then((code) => {
+      $('olHostBtn').disabled = false;
+      history.replaceState(null, '', '#lobby-' + code);
+      push();
+    }).catch(() => { $('olHostBtn').disabled = false; G = null; });
+  });
+  function doJoin(code) {
+    if (!room) return msg('Online spelen kon niet starten.', true);
+    if (code.length !== 5) return msg('Een lobbycode heeft 5 tekens.', true);
+    $('olJoinBtn').disabled = true;
+    room.join(code, myName());
+  }
+  $('olJoinBtn').addEventListener('click', () => doJoin(cleanCode($('olCodeIn').value)));
+  $('olCodeIn').addEventListener('input', () => { $('olCodeIn').value = cleanCode($('olCodeIn').value); });
+  $('olCodeIn').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doJoin(cleanCode($('olCodeIn').value)); } });
+  $('olLeaveBtn').addEventListener('click', () => leave());
+  $('olRetryBtn').addEventListener('click', () => { if (room) room.retry(); });
+  $('olCopyBtn').addEventListener('click', () => {
+    const text = room.link(room.code);
+    const fb = () => { const b = $('olLinkBox'); b.hidden = false; b.value = text; b.focus(); b.select(); $('olCopyMsg').textContent = 'Selecteer en kopieer de link.'; };
+    try { navigator.clipboard.writeText(text).then(() => { $('olCopyMsg').textContent = 'Link gekopieerd'; }, fb); } catch (e) { fb(); }
+  });
+  if (navigator.share) {
+    $('olShareBtn').hidden = false;
+    $('olShareBtn').addEventListener('click', () => {
+      navigator.share({ title: cfg.title, text: `Doe mee met ${cfg.title}. Lobbycode: ${room.code}`, url: room.link(room.code) }).catch(() => {});
+    });
+  }
+
+  function leave(silent) {
+    if (room) room.leave();
+    if (G) { try { localStorage.removeItem(KEY + '-host'); } catch (e) {} }
+    G = null; S = null; P = [];
+    if (location.hash.startsWith('#lobby-')) history.replaceState(null, '', location.pathname + location.search);
+    msg('');
+    if (cfg.onLeave) cfg.onLeave(api);
+    if (!silent) render();
+  }
+  function push() {
+    if (!room || room.role !== 'host' || !G) return;
+    try { localStorage.setItem(KEY + '-host', JSON.stringify({ code: room.code, G, players: room.players(), t: Date.now() })); } catch (e) {}
+    room.broadcast();
+  }
+
+  function onEvent(type, d) {
+    if (type === 'status') {
+      $('olJoinBtn').disabled = false;
+      $('olRetryBtn').hidden = d.status !== 'lost';
+      if (d.status === 'connecting' || d.status === 'lost' || d.status === 'error') msg(d.msg, d.bad); else msg('');
+      if (d.status === 'error' || d.status === 'idle') { S = null; P = []; if (cfg.onLeave) cfg.onLeave(api); }
+      render();
+    } else if (type === 'joined') {
+      history.replaceState(null, '', '#lobby-' + d.code);
+    } else if (type === 'state') {
+      S = d.s; P = d.players || [];
+      if (cfg.onState) cfg.onState(S, P, api);
+      render();
+    } else if (type === 'action' && G) {
+      cfg.onAction(G, d.from, d.a || {}, api);
+    } else if (type === 'join' && G) {
+      if (cfg.onJoin) cfg.onJoin(G, d.id, api);
+      push();
+    } else if (type === 'leave' && G) {
+      if (cfg.onLeaveP) cfg.onLeaveP(G, d.id, api);
+      push();
+    }
+  }
+
+  function render() {
+    const inRoom = !!room && room.on;
+    $('olStart').hidden = inRoom;
+    $('olRoom').hidden = !inRoom;
+    $('olStage').hidden = !(inRoom && S);
+    if (inRoom) {
+      $('olCodeBig').textContent = room.code;
+      const hostP = P.find((p) => p.host);
+      $('olYou').textContent = api.isHost() ? 'Jij bent de spelleider' : 'Spelleider: ' + (hostP ? hostP.name : '…');
+      $('olPlayers').innerHTML = P.map((p) => {
+        const extra = cfg.chip ? cfg.chip(p, S, api) : '';
+        return `<span class="ol-pl${p.online ? '' : ' off'}${p.id === api.me ? ' me' : ''}">${esc(p.name)}${p.host ? '<small>spelleider</small>' : ''}${extra || ''}</span>`;
+      }).join('');
+    }
+    if (cfg.render) cfg.render($('olStage'), inRoom ? S : null, P, api);
+  }
+
+  function boot() {
+    const m = location.hash.match(/^#lobby-([A-Za-z0-9]{5})$/);
+    if (!m || !room || room.on) return;
+    const code = cleanCode(m[1]);
+    setWhere(true);
+    let snap = null;
+    try { snap = JSON.parse(localStorage.getItem(KEY + '-host') || 'null'); } catch (e) {}
+    if (snap && snap.code === code && Date.now() - snap.t < 6 * 3600 * 1000 && snap.G) {
+      G = snap.G;
+      room.seedPlayers(snap.players);
+      room.host(myName(), code).then(() => push()).catch(() => { G = null; });
+    } else {
+      $('olCodeIn').value = code;
+      doJoin(code);
+    }
+  }
+  window.addEventListener('hashchange', boot);
+  setTimeout(boot, 0);
+  return api;
+};
+</script>
+<script>
 (function () {
   const KEY = 'dobbelen-spel';
   const $ = (id) => document.getElementById(id);
@@ -410,7 +995,7 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
   let rolling = false;
 
   // ---------- opslaan ----------
-  function save() { try { localStorage.setItem(KEY, JSON.stringify({ S, names })); } catch (e) {} }
+  function save() { if (netOn()) return; try { localStorage.setItem(KEY, JSON.stringify({ S, names })); } catch (e) {} }
   try {
     const d = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (d) { if (Array.isArray(d.names) && d.names.length) names = d.names.slice(0, 6); if (d.S && d.S.players) S = d.S; }
@@ -520,6 +1105,7 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
 
   // ---------- schermen ----------
   function view() {
+    if (NET && NET.where() && !netOn()) { ['play', 'end', 'sheetCard'].forEach((id) => { $(id).hidden = true; }); return; }
     const playing = S && !S.over;
     $('setup').hidden = !!S;
     $('play').hidden = !playing;
@@ -552,7 +1138,9 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
 
   function renderPlay() {
     const p = S.players[S.cur];
-    $('whoTurn').textContent = S.players.length > 1 ? `${pname(S.cur)} is aan de beurt` : `Beurt ${13 - CATS.filter((c) => p.scores[c.k] == null).length + 1} van 13`;
+    const mine = myTurn();
+    $('whoTurn').textContent = netOn() ? (mine ? 'Jij bent aan de beurt' : `${pname(S.cur)} is aan de beurt`)
+      : S.players.length > 1 ? `${pname(S.cur)} is aan de beurt` : `Beurt ${13 - CATS.filter((c) => p.scores[c.k] == null).length + 1} van 13`;
     const rolls = $('rolls');
     rolls.innerHTML = 'Worpen ' + [0, 1, 2].map((i) => `<i class="${i < S.rolls ? 'used' : ''}"></i>`).join('');
     rolls.setAttribute('aria-label', `${3 - S.rolls} worpen over`);
@@ -561,14 +1149,14 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
       b.classList.toggle('blank', S.rolls === 0);
       b.classList.toggle('held', S.held[i] && S.rolls > 0);
       w.classList.toggle('held', S.held[i] && S.rolls > 0);
-      b.disabled = S.rolls === 0 || S.rolls >= 3 || rolling;
+      b.disabled = S.rolls === 0 || S.rolls >= 3 || rolling || !mine;
       b.setAttribute('aria-label', S.rolls === 0 ? `Steen ${i + 1}, nog niet gegooid` : `Steen ${i + 1}: ${S.dice[i]}${S.held[i] ? ', vastgehouden' : ''}`);
       b.setAttribute('aria-pressed', String(!!S.held[i]));
     });
     const rb = $('rollBtn');
     const allHeld = S.held.every(Boolean) && S.rolls > 0;
-    rb.disabled = S.rolls >= 3 || rolling || allHeld;
-    rb.textContent = S.rolls === 0 ? 'Gooien' : S.rolls >= 3 ? 'Kies een vak' : `Nog een keer gooien (${3 - S.rolls})`;
+    rb.disabled = S.rolls >= 3 || rolling || allHeld || !mine;
+    rb.textContent = !mine ? `Beurt van ${pname(S.cur)}` : S.rolls === 0 ? 'Gooien' : S.rolls >= 3 ? 'Kies een vak' : `Nog een keer gooien (${3 - S.rolls})`;
 
     let help = '';
     if (S.rolls === 0) help = 'Gooi de dobbelstenen om je beurt te beginnen.';
@@ -580,6 +1168,7 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
       else if (o.joker) help = 'Yahtzee! Het Yahtzee-vak is al gebruikt, dus je noteert hem als joker.';
       else if (p.scores.yz == null) help = 'Yahtzee! Noteer hem voor 50 punten, of kies een ander vak.';
     }
+    if (!mine) help = S.rolls === 0 ? `Wacht tot ${pname(S.cur)} gooit.` : `Kijk mee: ${pname(S.cur)} is aan het gooien.`;
     $('helper').textContent = help;
     renderPick();
   }
@@ -599,12 +1188,14 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
 
   function toggleHold(i) {
     if (!S || S.over || S.rolls === 0 || S.rolls >= 3 || rolling) return;
+    if (netOn()) { if (myTurn()) NET.act({ type: 'hold', i, r: S.rolls }); return; }
     S.held[i] = !S.held[i]; save(); renderPlay();
   }
 
   function roll() {
     if (!S || S.over || S.rolls >= 3 || rolling) return;
     if (S.rolls > 0 && S.held.every(Boolean)) return;
+    if (netOn()) { if (myTurn()) { rolling = true; renderPlay(); NET.act({ type: 'roll', r: S.rolls }); setTimeout(() => { if (rolling) { rolling = false; renderPlay(); } }, 4000); } return; }
     if (S.rolls === 0) S.held = [false, false, false, false, false];
     selected = null;
     const final = S.dice.map((v, i) => (S.held[i] && S.rolls > 0 ? v : 1 + Math.floor(Math.random() * 6)));
@@ -634,6 +1225,7 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
   // ---------- noteren ----------
   function choose(k) {
     if (!S || S.over || S.rolls === 0 || rolling) return;
+    if (netOn()) { if (myTurn()) NET.act({ type: 'score', k, r: S.rolls }); return; }
     const o = options(S.players[S.cur], S.dice);
     if (!(k in o.out)) return;
     selected = k;
@@ -661,9 +1253,9 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
     if (!S) return;
     const tbl = $('sheet');
     const cur = S.over ? -1 : S.cur;
-    const opts = !S.over && S.rolls > 0 && !rolling ? options(S.players[S.cur], S.dice).out : null;
+    const opts = !S.over && S.rolls > 0 && !rolling && myTurn() ? options(S.players[S.cur], S.dice).out : null;
     const T = S.players.map(totals);
-    const head = `<thead><tr><th scope="col">Vak</th>${S.players.map((p, i) => `<th scope="col" class="${i === cur ? 'cur' : ''}" title="${esc(pname(i))}">${esc(pname(i))}</th>`).join('')}</tr></thead>`;
+    const head = `<thead><tr><th scope="col">Vak</th>${S.players.map((p, i) => `<th scope="col" class="${i === cur ? 'cur' : ''}" title="${esc(pname(i))}">${esc(pname(i))}${p.out ? ' <small>(weg)</small>' : ''}</th>`).join('')}</tr></thead>`;
     const cell = (i, k) => {
       const v = S.players[i].scores[k];
       const curCls = i === cur ? ' cur' : '';
@@ -689,6 +1281,9 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
 
   // ---------- einde ----------
   function renderEnd() {
+    $('otherPlayers').hidden = netOn();
+    $('again').hidden = netOn() && !NET.isHost();
+    $('again').textContent = netOn() ? 'Nog een keer met deze spelers' : 'Nog een keer';
     const ranked = S.players.map((p, i) => ({ i, t: totals(p).total })).sort((a, b) => b.t - a.t);
     const top = ranked[0].t;
     const winners = ranked.filter((r) => r.t === top);
@@ -696,7 +1291,10 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
       : winners.length > 1 ? `Gelijkspel met ${top} punten!` : `${pname(winners[0].i)} wint met ${top} punten!`;
     $('podium').innerHTML = ranked.map((r, n) => `<li><span class="place">${n + 1}</span><span class="pname">${esc(pname(r.i))}</span><span class="pts">${r.t}</span></li>`).join('');
   }
-  $('again').addEventListener('click', () => { names = S.players.map((p) => p.name); S = newState(); save(); view(); });
+  $('again').addEventListener('click', () => {
+    if (netOn()) { NET.act({ type: 'again' }); return; }
+    names = S.players.map((p) => p.name); S = newState(); save(); view();
+  });
   $('otherPlayers').addEventListener('click', () => { names = S.players.map((p) => p.name); S = null; save(); view(); });
 
   // ---------- resetten ----------
@@ -716,10 +1314,142 @@ details.rules > summary:focus-visible { outline: 3px solid var(--yellow-deep); o
 
   document.addEventListener('keydown', (e) => {
     if (!S || S.over) return;
+    if (NET && NET.where() && !netOn()) return;
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SUMMARY') return;
     if (e.key === ' ' && !(e.target.tagName === 'BUTTON')) { e.preventDefault(); roll(); }
     else if (e.key >= '1' && e.key <= '5') { toggleHold(+e.key - 1); }
   });
+
+
+  // =================== ONLINE ===================
+  // De spelleider houdt de officiële stand bij en gooit de stenen; de anderen sturen alleen hun acties.
+  let NET = null, soloS = null, lastRollId = null, animTimer = 0;
+  const netOn = () => !!(NET && NET.active() && NET.S && NET.S.phase === 'play' && NET.S.game);
+  const myTurn = () => !netOn() || (S && S.players[S.cur] && S.players[S.cur].id === NET.me);
+  const blankSheet = () => Object.fromEntries(CATS.map((c) => [c.k, null]));
+  function gameFor(players) {
+    return { players: players.map((p) => ({ id: p.id, name: p.name, scores: blankSheet(), yzBonus: 0, out: false })), cur: 0, dice: [1, 2, 3, 4, 5], held: [false, false, false, false, false], rolls: 0, over: false, rollId: 0, moving: [] };
+  }
+  const active = (g) => g.players.filter((p) => !p.out);
+  function advance(g) {
+    g.rolls = 0; g.held = [false, false, false, false, false]; g.moving = [];
+    g.over = active(g).every((pl) => CATS.every((c) => pl.scores[c.k] != null)) || !active(g).length;
+    if (g.over) return;
+    for (let k = 0; k < g.players.length; k++) {
+      g.cur = (g.cur + 1) % g.players.length;
+      const pl = g.players[g.cur];
+      if (!pl.out && CATS.some((c) => pl.scores[c.k] == null)) return;
+    }
+  }
+  NET = window.OnlineShell ? window.OnlineShell({
+    game: 'dobbelen', title: 'Dobbelen', soloId: 'dbSolo', maxPlayers: 6,
+    soloText: 'Om de beurt aan één telefoon of laptop.', onlineText: 'Ieder op zijn eigen apparaat, je kijkt live mee.',
+    startTitle: 'Dobbel online met 2 tot 6 spelers',
+    startText: 'Eén iemand maakt een lobby en is de spelleider. De rest doet mee met de code of link. Iedereen ziet de stenen live rollen; alleen wie aan de beurt is, kan gooien.',
+    hostText: 'Jij start het spel zodra iedereen er is.',
+    fresh: () => ({ phase: 'lobby', game: null }),
+    publicState: (G) => ({ phase: G.phase, game: G.game }),
+    onAction: (G, from, a, api) => {
+      if (from === api.me && (a.type === 'start' || a.type === 'again')) {
+        const ps = api.hostPlayers().filter((p) => p.online);
+        if (ps.length < 1) return;
+        G.phase = 'play'; G.game = gameFor(ps); api.push(); return;
+      }
+      const g = G.game;
+      if (!g || G.phase !== 'play' || g.over) return;
+      if (from === api.me && a.type === 'skip') {
+        const pl = g.players[g.cur];
+        if (pl && pl.id !== api.me) { pl.out = true; advance(g); api.push(); }
+        return;
+      }
+      const pl = g.players[g.cur];
+      if (!pl || pl.id !== from || a.r !== g.rolls) return; // alleen wie aan de beurt is, en alleen op de actuele worp
+      if (a.type === 'roll') {
+        if (g.rolls >= 3 || (g.rolls > 0 && g.held.every(Boolean))) return;
+        if (g.rolls === 0) g.held = [false, false, false, false, false];
+        g.moving = g.dice.map((_, i) => !(g.held[i] && g.rolls > 0));
+        g.dice = g.dice.map((v, i) => (g.moving[i] ? 1 + Math.floor(Math.random() * 6) : v));
+        g.rolls += 1; g.rollId += 1;
+        api.push();
+      } else if (a.type === 'hold') {
+        const i = +a.i;
+        if (g.rolls === 0 || g.rolls >= 3 || !(i >= 0 && i < 5)) return;
+        g.held[i] = !g.held[i]; api.push();
+      } else if (a.type === 'score') {
+        if (g.rolls === 0) return;
+        const o = options(pl, g.dice);
+        if (!(a.k in o.out)) return;
+        pl.scores[a.k] = o.out[a.k];
+        if (o.bonus) pl.yzBonus += 100;
+        advance(g); api.push();
+      }
+    },
+    onLeaveP: () => {},
+    chip: (p, Sn) => {
+      const g = Sn && Sn.game;
+      if (!g) return '';
+      const pl = g.players.find((x) => x.id === p.id);
+      if (!pl) return '<i>kijkt mee</i>';
+      const t = totals(pl).total;
+      return (g.players[g.cur] && g.players[g.cur].id === p.id && !g.over ? '<i class="ok">aan de beurt</i>' : '') + `<b>${t}</b>`;
+    },
+    onState: (Sn) => applyNet(Sn),
+    onWhere: (online) => {
+      document.querySelector('.foot').hidden = online;
+      if (online) { if (!soloS) soloS = S; S = null; }
+      else { S = soloS; soloS = null; lastRollId = null; }
+      view();
+    },
+    onLeave: () => { lastRollId = null; S = null; view(); },
+    render: (st, Sn, P, api) => {
+      if (!Sn) return;
+      const g = Sn.game, host = api.isHost();
+      const online = P.filter((p) => p.online).length;
+      if (Sn.phase === 'lobby') {
+        st.hidden = false;
+        st.innerHTML = host
+          ? `<h2 class="ol-h2">Klaar om te dobbelen?</h2><p class="ol-muted">${online < 2 ? 'Wacht tot de anderen in de lobby zijn. Deel de code of link.' : `${online} spelers in de lobby. De volgorde is de volgorde van binnenkomst.`}</p>
+             <button class="btn yellow ol-cta" type="button" data-act="start" ${online < 2 ? 'disabled' : ''}>Start spel</button>`
+          : '<h2 class="ol-h2">Je zit in de lobby</h2><p class="ol-muted">Wachten tot de spelleider het spel start…</p>';
+      } else {
+        const cur = g && !g.over ? g.players[g.cur] : null;
+        const curP = cur && P.find((p) => p.id === cur.id);
+        const gone = cur && host && curP && !curP.online && cur.id !== api.me;
+        const absent = cur && (!curP || !curP.online);
+        st.hidden = !(gone || absent);
+        st.innerHTML = gone
+          ? `<div class="ol-hostrow" style="border:0;padding:0"><span class="ol-small">${esc(cur.name)} is weg. Wacht even, of sla deze speler over voor de rest van het spel.</span><button class="btn small" type="button" data-act="skip">Sla ${esc(cur.name)} over</button></div>`
+          : absent ? `<p class="ol-muted">${esc(cur.name)} is even weg. Het spel wacht tot hij terug is.</p>` : '';
+      }
+      st.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', () => api.act({ type: b.dataset.act, r: g ? g.rolls : 0 })));
+    },
+  }) : null;
+
+  function applyNet(Sn) {
+    if (!Sn || Sn.phase !== 'play' || !Sn.game) { S = null; view(); return; }
+    const g = JSON.parse(JSON.stringify(Sn.game));
+    const animate = lastRollId !== null && g.rollId !== lastRollId && g.moving && g.moving.some(Boolean) && !reduce;
+    const first = lastRollId === null;
+    lastRollId = g.rollId;
+    clearInterval(animTimer);
+    diceEls.forEach(({ b }) => b.classList.remove('rolling'));
+    rolling = false;
+    if (animate) {
+      S = g; rolling = true;
+      view();
+      diceEls.forEach(({ b }, i) => { if (g.moving[i]) { b.classList.remove('blank', 'rolling'); void b.offsetWidth; b.classList.add('rolling'); } });
+      let ticks = 0;
+      const t = setInterval(() => {
+        ticks++;
+        g.moving.forEach((m, i) => { if (m) paintDie(i, 1 + Math.floor(Math.random() * 6)); });
+        if (ticks >= 6) { clearInterval(t); diceEls.forEach(({ b }) => b.classList.remove('rolling')); rolling = false; if (S === g) view(); }
+      }, 70);
+      animTimer = t;
+    } else {
+      rolling = false; S = g; view();
+      if (first && g.over) view();
+    }
+  }
 
   view();
 })();

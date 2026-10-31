@@ -151,6 +151,99 @@ details.card:not([open]) { gap: 0; }
   .cloud, .status.flash { animation: none !important; }
   .player, .btn, .back { transition: none; }
 }
+
+/* ---- Online-schermen (gedeeld) ---- */
+.ol-where { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ol-mode {
+  text-align: left; display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  padding: 12px 14px; border-radius: 16px; border: 3px solid var(--ink); background: var(--paper);
+  color: var(--ink); cursor: pointer; box-shadow: 0 4px 0 var(--ink); font: inherit;
+  transition: transform .1s, box-shadow .1s, background .15s;
+}
+.ol-mode b { font: 400 18px/1.1 var(--font-title); letter-spacing: .02em; }
+.ol-mode span { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.ol-mode[aria-pressed="true"] { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); }
+.ol-mode[aria-pressed="true"] span { color: var(--ink); }
+.ol-mode:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.ol-wrap { display: flex; flex-direction: column; gap: 18px; }
+.ol-card { gap: 12px; }
+.ol-h2 { margin: 0; font: 700 22px/1.2 var(--font-ui); text-wrap: balance; }
+.ol-muted { margin: 0; color: var(--muted); }
+.ol-small { font-size: 13px; font-weight: 600; color: var(--muted); }
+.ol-label { font-weight: 700; font-size: 14px; margin-bottom: -6px; }
+.ol-input {
+  min-width: 0; width: 100%; font: 600 17px/1.2 var(--font-ui);
+  padding: 11px 13px; border-radius: 12px; border: 3px solid var(--ink); background: var(--soft); color: var(--ink);
+}
+.ol-input:focus { outline: none; box-shadow: 0 0 0 4px var(--yellow); }
+.ol-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .ol-split { grid-template-columns: 1fr; } }
+.ol-box { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 16px; background: var(--soft); border: 3px dashed var(--ink); min-width: 0; }
+.ol-box b { font: 400 19px/1.1 var(--font-title); letter-spacing: .02em; }
+.ol-box span { font-size: 14px; color: var(--muted); }
+.ol-join { display: flex; gap: 8px; }
+.ol-code-in { font: 400 22px/1 var(--font-title); letter-spacing: .2em; text-transform: uppercase; text-align: center; flex: 1; background: var(--paper); }
+.ol-room { padding-block: 14px; gap: 10px; }
+.ol-room-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ol-room-code { display: flex; flex-direction: column; }
+.ol-room-code b { font: 400 34px/1 var(--font-title); letter-spacing: .14em; user-select: all; -webkit-user-select: all; }
+.ol-share { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ol-copy-msg { font-size: 13px; font-weight: 600; color: var(--good); }
+.ol-copy-msg:empty { display: none; }
+.ol-players { display: flex; flex-wrap: wrap; gap: 6px; }
+.ol-pl { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 2px solid var(--ink); background: var(--paper); font-weight: 700; font-size: 14px; }
+.ol-pl.me { background: var(--yellow-soft); }
+.ol-pl.off { opacity: .45; border-style: dashed; }
+.ol-pl small { font-size: 11px; font-weight: 600; color: var(--muted); }
+.ol-pl i { font-style: normal; font-size: 12px; font-weight: 600; color: var(--muted); }
+.ol-pl i.ok { color: var(--good); }
+.ol-pl b { font: 400 15px/1 var(--font-title); padding: 2px 6px; border-radius: 6px; background: var(--yellow); }
+.ol-msg { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--soft); font-size: 14px; font-weight: 600; }
+.ol-msg.bad { background: var(--bad-soft); color: #9a2a22; }
+.ol-retry { align-self: flex-start; }
+/* bouwstenen voor de spelschermen */
+.ol-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ol-tag { font: 400 15px/1 var(--font-title); letter-spacing: .05em; padding: 7px 12px; border-radius: 10px; background: var(--yellow); border: 3px solid var(--ink); }
+.ol-q { margin: 0; font: 700 clamp(21px, 5.4vw, 28px)/1.25 var(--font-ui); text-wrap: balance; }
+.ol-cta { font-size: 19px; padding: 15px 20px; }
+.ol-hostrow { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding-top: 10px; border-top: 3px dashed var(--soft); }
+.ol-box-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 14px; border-radius: 14px; background: var(--soft); border: 3px dashed var(--ink); }
+.ol-box-line b { font: 700 17px/1.25 var(--font-ui); flex: 1; min-width: 160px; }
+.ol-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.ol-choice {
+  text-align: left; padding: 12px 14px; border-radius: 14px; border: 3px solid var(--ink); background: var(--paper);
+  color: var(--ink); font: 700 17px/1.2 var(--font-ui); cursor: pointer; box-shadow: 0 3px 0 var(--ink); min-width: 0; overflow-wrap: anywhere;
+}
+.ol-choice:hover:not(:disabled) { background: var(--yellow-soft); }
+.ol-choice[aria-pressed="true"] { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 5px 0 var(--ink); }
+.ol-choice:disabled { cursor: default; opacity: .6; }
+.ol-choice:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 2px; }
+.ol-done { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 14px; background: var(--good-soft); border: 3px solid var(--good); }
+.ol-done b { font: 400 20px/1.1 var(--font-title); color: var(--good); letter-spacing: .02em; }
+.ol-bars { display: flex; flex-direction: column; gap: 8px; }
+.ol-bar { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 12px; border: 3px solid var(--ink); background: var(--paper); overflow: hidden; }
+.ol-bar::before { content: ""; position: absolute; inset: 0 auto 0 0; width: calc(var(--w, 0) * 1%); background: var(--bc, var(--yellow-soft)); transition: width .6s ease-out; }
+.ol-bar > * { position: relative; }
+.ol-bar .row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.ol-bar b { font: 700 17px/1.2 var(--font-ui); min-width: 0; overflow-wrap: anywhere; }
+.ol-bar .n { font: 400 20px/1 var(--font-title); white-space: nowrap; }
+.ol-bar small { font-size: 13px; color: var(--muted); font-weight: 600; }
+.ol-bar.win { --bc: var(--yellow); }
+.ol-scores { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.ol-scores li { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 10px; background: var(--paper); border: 2px solid var(--ink); }
+.ol-scores li span { flex: 1; font-weight: 700; }
+.ol-scores li b { font: 400 18px/1 var(--font-title); }
+.ol-scores li:first-child { background: var(--yellow); }
+.ol-scores li.me { box-shadow: inset 0 0 0 2px var(--ink); }
+.ol-seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.ol-seg button { font: 600 14px/1 var(--font-ui); padding: 8px 12px; border-radius: 999px; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; }
+.ol-seg button[aria-pressed="true"] { background: var(--yellow); }
+.ol-check { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ol-check input { width: 18px; height: 18px; accent-color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .ol-bar::before { transition: none; } }
+.ol-solo { display: flex; flex-direction: column; gap: 18px; }
+.ol-solo[hidden] { display: none !important; }
+
 </style>
 <style>
 /* Variantkeuze bovenaan, dan het onderwerp met een genummerde ladder van 5 plekken */
@@ -271,6 +364,70 @@ details.card:not([open]) { gap: 0; }
 .credit { font-size: 12px; }
 .rung .arrows { align-items: center; }
 .rung > .playbtn { margin-right: 2px; }
+.solo { display: flex; flex-direction: column; gap: 18px; }
+.where .mode b { font-size: 17px; }
+.lobby h2, #olStage h2 { margin: 0; font: 700 22px/1.2 var(--font-ui); text-wrap: balance; }
+.lobby { gap: 12px; }
+.muted { margin: 0; color: var(--muted); }
+.small { font-size: 13px; font-weight: 600; }
+.field-label { font-weight: 700; font-size: 14px; margin-bottom: -6px; }
+.lobby-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .lobby-split { grid-template-columns: 1fr; } }
+.lobby-box { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 16px; background: var(--soft); border: 3px dashed var(--ink); min-width: 0; }
+.lobby-box b { font: 400 19px/1.1 var(--font-title); letter-spacing: .02em; }
+.lobby-box span { font-size: 14px; color: var(--muted); }
+.join-row { display: flex; gap: 8px; }
+.code-in { font: 400 22px/1 var(--font-title); letter-spacing: .2em; text-transform: uppercase; text-align: center; flex: 1; background: var(--paper); }
+.roombar { gap: 10px; padding-block: 14px; }
+.room-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.room-code { display: flex; flex-direction: column; }
+.room-code b { font: 400 34px/1 var(--font-title); letter-spacing: .14em; user-select: all; -webkit-user-select: all; }
+.share-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.copy-msg { font-size: 13px; font-weight: 600; color: var(--good); }
+.copy-msg:empty { display: none; }
+.plist { display: flex; flex-wrap: wrap; gap: 6px; }
+.pl { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 2px solid var(--ink); background: var(--paper); font-weight: 700; font-size: 14px; }
+.pl.me { background: var(--yellow-soft); }
+.pl.off { opacity: .45; border-style: dashed; }
+.pl small { font-size: 11px; font-weight: 600; color: var(--muted); }
+.pl i { font-style: normal; font-size: 12px; font-weight: 600; color: var(--muted); }
+.pl i.ok { color: var(--good); }
+.pl b { font: 400 15px/1 var(--font-title); padding: 2px 6px; border-radius: 6px; background: var(--yellow); }
+.net-msg { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--soft); font-size: 14px; font-weight: 600; }
+.net-msg.bad { background: var(--bad-soft); color: #9a2a22; }
+#olRetry { align-self: flex-start; }
+.small-modes .mode { padding: 10px 12px; }
+.next-topic { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 14px; border-radius: 14px; background: var(--soft); border: 3px dashed var(--ink); }
+.next-topic b { font: 700 18px/1.2 var(--font-ui); flex: 1; min-width: 160px; }
+.next-topic .small { flex-basis: 100%; margin-bottom: -6px; }
+.tag-sm { font: 400 13px/1 var(--font-title); letter-spacing: .05em; padding: 5px 8px; border-radius: 8px; background: var(--yellow); border: 2px solid var(--ink); }
+.big-cta { font-size: 19px; padding: 15px 20px; }
+.host-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding-top: 10px; border-top: 3px dashed var(--soft); }
+.cmp-wrap { overflow-x: auto; margin-inline: -4px; padding: 2px 4px 6px; }
+table.cmp { border-collapse: separate; border-spacing: 6px; min-width: 100%; }
+.cmp th, .cmp td { text-align: left; vertical-align: top; }
+.cmp thead th { font: 400 16px/1.1 var(--font-title); letter-spacing: .02em; padding: 6px 8px; white-space: nowrap; }
+.cmp thead th small { display: block; font: 600 12px/1.3 var(--font-ui); color: var(--good); letter-spacing: 0; }
+.cmp thead th.me { color: var(--ink); background: var(--yellow-soft); border-radius: 10px; }
+.cmp th.pos { font: 400 20px/1 var(--font-title); width: 28px; text-align: center; padding-top: 12px; }
+.cmp td { min-width: 112px; max-width: 160px; padding: 8px 10px; border-radius: 12px; border: 2px solid var(--ink); background: var(--paper); font: 700 14px/1.25 var(--font-ui); overflow-wrap: anywhere; }
+.cmp td .artist { display: block; font-size: 11px; font-weight: 600; color: var(--muted); }
+.cmp td.grp { background: var(--yellow); border-width: 3px; }
+.cmp thead th.grp { color: var(--ink); }
+.cmp td.hit { background: var(--good-soft); border-color: var(--good); }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+.fact { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; background: var(--soft); }
+.fact b { font: 400 16px/1.1 var(--font-title); letter-spacing: .02em; }
+.fact span { font-size: 14px; }
+.scoreboard { display: flex; flex-direction: column; gap: 6px; }
+.scoreboard > b { font: 400 18px/1.1 var(--font-title); letter-spacing: .02em; }
+.scoreboard ol { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; counter-reset: sb; }
+.scoreboard li { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 10px; background: var(--paper); border: 2px solid var(--ink); counter-increment: sb; }
+.scoreboard li::before { content: counter(sb); font: 400 16px/1 var(--font-title); width: 18px; }
+.scoreboard li span { flex: 1; font-weight: 700; }
+.scoreboard li b { font: 400 18px/1 var(--font-title); }
+.scoreboard li:first-child { background: var(--yellow); }
+.scoreboard li.me { box-shadow: inset 0 0 0 2px var(--ink); }
 .row-btns { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .row-btns .spacer { flex: 1; }
 .toast { font-size: 14px; font-weight: 600; color: var(--good); }
@@ -330,6 +487,12 @@ details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); ou
     <p class="tagline">Vijf nummers, één volgorde. Rangschik de hits van één artiest of een mix van artiesten, en ontdek wie dezelfde smaak heeft.</p>
   </header>
 
+  <div class="modes where" role="group" aria-label="Waar speel je">
+    <button type="button" class="mode" id="whereSolo" aria-pressed="true"><b>Op één scherm</b><span>Iedereen kijkt naar hetzelfde scherm.</span></button>
+    <button type="button" class="mode" id="whereOnline" aria-pressed="false"><b>Online met de groep</b><span>Ieder rangschikt op zijn eigen telefoon.</span></button>
+  </div>
+
+  <div id="solo" class="solo">
   <div class="modes" role="group" aria-label="Spelvariant">
     <button type="button" class="mode" id="modeA" data-mode="a"><b>Vrij rangschikken</b><span>Je ziet alle vijf de opties en zet ze op volgorde.</span></button>
     <button type="button" class="mode" id="modeB" data-mode="b"><b>Blind rangschikken</b><span>De opties komen één voor één. Elke plek is meteen vast.</span></button>
@@ -400,6 +563,51 @@ details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); ou
       <div class="own" id="ownList"></div>
     </div>
   </details>
+  </div>
+
+  <section id="online" class="solo" hidden>
+    <div class="card lobby" id="olStart">
+      <h2>Speel samen, ieder op zijn eigen telefoon</h2>
+      <p class="muted">Eén iemand maakt een lobby en is de spelleider. De rest doet mee met de code of link. Na elke ronde zie je alle rankings naast elkaar.</p>
+      <label class="field-label" for="olName">Jouw naam</label>
+      <input class="input" id="olName" maxlength="16" placeholder="Bijvoorbeeld Milan" autocomplete="nickname">
+      <div class="lobby-split">
+        <div class="lobby-box">
+          <b>Nieuwe lobby</b>
+          <span>Jij bent de spelleider en kiest de lijstjes.</span>
+          <button class="btn yellow" type="button" id="olHost">Lobby maken</button>
+        </div>
+        <div class="lobby-box">
+          <b>Meedoen</b>
+          <span>Vul de code van de spelleider in.</span>
+          <div class="join-row">
+            <input class="input code-in" id="olCode" maxlength="5" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Lobbycode">
+            <button class="btn" type="button" id="olJoin">Meedoen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card roombar" id="olRoom" hidden>
+      <div class="room-top">
+        <div class="room-code"><span class="muted small">Lobbycode</span><b id="olCodeBig"></b></div>
+        <div class="share-row">
+          <button class="btn small yellow" type="button" id="olShare" hidden>Deel link</button>
+          <button class="btn small" type="button" id="olCopy">Kopieer link</button>
+          <button class="btn small" type="button" id="olLeave">Verlaten</button>
+        </div>
+      </div>
+      <span class="copy-msg" id="olCopyMsg" role="status"></span>
+      <input class="input" id="olLinkBox" readonly hidden aria-label="Lobbylink">
+      <span class="muted small" id="olYou"></span>
+      <div class="plist" id="olPlayers" aria-label="Spelers"></div>
+    </div>
+
+    <p class="net-msg" id="olMsg" role="status" hidden></p>
+    <button class="btn small yellow" type="button" id="olRetry" hidden>Opnieuw verbinden</button>
+
+    <section class="card qcard" id="olStage" hidden aria-live="polite"></section>
+  </section>
 
   <div class="foot">
     <p class="hint">Iedereen maakt zijn eigen ranking, op papier of in zijn hoofd. Tik op ▶ om 10 seconden van een nummer te horen. Vergelijk daarna: wie denkt hetzelfde, en wie wijkt het meest af?</p>
@@ -408,6 +616,284 @@ details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); ou
   <p class="hint credit">Fragmenten van 10 seconden zijn officiële previews van Apple Music.</p>
 </div>
 
+<script>
+/* NetRoom: lobby-laag bovenop PeerJS voor 2 tot 8 spelers.
+   De maker van de lobby is spelleider (host): zijn apparaat bewaart de officiële stand
+   en stuurt die naar iedereen. De anderen sturen alleen hun acties door. */
+window.NetRoom = function (opts) {
+  const PREFIX = opts.prefix;
+  const KEY = opts.storeKey;
+  const MAX = opts.maxPlayers || 8;
+  const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let ME = '';
+  try { ME = localStorage.getItem(KEY + '-id') || ''; } catch (e) {}
+  if (!ME) { ME = Math.random().toString(36).slice(2, 10); try { localStorage.setItem(KEY + '-id', ME); } catch (e) {} }
+
+  const R = {
+    on: false, role: null, code: '', name: '', peer: null, conns: new Map(), hostConn: null,
+    players: {}, status: 'idle', joined: false, tries: 0, lastSeen: new Map(),
+    retryTimer: 0, joinTimer: 0, reviveTimer: 0,
+  };
+  const emit = (type, data) => { try { if (opts.onEvent) opts.onEvent(type, data); } catch (e) { console.error(e); } };
+  const setStatus = (status, msg, bad) => { R.status = status; emit('status', { status, msg: msg || '', bad: !!bad }); };
+
+  // ---- PeerJS pas laden als het nodig is ----
+  let lib = null;
+  function loadLib() {
+    if (window.Peer) return Promise.resolve();
+    if (lib) return lib;
+    const urls = ['https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js', 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js'];
+    lib = urls.reduce((p, url) => p.catch(() => new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = url; s.onload = res; s.onerror = () => { s.remove(); rej(); };
+      document.head.appendChild(s);
+    })), Promise.reject()).then(() => { if (!window.Peer) throw new Error('nolib'); });
+    lib.catch(() => { lib = null; });
+    return lib;
+  }
+  const peerOpts = () => Object.assign({ debug: 0 }, window.PEER_OPTIONS || {});
+  const newCode = () => Array.from({ length: 5 }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join('');
+  const libError = () => 'Online spelen kon niet starten. Het werkt alleen op de gewone website (zoals GitHub Pages) met internet.';
+  function errText(err) {
+    switch (err && err.type) {
+      case 'browser-incompatible': return 'Deze browser ondersteunt online spelen niet. Probeer Chrome, Edge, Firefox of Safari.';
+      case 'network': case 'server-error': case 'socket-error': case 'socket-closed': return 'Geen verbinding met de koppeldienst. Controleer je internet en probeer het opnieuw.';
+      case 'webrtc': return 'De directe verbinding lukte niet. Probeer een ander netwerk, bijvoorbeeld wifi in plaats van 4G.';
+      default: return 'Er ging iets mis met de verbinding. Probeer het opnieuw.';
+    }
+  }
+  const publicPlayers = () => Object.entries(R.players).map(([id, p]) => ({ id, name: p.name, online: !!p.online, host: R.role === 'host' ? id === ME : !!p.host }));
+
+  // ================= SPELLEIDER =================
+  function makeHostPeer(code, onOpen, onFirstError) {
+    const peer = new window.Peer(PREFIX + code, peerOpts());
+    let opened = false;
+    peer.on('open', () => { if (!opened) { opened = true; if (onOpen) onOpen(peer); } });
+    peer.on('connection', (conn) => {
+      conn.on('data', (m) => hostData(m, conn));
+      conn.on('close', () => hostClose(conn));
+      conn.on('error', () => {});
+    });
+    peer.on('disconnected', () => { if (R.peer === peer && !peer.destroyed) scheduleRevive(false, 1500); });
+    peer.on('close', () => { if (R.peer === peer && R.on) scheduleRevive(true, 1500); });
+    peer.on('error', (err) => {
+      if (!opened) { if (onFirstError) onFirstError(err, peer); return; }
+      if (R.peer !== peer) return;
+      if (err.type === 'unavailable-id') scheduleRevive(true, 5000);
+      else if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(err.type)) scheduleRevive(false, 3000);
+    });
+    return peer;
+  }
+  function scheduleRevive(force, delay) { clearTimeout(R.reviveTimer); R.reviveTimer = setTimeout(() => revive(force), delay); }
+  function revive(force) {
+    if (!R.on || R.role !== 'host') return;
+    const p = R.peer;
+    if (p && !p.destroyed && !force) { if (p.disconnected) { try { p.reconnect(); } catch (e) {} } return; }
+    try { if (p && !p.destroyed) p.destroy(); } catch (e) {}
+    R.peer = makeHostPeer(R.code, null, (err) => { if (err.type === 'unavailable-id') scheduleRevive(true, 5000); else scheduleRevive(true, 4000); });
+  }
+
+  function host(name, code) {
+    R.name = name;
+    setStatus('connecting', code ? 'Lobby wordt hersteld…' : 'Lobby wordt gemaakt…');
+    return loadLib().then(() => new Promise((resolve, reject) => {
+      const attempt = (n) => {
+        const c = code || newCode();
+        makeHostPeer(c, (peer) => {
+          Object.assign(R, { on: true, role: 'host', code: c, peer, joined: true });
+          R.players[ME] = Object.assign(R.players[ME] || {}, { name, online: true });
+          keepAwake(true);
+          setStatus('hosting');
+          emit('players', publicPlayers());
+          resolve(c);
+        }, (err, peer) => {
+          try { peer.destroy(); } catch (e) {}
+          if (err.type === 'unavailable-id' && n < (code ? 8 : 3)) { setTimeout(() => attempt(n + 1), code ? 3000 : 0); return; }
+          setStatus('error', errText(err), true); reject(err);
+        });
+      };
+      attempt(0);
+    }), (e) => { setStatus('error', libError(), true); throw e; });
+  }
+
+  function hostData(m, conn) {
+    if (!m || typeof m !== 'object') return;
+    if (m.t === 'hello') {
+      const id = String(m.id || '').slice(0, 20);
+      if (!id || id === ME) { try { conn.send({ t: 'full' }); } catch (e) {} return; }
+      const known = !!R.players[id];
+      if (!known && Object.keys(R.players).length >= MAX) { try { conn.send({ t: 'full' }); } catch (e) {} return; }
+      const old = R.conns.get(id);
+      if (old && old !== conn) { R.conns.delete(id); try { old.close(); } catch (e) {} }
+      R.conns.set(id, conn); conn._id = id; R.lastSeen.set(id, Date.now());
+      R.players[id] = Object.assign(R.players[id] || {}, { name: String(m.name || 'Speler').slice(0, 16), online: true });
+      try { conn.send({ t: 'welcome', you: id, code: R.code }); } catch (e) {}
+      emit('join', { id, known });
+      emit('players', publicPlayers());
+      broadcast();
+      return;
+    }
+    const id = conn._id;
+    if (!id || R.conns.get(id) !== conn) return;
+    R.lastSeen.set(id, Date.now());
+    if (m.t === 'ping') { try { conn.send({ t: 'pong' }); } catch (e) {} return; }
+    if (m.t === 'act') emit('action', { from: id, a: m.a });
+    if (m.t === 'name' && R.players[id]) { R.players[id].name = String(m.name || 'Speler').slice(0, 16); emit('players', publicPlayers()); broadcast(); }
+  }
+  function hostClose(conn) {
+    const id = conn._id;
+    if (!id || R.conns.get(id) !== conn) return;
+    R.conns.delete(id);
+    if (R.players[id]) R.players[id].online = false;
+    emit('leave', { id });
+    emit('players', publicPlayers());
+    broadcast();
+  }
+  function broadcast() {
+    if (R.role !== 'host') return;
+    const players = publicPlayers();
+    R.conns.forEach((c, id) => { if (c.open) { try { c.send({ t: 'state', s: opts.getState(id), players }); } catch (e) {} } });
+    emit('state', { s: opts.getState(ME), players });
+  }
+
+  // ================= MEESPELER =================
+  function join(code, name) {
+    R.name = name;
+    if (!R.joined) setStatus('connecting', 'Verbinden met lobby ' + code + '…');
+    return loadLib().then(() => {
+      R.code = code;
+      if (R.peer && !R.peer.destroyed && R.peer.open && !R.peer.disconnected) { connectHost(); return; }
+      try { if (R.peer && !R.peer.destroyed) R.peer.destroy(); } catch (e) {}
+      const peer = new window.Peer(peerOpts());
+      R.peer = peer;
+      peer.on('open', () => { if (R.peer !== peer) return; R.on = true; R.role = 'guest'; connectHost(); });
+      peer.on('disconnected', () => { if (R.peer === peer && !peer.destroyed) setTimeout(() => { try { peer.reconnect(); } catch (e) {} }, 1500); });
+      peer.on('error', (err) => {
+        if (R.peer !== peer) return;
+        clearTimeout(R.joinTimer);
+        if (R.joined) { scheduleRejoin(4000); return; }
+        if (err.type === 'peer-unavailable') fail('Geen lobby gevonden met code ' + code + '. Klopt de code?');
+        else fail(errText(err));
+      });
+    }, () => fail(libError()));
+  }
+  function fail(msg) { cleanup(); setStatus('error', msg, true); }
+  function connectHost() {
+    const c = R.peer.connect(PREFIX + R.code, { reliable: true });
+    c.on('open', () => {
+      if (R.hostConn && R.hostConn !== c) { try { R.hostConn.close(); } catch (e) {} }
+      R.hostConn = c; clearTimeout(R.joinTimer); R.lastSeen.set('host', Date.now());
+      try { c.send({ t: 'hello', id: ME, name: R.name }); } catch (e) {}
+    });
+    c.on('data', (m) => { if (c !== R.hostConn) return; R.lastSeen.set('host', Date.now()); guestData(m, c); });
+    c.on('close', () => {
+      if (c !== R.hostConn) return;
+      R.hostConn = null;
+      if (!R.joined) { fail('Meedoen lukte niet: deze lobby is al vol of gesloten.'); return; }
+      scheduleRejoin(1000);
+    });
+    c.on('error', () => {});
+    clearTimeout(R.joinTimer);
+    R.joinTimer = setTimeout(() => {
+      if (c.open) return;
+      try { c.close(); } catch (e) {}
+      if (R.joined) scheduleRejoin(1000);
+      else fail('Het lukt niet om verbinding te maken. Probeer een ander netwerk (bijvoorbeeld wifi in plaats van 4G) of vraag om een nieuwe code.');
+    }, 20000);
+  }
+  function guestData(m, c) {
+    if (!m || typeof m !== 'object') return;
+    if (m.t === 'welcome') {
+      R.joined = true; R.tries = 0; clearTimeout(R.retryTimer);
+      keepAwake(true); setStatus('connected'); emit('joined', { code: R.code });
+    } else if (m.t === 'state') {
+      if (Array.isArray(m.players)) { R.players = {}; m.players.forEach((p) => { R.players[p.id] = p; }); }
+      emit('state', { s: m.s, players: m.players || [] });
+    } else if (m.t === 'full') {
+      R.hostConn = null; try { c.close(); } catch (e) {}
+      fail('Deze lobby is al vol.');
+    }
+  }
+  function scheduleRejoin(delay) {
+    if (!R.on || R.role !== 'guest') return;
+    clearTimeout(R.retryTimer);
+    R.tries += 1;
+    if (R.tries > 40) { R.tries = 0; setStatus('lost', 'De spelleider is niet bereikbaar. Tik op Opnieuw verbinden om het nog eens te proberen.', true); return; }
+    setStatus('lost', `Verbinding weg. Opnieuw verbinden… (poging ${R.tries})`, true);
+    R.retryTimer = setTimeout(() => { if (!R.hostConn || !R.hostConn.open) join(R.code, R.name); }, delay);
+  }
+
+  // ================= GEDEELD =================
+  function action(a) {
+    if (R.role === 'host') { emit('action', { from: ME, a }); return true; }
+    if (R.hostConn && R.hostConn.open) { try { R.hostConn.send({ t: 'act', a }); return true; } catch (e) {} }
+    return false;
+  }
+  function setName(name) {
+    R.name = String(name || '').slice(0, 16);
+    if (R.role === 'host' && R.players[ME]) { R.players[ME].name = R.name; emit('players', publicPlayers()); broadcast(); }
+    else if (R.hostConn && R.hostConn.open) { try { R.hostConn.send({ t: 'name', name: R.name }); } catch (e) {} }
+  }
+  function cleanup() {
+    clearTimeout(R.retryTimer); clearTimeout(R.joinTimer); clearTimeout(R.reviveTimer);
+    R.conns.forEach((c) => { try { c.close(); } catch (e) {} });
+    try { if (R.hostConn) R.hostConn.close(); } catch (e) {}
+    try { if (R.peer && !R.peer.destroyed) R.peer.destroy(); } catch (e) {}
+    keepAwake(false);
+    Object.assign(R, { on: false, role: null, code: '', peer: null, conns: new Map(), hostConn: null, players: {}, joined: false, tries: 0, lastSeen: new Map() });
+  }
+  function leave() { cleanup(); setStatus('idle'); }
+  function retry() { R.tries = 0; if (R.role === 'guest') join(R.code, R.name); }
+  function seedPlayers(list) {
+    R.players = {};
+    (list || []).forEach((p) => { if (p && p.id) R.players[p.id] = { name: p.name, online: false }; });
+  }
+
+  // Hartslag: merk dode verbindingen snel op
+  setInterval(() => {
+    if (!R.on) return;
+    const now = Date.now();
+    if (R.role === 'host') {
+      R.conns.forEach((c, id) => {
+        if (!c.open) return;
+        try { c.send({ t: 'ping' }); } catch (e) {}
+        if (now - (R.lastSeen.get(id) || now) > 20000) { try { c.close(); } catch (e) {} hostClose(c); }
+      });
+    } else if (R.hostConn && R.hostConn.open) {
+      try { R.hostConn.send({ t: 'ping' }); } catch (e) {}
+      if (now - (R.lastSeen.get('host') || now) > 20000) { try { R.hostConn.close(); } catch (e) {} }
+    }
+  }, 4000);
+
+  // Scherm aan houden
+  let wake = null;
+  async function keepAwake(on) {
+    try {
+      if (on && !wake && 'wakeLock' in navigator && document.visibilityState === 'visible') {
+        wake = await navigator.wakeLock.request('screen');
+        wake.addEventListener('release', () => { wake = null; });
+      } else if (!on && wake) { const w = wake; wake = null; await w.release(); }
+    } catch (e) { wake = null; }
+  }
+
+  // Terug in de app: meteen controleren en herstellen
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !R.on) return;
+    const now = Date.now();
+    R.lastSeen.forEach((v, k) => R.lastSeen.set(k, now));
+    keepAwake(true);
+    if (R.role === 'host') revive(false);
+    else if (!R.hostConn || !R.hostConn.open) { R.tries = 0; join(R.code, R.name); }
+    else { try { R.hostConn.send({ t: 'ping' }); } catch (e) {} }
+  });
+
+  return {
+    me: ME, host, join, leave, retry, action, broadcast, setName, seedPlayers,
+    get role() { return R.role; }, get code() { return R.code; }, get on() { return R.on; },
+    get status() { return R.status; }, players: publicPlayers,
+    link: (code) => location.origin + location.pathname + '#lobby-' + code,
+  };
+};
+</script>
 <script>
 (function () {
   const KEY = 'rank-it-music';
@@ -573,12 +1059,12 @@ details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); ou
     playingKey = null; loadingKey = null;
     syncPlay();
   }
-  async function playClip(item) {
+  async function playClip(item, topic) {
     interacted = true;
     if (playingKey === item) { stopClip(); return; }
     stopClip();
     playingKey = item; loadingKey = item; syncPlay();
-    const p = await lookup(item, cur());
+    const p = await lookup(item, topic || cur());
     if (playingKey !== item) return;
     loadingKey = null;
     if (!p) { playingKey = null; missing.add(item); syncPlay(); return; }
@@ -596,9 +1082,10 @@ details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); ou
     stopTimer = setTimeout(stopClip, CLIP * 1000);
   }
   audio.addEventListener('ended', stopClip);
-  function playBtn(item, big) {
+  function playBtn(item, big, artist) {
     const t = songParts(item).title;
-    return `<button type="button" class="playbtn${big ? ' big' : ''}" data-song="${esc(item)}" aria-label="Speel 10 seconden van ${esc(t)}"><i>${PLAY}</i>${big ? '<span>Speel fragment</span>' : ''}</button>`;
+    const a = artist == null ? '' : ` data-artist="${esc(artist)}"`;
+    return `<button type="button" class="playbtn${big ? ' big' : ''}" data-song="${esc(item)}"${a} aria-label="Speel 10 seconden van ${esc(t)}"><i>${PLAY}</i>${big ? '<span>Speel fragment</span>' : ''}</button>`;
   }
   function syncPlay() {
     document.querySelectorAll('.playbtn').forEach((b) => {
@@ -617,7 +1104,7 @@ details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); ou
   }
   document.addEventListener('click', (e) => {
     const b = e.target.closest('.playbtn');
-    if (b && !b.disabled) playClip(b.dataset.song);
+    if (b && !b.disabled) playClip(b.dataset.song, b.hasAttribute('data-artist') ? { artist: b.dataset.artist } : undefined);
   });
   function prefetch() { const t = cur(); if (!blocked) t.items.forEach((x) => lookup(x, t)); }
 
@@ -674,7 +1161,10 @@ details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); ou
         if (!reduce) { void now.offsetWidth; now.classList.add('flip'); }
         if (playingKey) stopClip();
         $('nowPlay').innerHTML = playBtn(b.seq[b.step], true);
-        if (store.autoplay !== false && interacted) setTimeout(() => playClip(b.seq[b.step]), reduce ? 0 : 350);
+        if (store.autoplay !== false && interacted) {
+          const item = b.seq[b.step];
+          setTimeout(() => { if (b.step < 5 && b.seq[b.step] === item) playClip(item); }, reduce ? 0 : 350);
+        }
       }
       $('deck').innerHTML = [0, 1, 2, 3, 4].map((i) => `<i class="${i <= b.step ? 'gone' : ''}"></i>`).join('');
     } else {
@@ -825,9 +1315,386 @@ details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); ou
   const _renderOwn = renderOwn;
   renderOwn = function () { _renderOwn(); renderTypes(); };
 
+  // =================== ONLINE MET DE GROEP ===================
+  // De spelleider (maker van de lobby) bewaart de officiële stand in G en stuurt die rond.
+  const NETKEY = KEY + '-online';
+  let G = null;            // alleen bij de spelleider
+  let OS = null;           // laatst ontvangen stand
+  let OP = [];             // spelers
+  let L = null;            // eigen ranking van deze ronde (op dit apparaat)
+  let stageKey = '';
+  let lastResend = 0;
+  const room = window.NetRoom ? window.NetRoom({
+    prefix: 'spelletjes-rankitmusic-', storeKey: NETKEY, maxPlayers: 8,
+    getState: (id) => publicState(id), onEvent: netEvent,
+  }) : null;
+  const ME = room ? room.me : 'me';
+
+  function myName() { return ($('olName').value.trim() || 'Speler').slice(0, 16); }
+  try { $('olName').value = localStorage.getItem(NETKEY + '-name') || ''; } catch (e) {}
+  $('olName').addEventListener('input', () => {
+    try { localStorage.setItem(NETKEY + '-name', $('olName').value); } catch (e) {}
+    if (room && room.on) room.setName(myName());
+  });
+
+  // ---- Waar speel je: één scherm of online ----
+  function setWhere(online) {
+    $('whereSolo').setAttribute('aria-pressed', String(!online));
+    $('whereOnline').setAttribute('aria-pressed', String(online));
+    $('solo').hidden = online;
+    $('online').hidden = !online;
+    document.querySelector('.foot').hidden = online;
+    stopClip();
+    if (!online && room && room.on) leaveRoom();
+    if (online) renderOnline();
+  }
+  $('whereSolo').addEventListener('click', () => setWhere(false));
+  $('whereOnline').addEventListener('click', () => setWhere(true));
+
+  // ---- Lobby maken / meedoen ----
+  const cleanCode = (v) => v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+  $('olHost').addEventListener('click', () => {
+    if (!room) return olMsg('Online spelen kon niet starten.', true);
+    $('olHost').disabled = true;
+    G = freshGame();
+    room.host(myName()).then((code) => {
+      $('olHost').disabled = false;
+      history.replaceState(null, '', '#lobby-' + code);
+      hostSave(); room.broadcast();
+    }).catch(() => { $('olHost').disabled = false; G = null; });
+  });
+  function doJoin(code) {
+    if (!room) return olMsg('Online spelen kon niet starten.', true);
+    if (code.length !== 5) return olMsg('Een lobbycode heeft 5 tekens.', true);
+    $('olJoin').disabled = true;
+    room.join(code, myName());
+  }
+  $('olJoin').addEventListener('click', () => doJoin(cleanCode($('olCode').value)));
+  $('olCode').addEventListener('input', () => { $('olCode').value = cleanCode($('olCode').value); });
+  $('olCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doJoin(cleanCode($('olCode').value)); } });
+  $('olLeave').addEventListener('click', () => leaveRoom());
+  $('olRetry').addEventListener('click', () => { if (room) room.retry(); });
+  function leaveRoom() {
+    if (room) room.leave();
+    if (G) { try { localStorage.removeItem(NETKEY + '-host'); } catch (e) {} }
+    G = null; OS = null; OP = []; L = null; stageKey = '';
+    if (location.hash.startsWith('#lobby-')) history.replaceState(null, '', location.pathname + location.search);
+    olMsg('');
+    renderOnline();
+  }
+  $('olCopy').addEventListener('click', () => {
+    const text = room.link(room.code);
+    const fb = () => { const b = $('olLinkBox'); b.hidden = false; b.value = text; b.focus(); b.select(); $('olCopyMsg').textContent = 'Selecteer en kopieer de link.'; };
+    try { navigator.clipboard.writeText(text).then(() => { $('olCopyMsg').textContent = 'Link gekopieerd'; }, fb); } catch (e) { fb(); }
+  });
+  if (navigator.share) {
+    $('olShare').hidden = false;
+    $('olShare').addEventListener('click', () => {
+      navigator.share({ title: 'Rank It! Music', text: 'Doe mee met Rank It! Music. Lobbycode: ' + room.code, url: room.link(room.code) }).catch(() => {});
+    });
+  }
+  function olMsg(text, bad) { const m = $('olMsg'); m.textContent = text || ''; m.hidden = !text; m.classList.toggle('bad', !!bad); }
+
+  // ---- Gebeurtenissen van de lobby-laag ----
+  function netEvent(type, d) {
+    if (type === 'status') {
+      $('olJoin').disabled = false;
+      $('olRetry').hidden = d.status !== 'lost';
+      if (d.status === 'connecting' || d.status === 'lost' || d.status === 'error') olMsg(d.msg, d.bad);
+      else olMsg('');
+      if (d.status === 'error' || d.status === 'idle') { OS = null; OP = []; stageKey = ''; }
+      renderOnline();
+    } else if (type === 'joined') {
+      history.replaceState(null, '', '#lobby-' + d.code);
+    } else if (type === 'state') {
+      OS = d.s; OP = d.players || [];
+      renderOnline();
+    } else if (type === 'action' && G) {
+      hostAction(d.from, d.a || {});
+    } else if ((type === 'join' || type === 'leave') && G) {
+      if (type === 'join' && G.phase === 'play' && !G.roster.includes(d.id)) G.roster.push(d.id);
+      hostSave();
+    }
+  }
+
+  // ================= SPELLEIDER =================
+  function freshGame() {
+    return { phase: 'lobby', mode: store.mode === 'a' ? 'free' : 'blind', round: 0, topic: pickTopic(), seq: [], subs: {}, roster: [], scores: {}, reveal: null };
+  }
+  function pickTopic(avoidTitle) {
+    const list = topics().filter((t) => t.title !== avoidTitle);
+    const t = list[Math.floor(Math.random() * list.length)] || topics()[0];
+    return { title: t.title, items: t.items.slice(), artist: t.artist || '' };
+  }
+  function publicState() {
+    if (!G) return null;
+    const progress = {};
+    Object.entries(G.subs).forEach(([id, v]) => { progress[id] = { step: v.step || 0, done: !!v.done }; });
+    return { phase: G.phase, mode: G.mode, round: G.round, topic: G.topic, seq: G.phase === 'lobby' ? [] : G.seq, progress, roster: G.roster, scores: G.scores, reveal: G.phase === 'reveal' ? G.reveal : null };
+  }
+  function hostSave() {
+    try { localStorage.setItem(NETKEY + '-host', JSON.stringify({ code: room.code, G, players: room.players(), t: Date.now() })); } catch (e) {}
+  }
+  function hostPush() { hostSave(); room.broadcast(); }
+
+  function hostAction(from, a) {
+    if (a.type === 'progress' && G.phase === 'play' && a.round === G.round) {
+      const s = G.subs[from] || (G.subs[from] = { step: 0 });
+      if (!s.done) s.step = Math.max(0, Math.min(5, +a.step || 0));
+      if (!G.roster.includes(from)) G.roster.push(from);
+      hostPush();
+    } else if (a.type === 'submit' && G.phase === 'play' && a.round === G.round) {
+      const r = Array.isArray(a.ranking) ? a.ranking.map(String) : [];
+      const ok = r.length === 5 && G.topic.items.every((x) => r.includes(x));
+      if (!ok) return;
+      G.subs[from] = { step: 5, done: true, ranking: r };
+      if (!G.roster.includes(from)) G.roster.push(from);
+      if (G.roster.every((id) => G.subs[id] && G.subs[id].done)) doReveal();
+      hostPush();
+    }
+  }
+  function hostSetMode(m) { if (G.phase === 'play') return; G.mode = m; hostPush(); }
+  function hostNewTopic() { if (G.phase === 'play') return; G.topic = pickTopic(G.topic.title); hostPush(); }
+  function hostStart() {
+    G.round += 1; G.phase = 'play'; G.seq = shuffle(G.topic.items); G.subs = {}; G.reveal = null;
+    G.roster = room.players().filter((p) => p.online).map((p) => p.id);
+    hostPush();
+  }
+  function hostRevealNow() { if (G.phase === 'play' && Object.values(G.subs).some((v) => v.done)) { doReveal(); hostPush(); } }
+  function hostNext() { G.phase = 'lobby'; G.topic = pickTopic(G.topic.title); G.reveal = null; G.subs = {}; hostPush(); }
+
+  const footrule = (a, b) => a.reduce((s, it, i) => s + Math.abs(i - b.indexOf(it)), 0);
+  function doReveal() {
+    const items = G.topic.items;
+    const subs = Object.entries(G.subs).filter(([, v]) => v.done);
+    const avg = items.map((it, o) => ({ it, o, a: subs.reduce((s, [, v]) => s + v.ranking.indexOf(it), 0) / subs.length }));
+    avg.sort((x, y) => x.a - y.a || x.o - y.o);
+    const group = avg.map((x) => x.it);
+    const rankings = {}, points = {}, dist = {};
+    subs.forEach(([id, v]) => {
+      rankings[id] = v.ranking;
+      points[id] = v.ranking.reduce((s, it, i) => { const d = Math.abs(i - group.indexOf(it)); return s + (d === 0 ? 2 : d === 1 ? 1 : 0); }, 0);
+      dist[id] = footrule(v.ranking, group);
+      G.scores[id] = (G.scores[id] || 0) + points[id];
+    });
+    let best = null, worst = null;
+    const ids = Object.keys(rankings);
+    for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+      const d = footrule(rankings[ids[i]], rankings[ids[j]]);
+      if (!best || d < best.d) best = { a: ids[i], b: ids[j], d };
+      if (!worst || d > worst.d) worst = { a: ids[i], b: ids[j], d };
+    }
+    let outlier = null;
+    ids.forEach((id) => { if (!outlier || dist[id] > outlier.d) outlier = { id, d: dist[id] }; });
+    G.phase = 'reveal';
+    G.reveal = { group, rankings, points, best, worst, outlier: ids.length > 2 ? outlier : null, count: ids.length };
+  }
+
+  // ================= IEDEREEN: EIGEN RANKING =================
+  function localKey() { return NETKEY + '-mine-' + (room ? room.code : ''); }
+  function ensureLocal() {
+    if (!OS || OS.phase === 'lobby') return;
+    if (!L) { try { L = JSON.parse(localStorage.getItem(localKey()) || 'null'); } catch (e) { L = null; } }
+    if (!L || L.round !== OS.round || L.title !== OS.topic.title) {
+      L = { round: OS.round, title: OS.topic.title, slots: [null, null, null, null, null], step: 0, free: OS.topic.items.slice(), submitted: false };
+      saveLocal();
+    }
+  }
+  function saveLocal() { try { localStorage.setItem(localKey(), JSON.stringify(L)); } catch (e) {} }
+  function myProgress() { return (OS && OS.progress && OS.progress[ME]) || { step: 0, done: false }; }
+  // Na een storing: wat de spelleider mist, opnieuw sturen
+  function resendIfNeeded() {
+    if (!OS || OS.phase !== 'play' || !L || L.round !== OS.round) return;
+    const p = myProgress();
+    if (Date.now() - lastResend < 2500) return;
+    if (L.submitted && !p.done) { lastResend = Date.now(); room.action({ type: 'submit', round: OS.round, ranking: OS.mode === 'blind' ? L.slots : L.free }); }
+    else if (!L.submitted && OS.mode === 'blind' && L.step > p.step) { lastResend = Date.now(); room.action({ type: 'progress', round: OS.round, step: L.step }); }
+  }
+  function placeOnline(i) {
+    if (!L || L.submitted || L.slots[i] || L.step >= 5) return;
+    interacted = true;
+    L.slots[i] = OS.seq[L.step];
+    L.step += 1;
+    room.action({ type: 'progress', round: OS.round, step: L.step });
+    if (L.step >= 5) { L.submitted = true; stopClip(); room.action({ type: 'submit', round: OS.round, ranking: L.slots.slice() }); }
+    saveLocal(); renderOnline(i);
+  }
+  function moveOnline(i, d) {
+    if (!L || L.submitted) return;
+    const j = i + d; if (j < 0 || j > 4) return;
+    [L.free[i], L.free[j]] = [L.free[j], L.free[i]];
+    saveLocal(); renderOnline(null, j);
+    const btn = $('omv' + (d < 0 ? 'u' : 'd') + j);
+    (btn && !btn.disabled ? btn : $('omv' + (d < 0 ? 'd' : 'u') + j))?.focus({ preventScroll: true });
+  }
+  function submitFree() {
+    if (!L || L.submitted) return;
+    L.submitted = true; saveLocal();
+    room.action({ type: 'progress', round: OS.round, step: 5 });
+    room.action({ type: 'submit', round: OS.round, ranking: L.free.slice() });
+    renderOnline();
+  }
+
+  // ================= WEERGAVE =================
+  const pName = (id) => { const p = OP.find((x) => x.id === id); return p ? p.name : 'Speler'; };
+  const isHost = () => room && room.role === 'host';
+  function renderOnline(justSlot, movedIdx) {
+    const inRoom = room && room.on && OS;
+    $('olStart').hidden = !!(room && room.on);
+    $('olRoom').hidden = !(room && room.on);
+    $('olStage').hidden = !inRoom;
+    if (!(room && room.on)) return;
+    $('olCodeBig').textContent = room.code;
+    $('olYou').textContent = isHost() ? 'Jij bent de spelleider' : 'Spelleider: ' + (OP.find((p) => p.host) || { name: '…' }).name;
+    renderPlayers();
+    if (!inRoom) return;
+    ensureLocal();
+    resendIfNeeded();
+    const key = [OS.phase, OS.phase === 'lobby' ? OP.filter((p) => p.online).length : '', OS.round, OS.mode, OS.topic.title, L && L.step, L && L.submitted, isHost(), OS.phase === 'reveal' ? JSON.stringify(OS.reveal) + JSON.stringify(OP.map((p) => p.name)) : ''].join('|');
+    if (key !== stageKey || movedIdx != null) { stageKey = key; buildStage(justSlot, movedIdx); }
+    else updateStageLive();
+  }
+  function renderPlayers() {
+    const box = $('olPlayers');
+    const phase = OS ? OS.phase : 'lobby';
+    box.innerHTML = OP.map((p) => {
+      const pr = OS && OS.progress && OS.progress[p.id];
+      let st = '';
+      if (phase === 'play') st = pr && pr.done ? '<i class="ok">klaar</i>' : (OS.roster || []).includes(p.id) ? `<i>${(pr && pr.step) || 0}/5</i>` : '<i>kijkt mee</i>';
+      const score = OS && OS.scores && OS.scores[p.id] ? `<b>${OS.scores[p.id]}</b>` : '';
+      return `<span class="pl${p.online ? '' : ' off'}${p.id === ME ? ' me' : ''}">${esc(p.name)}${p.host ? '<small>spelleider</small>' : ''}${st}${score}</span>`;
+    }).join('');
+  }
+
+  function buildStage(justSlot, movedIdx) {
+    const st = $('olStage');
+    const s = OS;
+    if (s.phase === 'lobby') {
+      const online = OP.filter((p) => p.online).length;
+      st.innerHTML = isHost() ? `
+        <h2>${s.round ? 'Volgende ronde' : 'Kies hoe jullie spelen'}</h2>
+        <div class="modes small-modes" role="group" aria-label="Variant">
+          <button type="button" class="mode" data-om="free" aria-pressed="${s.mode === 'free'}"><b>Vrij</b><span>Alle vijf in één keer zien</span></button>
+          <button type="button" class="mode" data-om="blind" aria-pressed="${s.mode === 'blind'}"><b>Blind</b><span>Eén voor één, meteen vast</span></button>
+        </div>
+        <div class="next-topic"><span class="muted small">Lijstje</span><b>${esc(s.topic.title)}</b><button class="btn small" type="button" id="olNewTopic">Ander lijstje</button></div>
+        <button class="btn yellow big-cta" type="button" id="olStartRound" ${online < 2 ? 'disabled' : ''}>Start ronde ${s.round + 1}</button>
+        <p class="muted small">${online < 2 ? 'Wacht tot er minstens één andere speler in de lobby is. Deel de code of link.' : `${online} spelers in de lobby. Iedereen rangschikt op zijn eigen telefoon.`}</p>`
+        : `
+        <h2>${s.round ? 'Wachten op de volgende ronde' : 'Je zit in de lobby'}</h2>
+        <p class="muted">De spelleider kiest een lijstje en start de ronde. Houd deze pagina open.</p>
+        <div class="next-topic"><span class="muted small">Volgend lijstje</span><b>${esc(s.topic.title)}</b><span class="tag-sm">${s.mode === 'blind' ? 'BLIND' : 'VRIJ'}</span></div>`;
+      if (isHost()) {
+        st.querySelectorAll('[data-om]').forEach((b) => b.addEventListener('click', () => hostSetMode(b.dataset.om)));
+        $('olNewTopic').addEventListener('click', hostNewTopic);
+        $('olStartRound').addEventListener('click', hostStart);
+      }
+      return;
+    }
+    if (s.phase === 'play') {
+      const blind = s.mode === 'blind';
+      let html = `<div class="qhead"><span class="tag">${blind ? 'BLIND' : 'VRIJ'}</span><span class="count">Ronde ${s.round}</span></div>
+        <p class="topic">${esc(s.topic.title)}</p>`;
+      if (L.submitted) {
+        const mine = blind ? L.slots : L.free;
+        html += `<div class="done-box"><b>Ingediend!</b><span id="olWaiting"></span></div>
+          <ol class="ladder">${mine.map((it, i) => `<li class="rung"><span class="rank">${i + 1}</span><span class="item">${song(it)}</span>${playBtn(it, false, s.topic.artist)}</li>`).join('')}</ol>`;
+      } else if (blind) {
+        const cur = s.seq[L.step];
+        html += `<p class="instr">Elk nummer gaat meteen op een vaste plek, van <b>1 (favoriet)</b> tot <b>5 (minst favoriet)</b>.</p>
+          <div class="reveal"><small>Nummer ${L.step + 1} van 5</small><div class="now flip" id="olNow">${song(cur)}</div>
+          <div class="reveal-tools">${playBtn(cur, true, s.topic.artist)}<label class="auto"><input type="checkbox" id="olAuto" ${store.autoplay !== false ? 'checked' : ''}> Speel nieuw nummer vanzelf af</label></div>
+          <div class="deck" aria-hidden="true">${[0, 1, 2, 3, 4].map((i) => `<i class="${i <= L.step ? 'gone' : ''}"></i>`).join('')}</div></div>
+          <div class="ends" aria-hidden="true"><span>1 = favoriet</span><span>5 = minst favoriet</span></div>
+          <ol class="ladder">${L.slots.map((it, i) => it
+            ? `<li class="rung${i === justSlot ? ' just' : ''}"><span class="rank">${i + 1}</span><span class="item">${song(it)}</span>${playBtn(it, false, s.topic.artist)}</li>`
+            : `<li class="rung empty"><span class="rank">${i + 1}</span><button type="button" class="slot-btn" data-slot="${i}">Plaats op positie ${i + 1}</button><span></span></li>`).join('')}</ol>`;
+      } else {
+        html += `<p class="instr">Zet de nummers op volgorde van <b>1 (favoriet)</b> tot <b>5 (minst favoriet)</b> en tik op Indienen.</p>
+          <div class="ends" aria-hidden="true"><span>1 = favoriet</span><span>5 = minst favoriet</span></div>
+          <ol class="ladder">${L.free.map((it, i) => `<li class="rung${i === movedIdx ? ' moved' : ''}"><span class="rank">${i + 1}</span><span class="item">${song(it)}</span>
+            <span class="arrows">${playBtn(it, false, s.topic.artist)}
+            <button type="button" class="arrow" id="omvu${i}" data-mv="${i}" data-d="-1" aria-label="${esc(it)} omhoog" ${i === 0 ? 'disabled' : ''}>${icon('M6 15l6-6 6 6')}</button>
+            <button type="button" class="arrow" id="omvd${i}" data-mv="${i}" data-d="1" aria-label="${esc(it)} omlaag" ${i === 4 ? 'disabled' : ''}>${icon('M6 9l6 6 6-6')}</button></span></li>`).join('')}</ol>
+          <button class="btn yellow big-cta" type="button" id="olSubmit">Indienen</button>`;
+      }
+      if (isHost()) html += `<div class="host-row"><span class="muted small" id="olHostInfo"></span><button class="btn small" type="button" id="olRevealNow">Onthul nu</button></div>`;
+      st.innerHTML = html;
+      st.querySelectorAll('[data-slot]').forEach((b) => b.addEventListener('click', () => placeOnline(+b.dataset.slot)));
+      st.querySelectorAll('[data-mv]').forEach((b) => b.addEventListener('click', () => moveOnline(+b.dataset.mv, +b.dataset.d)));
+      if ($('olSubmit')) $('olSubmit').addEventListener('click', submitFree);
+      if ($('olAuto')) $('olAuto').addEventListener('change', (e) => { store.autoplay = e.target.checked; save(); });
+      if ($('olRevealNow')) $('olRevealNow').addEventListener('click', hostRevealNow);
+      if (blind && !L.submitted && store.autoplay !== false && interacted) {
+        const item = s.seq[L.step];
+        setTimeout(() => { if (L && !L.submitted && OS && OS.seq[L.step] === item) playClip(item, { artist: s.topic.artist }); }, reduce ? 0 : 350);
+      }
+      updateStageLive();
+      syncPlay();
+      return;
+    }
+    // Onthulling
+    const r = s.reveal;
+    const ids = Object.keys(r.rankings).sort((a, b) => (r.points[b] - r.points[a]) || (a === ME ? -1 : b === ME ? 1 : 0));
+    const cell = (it, i) => `<td class="${it === r.group[i] ? 'hit' : ''}">${song(it)}</td>`;
+    const total = Object.entries(s.scores).sort((a, b) => b[1] - a[1]);
+    st.innerHTML = `
+      <div class="qhead"><span class="tag">ONTHULD</span><span class="count">Ronde ${s.round}</span></div>
+      <p class="topic">${esc(s.topic.title)}</p>
+      <p class="muted small">Groen = zelfde plek als de groepsranking.</p>
+      <div class="cmp-wrap"><table class="cmp">
+        <thead><tr><th class="pos"></th><th class="grp">Groep</th>${ids.map((id) => `<th class="${id === ME ? 'me' : ''}">${esc(pName(id))}<small>+${r.points[id]} punten</small></th>`).join('')}</tr></thead>
+        <tbody>${[0, 1, 2, 3, 4].map((i) => `<tr><th class="pos">${i + 1}</th><td class="grp">${song(r.group[i])}</td>${ids.map((id) => cell(r.rankings[id][i], i)).join('')}</tr>`).join('')}</tbody>
+      </table></div>
+      <div class="facts">
+        ${r.best && r.count > 1 ? `<div class="fact"><b>Meest op één lijn</b><span>${esc(pName(r.best.a))} en ${esc(pName(r.best.b))}${r.best.d === 0 ? ' hebben precies dezelfde ranking!' : ''}</span></div>` : ''}
+        ${r.worst && r.count > 2 && r.worst.d > 0 ? `<div class="fact"><b>Het minst eens</b><span>${esc(pName(r.worst.a))} en ${esc(pName(r.worst.b))}</span></div>` : ''}
+        ${r.outlier && r.outlier.d > 0 ? `<div class="fact"><b>Meest eigenwijs</b><span>${esc(pName(r.outlier.id))} wijkt het meest af van de groep</span></div>` : ''}
+      </div>
+      <div class="scoreboard"><b>Tussenstand</b><ol>${total.map(([id, p]) => `<li class="${id === ME ? 'me' : ''}"><span>${esc(pName(id))}</span><b>${p}</b></li>`).join('')}</ol>
+        <p class="muted small">2 punten per nummer op dezelfde plek als de groep, 1 punt als het één plek scheelt.</p></div>
+      ${isHost() ? '<button class="btn yellow big-cta" type="button" id="olNext">Volgende ronde</button>' : '<p class="muted">Wachten tot de spelleider de volgende ronde start…</p>'}`;
+    if ($('olNext')) $('olNext').addEventListener('click', hostNext);
+    syncPlay();
+  }
+  // Kleine updates zonder alles opnieuw op te bouwen (wie is er klaar)
+  function updateStageLive() {
+    if (!OS || OS.phase !== 'play') return;
+    const roster = OS.roster || [];
+    const waiting = roster.filter((id) => !(OS.progress[id] && OS.progress[id].done));
+    const w = $('olWaiting');
+    if (w) w.textContent = waiting.length ? 'Wachten op ' + waiting.map(pName).join(', ') + '…' : 'Iedereen is klaar!';
+    const info = $('olHostInfo');
+    if (info) {
+      const done = roster.length - waiting.length;
+      info.textContent = `${done} van ${roster.length} klaar.` + (waiting.length && done ? ' Duurt het te lang? Onthul nu met wie klaar is.' : '');
+      $('olRevealNow').disabled = done === 0;
+    }
+  }
+
+  // Spelleider herstellen na verversen, of meedoen via een lobbylink
+  function bootOnline() {
+    const m = location.hash.match(/^#lobby-([A-Za-z0-9]{5})$/);
+    if (!m || !room) return;
+    const code = cleanCode(m[1]);
+    setWhere(true);
+    let snap = null;
+    try { snap = JSON.parse(localStorage.getItem(NETKEY + '-host') || 'null'); } catch (e) {}
+    if (snap && snap.code === code && Date.now() - snap.t < 6 * 3600 * 1000 && snap.G) {
+      G = snap.G;
+      room.seedPlayers(snap.players);
+      room.host(myName(), code).then(() => { hostPush(); }).catch(() => { G = null; });
+    } else {
+      $('olCode').value = code;
+      doJoin(code);
+    }
+  }
+
   syncOrder('a0');
   renderOwn();
   render();
+  bootOnline();
+  window.addEventListener('hashchange', () => { if (!(room && room.on)) bootOnline(); });
 })();
 </script>
 </body>
