@@ -243,6 +243,11 @@ details.card:not([open]) { gap: 0; }
 @media (prefers-reduced-motion: reduce) { .ol-bar::before { transition: none; } }
 .ol-solo { display: flex; flex-direction: column; gap: 18px; }
 .ol-solo[hidden] { display: none !important; }
+.ol-me { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-top: 10px; border-top: 3px dashed var(--soft); font-size: 15px; }
+.ol-me[hidden], .ol-rename[hidden] { display: none !important; }
+.ol-rename { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 3px dashed var(--soft); }
+.ol-rename .ol-join { flex-wrap: wrap; }
+.ol-rename .ol-input { flex: 1 1 160px; }
 
 </style>
 <style>
@@ -809,6 +814,18 @@ window.OnlineShell = function (cfg) {
         <input class="ol-input" id="olLinkBox" readonly hidden aria-label="Lobbylink">
         <span class="ol-small" id="olYou"></span>
         <div class="ol-players" id="olPlayers" aria-label="Spelers"></div>
+        <div class="ol-me" id="olMe">
+          <span>Jij speelt als <b id="olMeName"></b></span>
+          <button class="btn small" type="button" id="olRenameBtn">Naam wijzigen</button>
+        </div>
+        <div class="ol-rename" id="olRenameBox" hidden>
+          <label class="ol-label" for="olNewName">Nieuwe naam</label>
+          <div class="ol-join">
+            <input class="ol-input" id="olNewName" maxlength="16" autocomplete="nickname">
+            <button class="btn small yellow" type="button" id="olRenameSave">Opslaan</button>
+            <button class="btn small" type="button" id="olRenameCancel">Annuleren</button>
+          </div>
+        </div>
       </div>
 
       <p class="ol-msg" id="olMsg" role="status" hidden></p>
@@ -854,6 +871,25 @@ window.OnlineShell = function (cfg) {
     if (cfg.onWhere) cfg.onWhere(online, api);
     render();
   }
+  // Naam wijzigen terwijl je al in de lobby zit
+  function openRename(open) {
+    $('olRenameBox').hidden = !open;
+    $('olMe').hidden = open;
+    if (open) { $('olNewName').value = myName(); $('olNewName').focus(); $('olNewName').select(); }
+  }
+  function saveRename() {
+    const v = $('olNewName').value.trim().slice(0, 16);
+    if (!v) { $('olNewName').focus(); return; }
+    $('olName').value = v;
+    try { localStorage.setItem('spelletjes-online-name', v); } catch (e) {}
+    if (room && room.on) room.setName(v);
+    openRename(false); render();
+  }
+  $('olRenameBtn').addEventListener('click', () => openRename(true));
+  $('olRenameCancel').addEventListener('click', () => openRename(false));
+  $('olRenameSave').addEventListener('click', saveRename);
+  $('olNewName').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveRename(); } if (e.key === 'Escape') openRename(false); });
+
   $('olWhereSolo').addEventListener('click', () => setWhere(false));
   $('olWhereOnline').addEventListener('click', () => setWhere(true));
 
@@ -939,6 +975,8 @@ window.OnlineShell = function (cfg) {
     $('olStage').hidden = !(inRoom && S);
     if (inRoom) {
       $('olCodeBig').textContent = room.code;
+      const mine = P.find((p) => p.id === api.me);
+      $('olMeName').textContent = mine ? mine.name : myName();
       const hostP = P.find((p) => p.host);
       $('olYou').textContent = api.isHost() ? 'Jij bent de spelleider' : 'Spelleider: ' + (hostP ? hostP.name : '…');
       $('olPlayers').innerHTML = P.map((p) => {

@@ -243,6 +243,11 @@ details.card:not([open]) { gap: 0; }
 @media (prefers-reduced-motion: reduce) { .ol-bar::before { transition: none; } }
 .ol-solo { display: flex; flex-direction: column; gap: 18px; }
 .ol-solo[hidden] { display: none !important; }
+.ol-me { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-top: 10px; border-top: 3px dashed var(--soft); font-size: 15px; }
+.ol-me[hidden], .ol-rename[hidden] { display: none !important; }
+.ol-rename { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 3px dashed var(--soft); }
+.ol-rename .ol-join { flex-wrap: wrap; }
+.ol-rename .ol-input { flex: 1 1 160px; }
 
 </style>
 <style>
@@ -601,6 +606,18 @@ details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); ou
       <input class="input" id="olLinkBox" readonly hidden aria-label="Lobbylink">
       <span class="muted small" id="olYou"></span>
       <div class="plist" id="olPlayers" aria-label="Spelers"></div>
+      <div class="ol-me" id="olMe">
+        <span>Jij speelt als <b id="olMeName"></b></span>
+        <button class="btn small" type="button" id="olRenameBtn">Naam wijzigen</button>
+      </div>
+      <div class="ol-rename" id="olRenameBox" hidden>
+        <label class="field-label" for="olNewName">Nieuwe naam</label>
+        <div class="join-row">
+          <input class="input" id="olNewName" maxlength="16" autocomplete="nickname">
+          <button class="btn small yellow" type="button" id="olRenameSave">Opslaan</button>
+          <button class="btn small" type="button" id="olRenameCancel">Annuleren</button>
+        </div>
+      </div>
     </div>
 
     <p class="net-msg" id="olMsg" role="status" hidden></p>
@@ -1337,6 +1354,24 @@ window.NetRoom = function (opts) {
     if (room && room.on) room.setName(myName());
   });
 
+  // ---- Naam wijzigen in de lobby ----
+  function openRename(open) {
+    $('olRenameBox').hidden = !open; $('olMe').hidden = open;
+    if (open) { $('olNewName').value = myName(); $('olNewName').focus(); $('olNewName').select(); }
+  }
+  function saveRename() {
+    const v = $('olNewName').value.trim().slice(0, 16);
+    if (!v) { $('olNewName').focus(); return; }
+    $('olName').value = v;
+    try { localStorage.setItem(NETKEY + '-name', v); } catch (e) {}
+    if (room && room.on) room.setName(v);
+    openRename(false); renderOnline();
+  }
+  $('olRenameBtn').addEventListener('click', () => openRename(true));
+  $('olRenameCancel').addEventListener('click', () => openRename(false));
+  $('olRenameSave').addEventListener('click', saveRename);
+  $('olNewName').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveRename(); } if (e.key === 'Escape') openRename(false); });
+
   // ---- Waar speel je: één scherm of online ----
   function setWhere(online) {
     $('whereSolo').setAttribute('aria-pressed', String(!online));
@@ -1545,6 +1580,8 @@ window.NetRoom = function (opts) {
     $('olStage').hidden = !inRoom;
     if (!(room && room.on)) return;
     $('olCodeBig').textContent = room.code;
+    const mine = OP.find((p) => p.id === ME);
+    $('olMeName').textContent = mine ? mine.name : myName();
     $('olYou').textContent = isHost() ? 'Jij bent de spelleider' : 'Spelleider: ' + (OP.find((p) => p.host) || { name: '…' }).name;
     renderPlayers();
     if (!inRoom) return;

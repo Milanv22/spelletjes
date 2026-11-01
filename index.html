@@ -243,6 +243,11 @@ details.card:not([open]) { gap: 0; }
 @media (prefers-reduced-motion: reduce) { .ol-bar::before { transition: none; } }
 .ol-solo { display: flex; flex-direction: column; gap: 18px; }
 .ol-solo[hidden] { display: none !important; }
+.ol-me { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-top: 10px; border-top: 3px dashed var(--soft); font-size: 15px; }
+.ol-me[hidden], .ol-rename[hidden] { display: none !important; }
+.ol-rename { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 3px dashed var(--soft); }
+.ol-rename .ol-join { flex-wrap: wrap; }
+.ol-rename .ol-input { flex: 1 1 160px; }
 
 </style>
 <style>
@@ -264,7 +269,6 @@ details.card:not([open]) { gap: 0; }
 .game:active { transform: translateY(4px); box-shadow: 0 3px 0 var(--ink); }
 .game:focus-visible { outline: 5px solid var(--yellow-deep); outline-offset: 3px; }
 .art { position: relative; }
-.online-badge { position: absolute; top: 8px; right: 8px; font: 400 12px/1 var(--font-title); letter-spacing: .06em; padding: 5px 8px; border-radius: 8px; background: var(--good); color: #fff; border: 2px solid var(--ink); }
 .art { aspect-ratio: 4 / 3; border-radius: 14px; border: 3px solid var(--ink); background: var(--soft); overflow: hidden; }
 .art svg { display: block; width: 100%; height: 100%; }
 .game h2 { margin: 0; font: 400 28px/1 var(--font-title); letter-spacing: .02em; text-wrap: balance; }
@@ -321,7 +325,7 @@ details.card:not([open]) { gap: 0; }
 
   <main class="games">
     <a class="game" href="vieropeenrij.html">
-      <div class="art"><span class="online-badge">OOK ONLINE</span>
+      <div class="art">
         <svg viewBox="0 0 240 180" aria-hidden="true">
           <rect class="a-board a-ink" x="30" y="22" width="180" height="140" rx="14"></rect>
                     <!-- 5 kolommen x 4 rijen, schijven -->
@@ -342,7 +346,7 @@ details.card:not([open]) { gap: 0; }
     </a>
 
     <a class="game" href="kamertjeverhuren.html">
-      <div class="art"><span class="online-badge">OOK ONLINE</span>
+      <div class="art">
         <svg viewBox="0 0 240 180" aria-hidden="true">
           <rect class="a-redsoft" x="80" y="60" width="40" height="40"></rect>
           <g>
@@ -375,7 +379,7 @@ details.card:not([open]) { gap: 0; }
     </a>
 
     <a class="game" href="galgje.html">
-      <div class="art"><span class="online-badge">OOK ONLINE</span>
+      <div class="art">
         <svg viewBox="0 0 240 180" aria-hidden="true">
           <rect class="a-grass" x="0" y="160" width="240" height="20"></rect>
           <rect class="a-wood" x="22" y="150" width="76" height="12" rx="3"></rect>
@@ -403,7 +407,7 @@ details.card:not([open]) { gap: 0; }
       </div>
     </a>
     <a class="game" href="dobbelen.html">
-      <div class="art"><span class="online-badge">OOK ONLINE</span>
+      <div class="art">
         <svg viewBox="0 0 240 180" aria-hidden="true">
           <g transform="rotate(-8 70 70)"><rect class="a-die" x="40" y="40" width="60" height="60" rx="12"></rect><circle class="a-pip" cx="56" cy="56" r="6"/><circle class="a-pip" cx="84" cy="56" r="6"/><circle class="a-pip" cx="70" cy="70" r="6"/><circle class="a-pip" cx="56" cy="84" r="6"/><circle class="a-pip" cx="84" cy="84" r="6"/></g>
           <g transform="rotate(10 160 60)"><rect class="a-die held" x="130" y="30" width="60" height="60" rx="12"></rect><circle class="a-pip" cx="146" cy="46" r="6"/><circle class="a-pip" cx="174" cy="46" r="6"/><circle class="a-pip" cx="160" cy="60" r="6"/><circle class="a-pip" cx="146" cy="74" r="6"/><circle class="a-pip" cx="174" cy="74" r="6"/></g>
@@ -420,7 +424,7 @@ details.card:not([open]) { gap: 0; }
       </div>
     </a>
     <a class="game" href="pickoneperson.html">
-      <div class="art"><span class="online-badge">OOK ONLINE</span>
+      <div class="art">
         <svg viewBox="0 0 240 180" aria-hidden="true">
           <g class="a-ink">
             <path class="a-skin" d="M30 160 Q30 118 56 118 Q82 118 82 160 Z"></path>
@@ -446,7 +450,7 @@ details.card:not([open]) { gap: 0; }
       </div>
     </a>
     <a class="game" href="wouldyourather.html">
-      <div class="art"><span class="online-badge">OOK ONLINE</span>
+      <div class="art">
         <svg viewBox="0 0 240 180" aria-hidden="true">
           <g class="a-ink">
             <rect class="a-redsoft" x="18" y="40" width="90" height="100" rx="14" transform="rotate(-5 63 90)"></rect>
@@ -472,7 +476,7 @@ details.card:not([open]) { gap: 0; }
       </div>
     </a>
     <a class="game" href="rankit.html">
-      <div class="art"><span class="online-badge">OOK ONLINE</span>
+      <div class="art">
         <svg viewBox="0 0 240 180" aria-hidden="true">
           <g class="a-ink">
             <rect class="a-yellow" x="88" y="62" width="64" height="98" rx="6"></rect>
@@ -494,7 +498,7 @@ details.card:not([open]) { gap: 0; }
       </div>
     </a>
     <a class="game" href="rankitmusic.html">
-      <div class="art"><span class="online-badge">OOK ONLINE</span>
+      <div class="art">
         <svg viewBox="0 0 240 180" aria-hidden="true">
           <g class="a-ink">
             <circle fill="var(--ink)" cx="88" cy="96" r="58"></circle>
