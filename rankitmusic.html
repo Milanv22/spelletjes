@@ -433,6 +433,35 @@ table.cmp { border-collapse: separate; border-spacing: 6px; min-width: 100%; }
 .scoreboard li b { font: 400 18px/1 var(--font-title); }
 .scoreboard li:first-child { background: var(--yellow); }
 .scoreboard li.me { box-shadow: inset 0 0 0 2px var(--ink); }
+.vol {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 8px 14px 8px 8px; border-radius: 999px; background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+  align-self: flex-start; width: 100%; max-width: 460px; flex-wrap: nowrap;
+}
+.vol-btn {
+  flex: none; width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--ink); background: var(--yellow);
+  color: var(--ink); display: grid; place-items: center; cursor: pointer; padding: 0;
+}
+.vol-btn svg { width: 22px; height: 22px; }
+.vol-btn .vol-x { display: none; }
+.vol-btn.off { background: var(--soft); }
+.vol-btn.off .vol-x { display: inline; }
+.vol-btn.off .vol-waves { display: none; }
+.vol-btn:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 2px; }
+.vol-label { font-weight: 700; font-size: 14px; }
+#volRange {
+  --fill: 80%;
+  -webkit-appearance: none; appearance: none; flex: 1 1 auto; min-width: 0; width: auto; height: 12px; border-radius: 999px;
+  background: linear-gradient(90deg, var(--yellow) var(--fill), var(--soft) var(--fill)); border: 2px solid var(--ink); cursor: pointer;
+}
+#volRange::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 2px 0 var(--ink); }
+#volRange::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--paper); border: 3px solid var(--ink); }
+#volRange:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 4px; }
+.vol-pct { font: 400 16px/1 var(--font-title); min-width: 40px; font-variant-numeric: tabular-nums; }
+.vol.no-range .vol-label, .vol.no-range #volRange, .vol.no-range .vol-pct { display: none; }
+.vol-note { font-size: 13px; color: var(--muted); flex: 1 1 200px; }
+.vol.no-range { border-radius: 16px; flex-wrap: wrap; }
+@media (max-width: 360px) { .vol-label { display: none; } }
 .row-btns { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .row-btns .spacer { flex: 1; }
 .toast { font-size: 14px; font-weight: 600; color: var(--good); }
@@ -495,6 +524,16 @@ details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); ou
   <div class="modes where" role="group" aria-label="Waar speel je">
     <button type="button" class="mode" id="whereSolo" aria-pressed="true"><b>Op één scherm</b><span>Iedereen kijkt naar hetzelfde scherm.</span></button>
     <button type="button" class="mode" id="whereOnline" aria-pressed="false"><b>Online met de groep</b><span>Ieder rangschikt op zijn eigen telefoon.</span></button>
+  </div>
+
+  <div class="vol" id="vol" role="group" aria-label="Volume van de fragmenten">
+    <button type="button" class="vol-btn" id="volMute" aria-pressed="false" aria-label="Geluid uit">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="vol-waves" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path class="vol-x" d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+    </button>
+    <label class="vol-label" for="volRange">Volume</label>
+    <input type="range" id="volRange" min="0" max="100" step="5" value="80">
+    <span class="vol-pct" id="volPct" aria-hidden="true">80%</span>
+    <span class="vol-note" id="volNote" hidden>Op dit apparaat regel je het volume met de knoppen aan de zijkant. Hier zet je het geluid aan of uit.</span>
   </div>
 
   <div id="solo" class="solo">
@@ -966,7 +1005,7 @@ window.NetRoom = function (opts) {
     ['Nederlandstalige hits', ['Reünie – Snelle', 'Duurt te lang – Davina Michelle', 'Dromen zijn bedrog – Marco Borsato', 'Het is een nacht – Guus Meeuwis', 'Drank & drugs – Lil\' Kleine & Ronnie Flex']],
     ['Karaoke-klassiekers', ['Bohemian Rhapsody – Queen', 'I Will Survive – Gloria Gaynor', "Livin' on a Prayer – Bon Jovi", 'Total Eclipse of the Heart – Bonnie Tyler', "Don't Stop Believin' – Journey"]],
     ["Jaren '80", ['Billie Jean – Michael Jackson', 'Take On Me – a-ha', 'Like a Prayer – Madonna', "Sweet Child o' Mine – Guns N' Roses", 'Girls Just Want to Have Fun – Cyndi Lauper']],
-    ['Jaren 2000', ['Crazy in Love – Beyoncé', 'Hey Ya! – OutKast', 'Umbrella – Rihanna', 'Toxic – Britney Spears', 'Seven Nation Army – The White Stripes']],
+    ['Jaren 2000: Klassiekers', ['Crazy in Love – Beyoncé', 'Hey Ya! – OutKast', 'Umbrella – Rihanna', 'Toxic – Britney Spears', 'Seven Nation Army – The White Stripes'], 'mix00'],
     ['Hits van nu', ['Blinding Lights – The Weeknd', 'Stay – The Kid LAROI & Justin Bieber', 'Flowers – Miley Cyrus', 'As It Was – Harry Styles', 'Espresso – Sabrina Carpenter']],
     ['Liefdesliedjes', ['Perfect – Ed Sheeran', 'All of Me – John Legend', 'Someone Like You – Adele', 'I Will Always Love You – Whitney Houston', "Can't Help Falling in Love – Elvis Presley"]],
     ['Hiphop', ['Lose Yourself – Eminem', 'Sicko Mode – Travis Scott', 'HUMBLE. – Kendrick Lamar', 'In da Club – 50 Cent', 'Rockstar – Post Malone']],
@@ -977,15 +1016,39 @@ window.NetRoom = function (opts) {
     ['Meer Nederlandse hiphop', ['Energie – Ronnie Flex & Frenna', 'Antwoord – Boef', 'Culo – Bizzey', 'Gimma – Josylvio', 'Lil Craney – Kraantje Pappie']],
     ['Nederlandse feestrap', ['Handen omhoog – Kraantje Pappie & Jan Smit', 'Hey meisje – Josylvio', 'Drama – Bizzey & Boef', 'Op me monnie – Boef & Frenna', 'Hij is van mij – Kris Kross Amsterdam, Maan & Tabitha']],
     ['Amerikaanse pophits van nu', ['Flowers – Miley Cyrus', 'Espresso – Sabrina Carpenter', 'vampire – Olivia Rodrigo', '7 rings – Ariana Grande', 'Kill Bill – SZA']],
-    ['Amerikaanse pophits uit de jaren 2010', ['Happy – Pharrell Williams', 'Party Rock Anthem – LMFAO', 'Uptown Funk – Mark Ronson & Bruno Mars', 'Shake It Off – Taylor Swift', 'Moves Like Jagger – Maroon 5']],
+    ['Jaren 2010: Amerikaanse pophits', ['Happy – Pharrell Williams', 'Party Rock Anthem – LMFAO', 'Uptown Funk – Mark Ronson & Bruno Mars', 'Shake It Off – Taylor Swift', 'Moves Like Jagger – Maroon 5'], 'mix10'],
     ['Amerikaanse feesthits', ['Timber – Pitbull & Kesha', 'Tik Tok – Kesha', 'Party in the U.S.A. – Miley Cyrus', 'Old Town Road – Lil Nas X', "Can't Stop the Feeling! – Justin Timberlake"]],
     ['Amerikaanse divas', ['Halo – Beyoncé', 'Poker Face – Lady Gaga', 'thank u, next – Ariana Grande', 'Toxic – Britney Spears', 'Firework – Katy Perry']],
     ['Amerikaanse hiphop-klassiekers', ['The Real Slim Shady – Eminem', 'Super Bass – Nicki Minaj', "God's Plan – Drake", 'Sicko Mode – Travis Scott', 'Gold Digger – Kanye West']],
+    ['Jaren 2000: Pop-prinsessen', ['Oops!... I Did It Again – Britney Spears', 'Since U Been Gone – Kelly Clarkson', 'Complicated – Avril Lavigne', 'Hollaback Girl – Gwen Stefani', 'Get the Party Started – P!nk'], 'mix00'],
+    ['Jaren 2000: R&B', ['Yeah! – Usher', 'Candy Shop – 50 Cent', 'Hot in Herre – Nelly', 'Irreplaceable – Beyoncé', 'Let Me Love You – Mario'], 'mix00'],
+    ['Jaren 2000: Dansvloer', ["Hips Don't Lie – Shakira", 'Promiscuous – Nelly Furtado', 'SexyBack – Justin Timberlake', 'Low – Flo Rida', 'Disturbia – Rihanna'], 'mix00'],
+    ['Jaren 2000: Rock en indie', ['Somebody Told Me – The Killers', 'Take Me Out – Franz Ferdinand', 'In the End – Linkin Park', 'Boulevard of Broken Dreams – Green Day', 'Chasing Cars – Snow Patrol'], 'mix00'],
+    ['Jaren 2000: Clubklassiekers', ['Call on Me – Eric Prydz', 'Satisfaction – Benny Benassi', 'Love Generation – Bob Sinclar', 'Put Your Hands Up for Detroit – Fedde le Grand', 'Lady (Hear Me Tonight) – Modjo'], 'mix00'],
+    ['Jaren 2000: Meezingers', ["Hey There Delilah – Plain White T's", "You're Beautiful – James Blunt", 'Apologize – Timbaland & OneRepublic', 'Bleeding Love – Leona Lewis', 'Somewhere Only We Know – Keane'], 'mix00'],
+    ['Jaren 2000: Feestknallers', ['Crazy – Gnarls Barkley', 'Dragostea Din Tei – O-Zone', "Can't Get You Out of My Head – Kylie Minogue", 'Murder on the Dancefloor – Sophie Ellis-Bextor', "It's My Life – Bon Jovi"], 'mix00'],
+    ['Jaren 2000: Grote stemmen', ['Rehab – Amy Winehouse', "Fallin' – Alicia Keys", 'Beautiful – Christina Aguilera', 'Unwritten – Natasha Bedingfield', 'Mercy – Duffy'], 'mix00'],
+    ['Jaren 2000: Rap', ['Without Me – Eminem', 'Stronger – Kanye West', 'Ms. Jackson – OutKast', "Drop It Like It's Hot – Snoop Dogg", 'Lollipop – Lil Wayne'], 'mix00'],
+    ['Jaren 2000: Boy- en girlbands', ['Bye Bye Bye – *NSYNC', "Survivor – Destiny's Child", "Don't Cha – The Pussycat Dolls", 'Round Round – Sugababes', 'Shine – Take That'], 'mix00'],
+    ['Jaren 2010: Grootste pophits', ['Call Me Maybe – Carly Rae Jepsen', 'Somebody That I Used to Know – Gotye', 'Royals – Lorde', 'Counting Stars – OneRepublic', 'Rolling in the Deep – Adele'], 'mix10'],
+    ['Jaren 2010: Dance en EDM', ['Levels – Avicii', 'Clarity – Zedd', 'Feel So Close – Calvin Harris', "Don't You Worry Child – Swedish House Mafia", 'Faded – Alan Walker'], 'mix10'],
+    ['Jaren 2010: Hiphop', ['Thrift Shop – Macklemore & Ryan Lewis', 'Hotline Bling – Drake', 'Bad and Boujee – Migos', 'Congratulations – Post Malone', 'Black Beatles – Rae Sremmurd'], 'mix10'],
+    ['Jaren 2010: Singer-songwriters', ['Let Her Go – Passenger', 'Stay with Me – Sam Smith', 'Thinking Out Loud – Ed Sheeran', 'Riptide – Vance Joy', 'Ho Hey – The Lumineers'], 'mix10'],
+    ['Jaren 2010: Indie en alternatief', ['Pumped Up Kicks – Foster the People', 'Little Talks – Of Monsters and Men', 'Pompeii – Bastille', 'Stressed Out – Twenty One Pilots', 'Radioactive – Imagine Dragons'], 'mix10'],
+    ['Jaren 2010: Feestknallers', ['Gangnam Style – PSY', 'Get Lucky – Daft Punk', 'Shut Up and Dance – Walk the Moon', 'Dance Monkey – Tones and I', 'Sweet but Psycho – Ava Max'], 'mix10'],
+    ['Jaren 2010: Zomerhits', ['Cheerleader – OMI', 'Lush Life – Zara Larsson', 'Prayer in C – Lilly Wood & The Prick', 'Cheap Thrills – Sia', 'Señorita – Shawn Mendes & Camila Cabello'], 'mix10'],
+    ['Jaren 2010: Grote stemmen', ['Hello – Adele', 'Chandelier – Sia', 'Love On Top – Beyoncé', 'Wrecking Ball – Miley Cyrus', 'Someone You Loved – Lewis Capaldi'], 'mix10'],
+    ['Jaren 2010: Nederlandse hits', ['Sterrenstof – De Jeugd van Tegenwoordig', 'Waves – Mr. Probz', 'Arcade – Duncan Laurence', 'Hoe het danst – Marco Borsato', 'Smoorverliefd – Snelle'], 'mix10'],
+    ['Jaren 2010: Popsterren', ['Blank Space – Taylor Swift', 'Dark Horse – Katy Perry', 'Treasure – Bruno Mars', 'Sorry – Justin Bieber', 'New Rules – Dua Lipa'], 'mix10'],
   ];
-  const TYPES = { artist: 'Eén artiest', mix: 'Mix van artiesten', own: 'Eigen' };
+  const TYPES = { artist: 'Eén artiest', mix00: 'Mix jaren 2000', mix10: 'Mix jaren 2010', mix: 'Mix overig', own: 'Eigen' };
 
-  let store = { mode: 'a', order: [], index: 0, own: [], rankA: {}, blind: {}, types: ['artist', 'mix', 'own'] };
+  let store = { mode: 'a', order: [], index: 0, own: [], rankA: {}, blind: {}, types: Object.keys(TYPES) };
   try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) store = Object.assign(store, s); } catch (e) {}
+  // Nieuwe categorieën staan meteen aan, ook als iemand de oude instellingen nog heeft
+  if (!Array.isArray(store.types)) store.types = Object.keys(TYPES);
+  if (!Array.isArray(store.knownTypes)) store.knownTypes = ['artist', 'mix', 'own'];
+  Object.keys(TYPES).forEach((k) => { if (!store.knownTypes.includes(k)) { store.knownTypes.push(k); if (!store.types.includes(k)) store.types.push(k); } });
   function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
 
   const esc = (s) => String(s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
@@ -996,7 +1059,7 @@ window.NetRoom = function (opts) {
   function topics() {
     const list = [];
     ARTISTS.forEach(([a, items], i) => list.push({ id: 'a' + i, type: 'artist', title: 'Nummers van ' + a, artist: a, items, ends: FAV }));
-    MIXES.forEach(([t, items], i) => list.push({ id: 'm' + i, type: 'mix', title: t, items, ends: FAV }));
+    MIXES.forEach(([t, items, cat], i) => list.push({ id: 'm' + i, type: cat || 'mix', title: t, items, ends: FAV }));
     store.own.forEach((o) => list.push({ id: 'o' + o.id, type: 'own', title: o.title, items: o.items, ends: FAV }));
     const f = list.filter((t) => store.types.includes(t.type));
     return f.length ? f : list;
@@ -1025,10 +1088,39 @@ window.NetRoom = function (opts) {
   const WAIT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
   const audio = new Audio();
   audio.preload = 'auto';
+
+  // ---------- volume ----------
+  let vol = { v: 80, muted: false };
+  try { const s = JSON.parse(localStorage.getItem(KEY + '-vol') || 'null'); if (s && s.v >= 0 && s.v <= 100) vol = { v: +s.v, muted: !!s.muted }; } catch (e) {}
+  // Safari op iPhone en iPad negeert volume vanuit een website; dan alleen aan/uit tonen
+  const volumeWorks = (() => { try { const t = new Audio(); t.volume = 0.5; return Math.abs(t.volume - 0.5) < 0.01; } catch (e) { return false; } })();
+  function applyVolume() {
+    const silent = vol.muted || vol.v === 0;
+    audio.volume = volumeWorks ? vol.v / 100 : 1;
+    audio.muted = silent;
+    $('volRange').value = vol.v;
+    $('volRange').style.setProperty('--fill', vol.v + '%');
+    $('volPct').textContent = silent ? 'uit' : vol.v + '%';
+    $('volMute').setAttribute('aria-pressed', String(silent));
+    $('volMute').setAttribute('aria-label', silent ? 'Geluid aan' : 'Geluid uit');
+    $('volMute').classList.toggle('off', silent);
+    $('vol').classList.toggle('no-range', !volumeWorks);
+    $('volNote').hidden = volumeWorks;
+    try { localStorage.setItem(KEY + '-vol', JSON.stringify(vol)); } catch (e) {}
+  }
+  $('volRange').addEventListener('input', (e) => { vol.v = +e.target.value; vol.muted = false; applyVolume(); });
+  $('volMute').addEventListener('click', () => {
+    if (vol.muted || vol.v === 0) { vol.muted = false; if (vol.v === 0) vol.v = 50; } else vol.muted = true;
+    applyVolume();
+  });
+  applyVolume();
   let blocked = false, playingKey = null, loadingKey = null, stopTimer = null, raf = 0, interacted = false, cbN = 0;
   const missing = new Set();
-  const previewCache = {};
-  try { Object.assign(previewCache, JSON.parse(localStorage.getItem(KEY + '-previews') || '{}')); } catch (e) {}
+  // Versie 2 van de zoekresultaten: oude (soms foute) resultaten worden niet meer gebruikt
+  const PREVIEW_KEY = KEY + '-previews-v2';
+  try { localStorage.removeItem(KEY + '-previews'); } catch (e) {}
+  const previewCache = {}, missCache = {};
+  try { Object.assign(previewCache, JSON.parse(localStorage.getItem(PREVIEW_KEY) || '{}')); } catch (e) {}
   const norm = (x) => String(x).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
   const mainArtist = (a) => String(a || '').split(/\s*(?:&|,|\bfeat\.?|\bft\.?|\bx\b)\s*/i)[0];
   function songParts(item, t) {
@@ -1048,27 +1140,70 @@ window.NetRoom = function (opts) {
       document.head.appendChild(sc);
     });
   }
+  // Zoek het officiële fragment: elk resultaat krijgt een score, de hoogste wint.
+  const VERSION_WORDS = ['live', 'remix', 'acoustic', 'akoestisch', 'instrumental', 'karaoke', 'cover', 'sped up', 'slowed', 'reverb', 'demo', 'unplugged', 'piano version', 'orchestral', 'mashup', 'medley', '8d', 'nightcore', 'lofi', 'lo fi', 'a cappella', 'acapella', 'extended', 'club mix', 'vip'];
+  const BAD_ALBUM = ['karaoke', 'tribute', 'made famous', 'originally performed', 'in the style of', 'cover version', 'covers', 'workout', 'lullaby', 'piano tribute', 'kidz bop', 'party hits', 'backing track'];
+  const loose = (x) => String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  function scoreResult(r, title, artist) {
+    if (!r || !r.previewUrl) return -999;
+    const want = loose(title), wantNoPar = loose(String(title).replace(/\(.*?\)|\[.*?\]/g, ''));
+    const full = loose(r.trackName), base = loose(String(r.trackName || '').replace(/\(.*?\)|\[.*?\]/g, '').replace(/\s-\s.*$/, ''));
+    const album = loose(r.collectionName), ra = loose(r.artistName), wa = loose(mainArtist(artist));
+    let sc = 0;
+    // titel
+    if (full === want) sc += 60;
+    else if (base === wantNoPar) sc += 40;
+    else if (base.startsWith(wantNoPar + ' ') || wantNoPar.startsWith(base + ' ')) sc += 10;
+    else return -999;
+    // artiest
+    if (wa) {
+      if (ra === wa) sc += 50;
+      else if (ra.split(' & ')[0] === wa || ra.startsWith(wa + ' ') || ra.includes(wa)) sc += 35;
+      else if (wa.includes(ra) && ra.length > 2) sc += 25;
+      else if (full.includes(wa)) sc += 30; // als 'feat.' genoemd in de titel
+      else sc -= 80;
+    }
+    // andere versies (live, remix, …) tenzij die er zelf om vragen
+    const extra = (full + ' ' + album);
+    VERSION_WORDS.forEach((w) => { if ((' ' + extra + ' ').includes(' ' + w + ' ') && !(' ' + want + ' ').includes(' ' + w + ' ')) sc -= 35; });
+    BAD_ALBUM.forEach((w) => { if (album.includes(w)) sc -= 70; });
+    if (loose(r.collectionArtistName) === 'various artists') sc -= 8;
+    if (r.trackExplicitness === 'cleaned') sc -= 4;
+    return sc;
+  }
+  function bestOf(results, title, artist) {
+    let best = null, bs = -999;
+    (results || []).forEach((r) => { const s = scoreResult(r, title, artist); if (s > bs) { bs = s; best = r; } });
+    return bs >= (artist ? 70 : 40) ? best : null;
+  }
+  const inflight = {};
   function lookup(item, t) {
     const { title, artist } = songParts(item, t);
     const key = norm(title) + '|' + norm(artist);
-    if (key in previewCache) return Promise.resolve(previewCache[key]);
+    if (previewCache[key]) return Promise.resolve(previewCache[key]);
+    if (missCache[key] && Date.now() - missCache[key] < 10 * 60 * 1000) return Promise.resolve(null);
     if (blocked) return Promise.resolve(null);
-    const term = encodeURIComponent((title + ' ' + mainArtist(artist)).trim());
-    return jsonp(`https://itunes.apple.com/search?term=${term}&entity=song&limit=20&country=NL`).then((d) => {
-      const res = ((d && d.results) || []).filter((r) => r.previewUrl);
-      const nt = norm(title), na = norm(mainArtist(artist));
-      const okA = (r) => { const ra = norm(r.artistName || ''); return !na || ra.includes(na) || na.includes(ra); };
-      const okT = (r) => { const rt = norm(r.trackName || ''); return rt === nt || rt.startsWith(nt + ' ') || nt.startsWith(rt + ' '); };
-      const exact = (r) => norm(r.trackName || '') === nt;
-      const pick = res.find((r) => okA(r) && exact(r)) || res.find((r) => okA(r) && okT(r)) || res.find((r) => okT(r) && exact(r)) || null;
-      const val = pick ? { url: pick.previewUrl, link: pick.trackViewUrl || '' } : null;
-      previewCache[key] = val;
-      try { localStorage.setItem(KEY + '-previews', JSON.stringify(previewCache)); } catch (e) {}
-      return val;
-    }, (err) => {
-      if (err && err.message === 'blocked') { blocked = true; $('clipNote').hidden = false; syncPlay(); }
-      return null;
-    });
+    if (inflight[key]) return inflight[key];
+    const a = mainArtist(artist);
+    const q = (term, country) => jsonp(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=25&country=${country}`).then((d) => bestOf(d && d.results, title, artist));
+    // 1: titel + artiest (NL)  2: alleen titel (NL)  3: titel + artiest (VS)
+    const p = q((title + ' ' + a).trim(), 'NL')
+      .then((r) => r || (a ? q(title, 'NL') : null))
+      .then((r) => r || q((title + ' ' + a).trim(), 'US'))
+      .then((pick) => {
+        delete inflight[key];
+        if (!pick) { missCache[key] = Date.now(); return null; }
+        const val = { url: pick.previewUrl, link: pick.trackViewUrl || '' };
+        previewCache[key] = val;
+        try { localStorage.setItem(PREVIEW_KEY, JSON.stringify(previewCache)); } catch (e) {}
+        return val;
+      }, (err) => {
+        delete inflight[key];
+        if (err && err.message === 'blocked') { blocked = true; $('clipNote').hidden = false; syncPlay(); }
+        return null;
+      });
+    inflight[key] = p;
+    return p;
   }
   function stopClip() {
     clearTimeout(stopTimer); cancelAnimationFrame(raf);
@@ -1304,7 +1439,7 @@ window.NetRoom = function (opts) {
     }
     disarm();
     try { localStorage.removeItem(KEY); } catch (e) {}
-    store = { mode: 'a', order: [], index: 0, own: [], rankA: {}, blind: {}, types: ['artist', 'mix', 'own'] };
+    store = { mode: 'a', order: [], index: 0, own: [], rankA: {}, blind: {}, types: Object.keys(TYPES), knownTypes: Object.keys(TYPES) };
     syncOrder('a0'); renderOwn(); render();
   });
 
@@ -1314,7 +1449,7 @@ window.NetRoom = function (opts) {
     box.innerHTML = '';
     Object.entries(TYPES).forEach(([k, label]) => {
       if (k === 'own' && !store.own.length) return;
-      const n = k === 'artist' ? ARTISTS.length : k === 'mix' ? MIXES.length : store.own.length;
+      const n = k === 'artist' ? ARTISTS.length : k === 'own' ? store.own.length : MIXES.filter((m) => (m[2] || 'mix') === k).length;
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'filter';
       b.setAttribute('aria-pressed', String(store.types.includes(k)));
