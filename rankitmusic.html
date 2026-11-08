@@ -1226,6 +1226,22 @@ window.NetRoom = function (opts) {
     (results || []).forEach((r) => { const s = scoreResult(r, title, artist); if (s > bs) { bs = s; best = r; } });
     return bs >= (artist ? 70 : 40) ? best : null;
   }
+  // Apple weigert te veel verzoeken vlak na elkaar: stuur ze één voor één, met een korte pauze en één nieuwe poging
+  let fails = 0, lastReq = 0, chain = Promise.resolve();
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  function throttled(url) {
+    const run = chain.then(async () => {
+      const wait = lastReq + 350 - Date.now();
+      if (wait > 0) await sleep(wait);
+      lastReq = Date.now();
+      try { return await jsonp(url); } catch (e) {
+        await sleep(1800); lastReq = Date.now();
+        return await jsonp(url);
+      }
+    });
+    chain = run.catch(() => {});
+    return run;
+  }
   const inflight = {};
   function lookup(item, t) {
     const { title, artist } = songParts(item, t);
@@ -1235,13 +1251,16 @@ window.NetRoom = function (opts) {
     if (blocked) return Promise.resolve(null);
     if (inflight[key]) return inflight[key];
     const a = mainArtist(artist);
-    const q = (term, country) => jsonp(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=25&country=${country}`).then((d) => bestOf(d && d.results, title, artist));
-    // 1: titel + artiest (NL)  2: alleen titel (NL)  3: titel + artiest (VS)
+    const q = (term, country, limit) => throttled(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=${limit || 50}&country=${country}`).then((d) => bestOf(d && d.results, title, artist));
+    // 1: titel + artiest (NL)  2: alleen titel (NL)  3: alle nummers van de artiest (NL)  4: titel + artiest (VS)  5: alleen titel (VS)
     const p = q((title + ' ' + a).trim(), 'NL')
       .then((r) => r || (a ? q(title, 'NL') : null))
+      .then((r) => r || (a ? q(a, 'NL', 200) : null))
       .then((r) => r || q((title + ' ' + a).trim(), 'US'))
+      .then((r) => r || (a ? q(title, 'US') : null))
       .then((pick) => {
         delete inflight[key];
+        fails = 0;
         if (!pick) { missCache[key] = Date.now(); return null; }
         const val = { url: pick.previewUrl, link: pick.trackViewUrl || '' };
         previewCache[key] = val;
@@ -1249,7 +1268,11 @@ window.NetRoom = function (opts) {
         return val;
       }, (err) => {
         delete inflight[key];
-        if (err && err.message === 'blocked') { blocked = true; $('clipNote').hidden = false; syncPlay(); }
+        if (err && err.message === 'blocked' && ++fails >= 2) {
+          blocked = true; $('clipNote').hidden = false; syncPlay();
+          // Na een minuut mag het opnieuw: Apple beperkt het aantal verzoeken per minuut
+          setTimeout(() => { blocked = false; fails = 0; $('clipNote').hidden = true; syncPlay(); }, 60000);
+        }
         return null;
       });
     inflight[key] = p;
