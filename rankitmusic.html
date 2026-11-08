@@ -1246,14 +1246,22 @@ window.NetRoom = function (opts) {
   function lookup(item, t) {
     const { title, artist } = songParts(item, t);
     const key = norm(title) + '|' + norm(artist);
-    if (previewCache[key]) return Promise.resolve(previewCache[key]);
+    if (previewCache[key] && (!previewCache[key].dz || Date.now() - previewCache[key].t < 2 * 3600 * 1000)) return Promise.resolve(previewCache[key]);
     if (missCache[key] && Date.now() - missCache[key] < 10 * 60 * 1000) return Promise.resolve(null);
-    if (blocked) return Promise.resolve(null);
     if (inflight[key]) return inflight[key];
     const a = mainArtist(artist);
-    const q = (term, country, limit) => throttled(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=${limit || 50}&country=${country}`).then((d) => bestOf(d && d.results, title, artist));
-    // 1: titel + artiest (NL)  2: alleen titel (NL)  3: alle nummers van de artiest (NL)  4: titel + artiest (VS)  5: alleen titel (VS)
-    const p = q((title + ' ' + a).trim(), 'NL')
+    const q = (term, country, limit) => blocked ? Promise.resolve(null) : throttled(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=${limit || 50}&country=${country}`).then((d) => bestOf(d && d.results, title, artist));
+    // Deezer (bron 1): veel Nederlandse muziek, geen aanmelding nodig. Fouten daar blokkeren Apple niet.
+    const clean = (x) => String(x).replace(/\(.*?\)|\[.*?\]/g, ' ').replace(/["]/g, ' ').replace(/\s+/g, ' ').trim();
+    const dz = (term) => jsonp(`https://api.deezer.com/search?q=${encodeURIComponent(term)}&limit=30&output=jsonp`)
+      .then((d) => {
+        const rs = ((d && d.data) || []).map((x) => ({ trackName: x.title, artistName: x.artist && x.artist.name, collectionName: x.album && x.album.title, previewUrl: x.preview, trackViewUrl: x.link, dz: 1 }));
+        return bestOf(rs, title, artist);
+      }).catch(() => null);
+    // 1-3: Deezer (artiest + titel, daarna los)  4-8: Apple (titel + artiest NL, titel NL, alle nummers artiest NL, VS)
+    const p = (a ? dz(`artist:"${clean(a)}" track:"${clean(title)}"`) : dz(clean(title)))
+      .then((r) => r || (a ? dz(clean(a + ' ' + title)) : null))
+      .then((r) => r || q((title + ' ' + a).trim(), 'NL'))
       .then((r) => r || (a ? q(title, 'NL') : null))
       .then((r) => r || (a ? q(a, 'NL', 200) : null))
       .then((r) => r || q((title + ' ' + a).trim(), 'US'))
@@ -1262,7 +1270,7 @@ window.NetRoom = function (opts) {
         delete inflight[key];
         fails = 0;
         if (!pick) { missCache[key] = Date.now(); return null; }
-        const val = { url: pick.previewUrl, link: pick.trackViewUrl || '' };
+        const val = { url: pick.previewUrl, link: pick.trackViewUrl || '', dz: pick.dz ? 1 : 0, t: Date.now() };
         previewCache[key] = val;
         try { localStorage.setItem(PREVIEW_KEY, JSON.stringify(previewCache)); } catch (e) {}
         return val;
