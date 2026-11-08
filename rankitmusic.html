@@ -459,6 +459,7 @@ table.cmp { border-collapse: separate; border-spacing: 6px; min-width: 100%; }
 #volRange:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 4px; }
 .vol-pct { font: 400 16px/1 var(--font-title); min-width: 40px; font-variant-numeric: tabular-nums; }
 .vol.no-range .vol-label, .vol.no-range #volRange, .vol.no-range .vol-pct { display: none; }
+.startpick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 14px; border-radius: 16px; border: 3px solid var(--ink); background: var(--paper); }
 .vol-note { font-size: 13px; color: var(--muted); flex: 1 1 200px; }
 .vol.no-range { border-radius: 16px; flex-wrap: wrap; }
 @media (max-width: 360px) { .vol-label { display: none; } }
@@ -534,6 +535,12 @@ details.fold > summary:focus-visible { outline: 3px solid var(--yellow-deep); ou
     <input type="range" id="volRange" min="0" max="100" step="5" value="80">
     <span class="vol-pct" id="volPct" aria-hidden="true">80%</span>
     <span class="vol-note" id="volNote" hidden>Op dit apparaat regel je het volume met de knoppen aan de zijkant. Hier zet je het geluid aan of uit.</span>
+  </div>
+
+  <div class="startpick" id="startPick" role="group" aria-label="Waar begint het fragment">
+    <span class="vol-label">Fragment start</span>
+    <div class="filters" id="startBtns"></div>
+    <span class="vol-note">Het fragment is een stuk van 30 seconden uit het nummer. Is er een lange intro? Kies dan een latere start.</span>
   </div>
 
   <div id="solo" class="solo">
@@ -1164,6 +1171,27 @@ window.NetRoom = function (opts) {
     applyVolume();
   });
   applyVolume();
+  // Waar in het fragment (van ±30 s) beginnen we? Bij een lange intro kies je een latere start.
+  const STARTS = [[0, 'Begin'], [10, 'Na 10 sec'], [20, 'Na 20 sec']];
+  let startAt = 0;
+  try { const v = +localStorage.getItem(KEY + '-start'); if (STARTS.some((x) => x[0] === v)) startAt = v; } catch (e) {}
+  function renderStarts() {
+    const box = $('startBtns'); box.innerHTML = '';
+    STARTS.forEach(([sec, label]) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'filter'; b.dataset.start = sec; b.textContent = label;
+      b.setAttribute('aria-pressed', String(sec === startAt));
+      b.addEventListener('click', () => {
+        startAt = sec;
+        try { localStorage.setItem(KEY + '-start', String(sec)); } catch (e) {}
+        renderStarts();
+        if (playingKey) { const it = playingKey; stopClip(); playClip(it, lastTopic); }
+      });
+      box.appendChild(b);
+    });
+  }
+  renderStarts();
+  let lastTopic;
   let blocked = false, playingKey = null, loadingKey = null, stopTimer = null, raf = 0, interacted = false, cbN = 0;
   const missing = new Set();
   // Versie 2 van de zoekresultaten: oude (soms foute) resultaten worden niet meer gebruikt
@@ -1301,8 +1329,19 @@ window.NetRoom = function (opts) {
     if (playingKey !== item) return;
     loadingKey = null;
     if (!p) { playingKey = null; missing.add(item); syncPlay(); return; }
+    lastTopic = topic;
     audio.src = p.url;
-    try { audio.currentTime = 0; await audio.play(); } catch (e) { if (playingKey === item) { playingKey = null; syncPlay(); } return; }
+    // Eerst wachten tot de lengte bekend is, anders negeren sommige browsers (Safari) de startpositie
+    await new Promise((res) => {
+      if (audio.readyState >= 1) return res();
+      const done = () => { audio.removeEventListener('loadedmetadata', done); clearTimeout(t); res(); };
+      const t = setTimeout(done, 4000);
+      audio.addEventListener('loadedmetadata', done);
+    });
+    if (playingKey !== item) return;
+    const dur = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 30;
+    const from = Math.max(0, Math.min(startAt, dur - CLIP));
+    try { audio.currentTime = from; await audio.play(); } catch (e) { if (playingKey === item) { playingKey = null; syncPlay(); } return; }
     if (playingKey !== item) return;
     syncPlay();
     const start = performance.now();
