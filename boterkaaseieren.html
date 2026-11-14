@@ -282,6 +282,31 @@ details.card:not([open]) { gap: 0; }
 @keyframes stamp { from { transform: scale(.3); } to { transform: scale(1); } }
 .ub.over .mb.active { background: var(--paper); }
 
+.modeseg { display: flex; gap: 8px; flex-wrap: wrap; }
+.modeseg button {
+  flex: 1 1 140px; display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 10px 14px; border-radius: 14px; border: 3px solid var(--ink);
+  background: var(--paper); color: var(--ink); cursor: pointer; font: 400 18px/1.1 var(--font-title); box-shadow: 0 3px 0 var(--ink);
+}
+.modeseg button span { font: 600 12px/1.25 var(--font-ui); color: var(--muted); }
+.modeseg button[aria-pressed="true"] { background: var(--yellow); }
+.modeseg button[aria-pressed="true"] span { color: var(--ink); }
+.modeseg button:disabled { cursor: default; opacity: .6; }
+.modeseg button:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 2px; }
+.sb {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 8px; max-width: 460px; width: 100%; margin: 0 auto;
+  background: var(--ink); border-radius: 16px; border: 3px solid var(--ink); touch-action: manipulation; user-select: none; -webkit-user-select: none;
+}
+.sc {
+  aspect-ratio: 1; min-width: 0; padding: 0; border: 0; border-radius: 9px; background: var(--paper); cursor: pointer;
+  font: 400 clamp(46px, 18vw, 100px)/1 var(--font-title); color: var(--ink); display: grid; place-items: center; transition: background .15s;
+}
+.sc:disabled { cursor: default; }
+.sc:not(:disabled):hover, .sc:not(:disabled):focus-visible { background: var(--yellow-soft); outline: none; }
+.sc.p1 { color: var(--red); } .sc.p2 { color: var(--blue); }
+.sc.fade.p1 { color: #f1b5b0; }
+.sc.fade.p2 { color: #b3cdf6; }
+.sc.last { box-shadow: inset 0 0 0 4px var(--ink); }
+.sc.win { background: var(--yellow); }
 .swatch { width: 30px; height: 12px; border-radius: 6px; flex: none; border: 3px solid var(--ink); background: var(--pc); }
 .player[data-p="1"] { --pc: var(--red); }
 .player[data-p="2"] { --pc: var(--blue); }
@@ -324,8 +349,13 @@ input[readonly] { cursor: default; }
   </section>
 
   <section class="card">
+    <div class="modeseg" id="modeSeg" role="group" aria-label="Spelvariant">
+      <button type="button" data-mode="ultimate" aria-pressed="true">Ultiem<span>Negen bordjes in één, de zet bepaalt waar de ander speelt.</span></button>
+      <button type="button" data-mode="simple" aria-pressed="false">Simpel<span>Eén bord van 9 vakjes. Je oudste zet verdwijnt, dus er is altijd een winnaar.</span></button>
+    </div>
     <div class="status" id="status" role="status" aria-live="polite"></div>
     <div class="ub" id="board" role="group" aria-label="Speelveld met negen bordjes"></div>
+    <div class="sb" id="sboard" role="group" aria-label="Speelveld met negen vakjes" hidden></div>
     <div class="toolbar">
       <button class="btn" id="undo" type="button">Zet terug</button>
       <button class="btn yellow" id="newgame" type="button">Nieuw spel</button>
@@ -333,7 +363,7 @@ input[readonly] { cursor: default; }
   </section>
 
   <div class="foot">
-    <p class="hint">Je zet in een vakje bepaalt in welk bordje de ander moet spelen. Win drie bordjes op een rij om het spel te winnen. Is het bordje waar je heen gestuurd wordt al klaar? Dan mag je overal spelen.</p>
+    <p class="hint" id="rulesHint"></p>
     <button class="btn small danger" id="fullReset" type="button">Volledig resetten</button>
   </div>
   </div>
@@ -871,6 +901,13 @@ window.OnlineShell = function (cfg) {
   const lineWinner = (a) => { for (const [x, y, z] of LINES) if (a[x] && a[x] === a[y] && a[x] === a[z]) return a[x]; return 0; };
 
   let cells, macro, next, moves, over, winner, first = 1, starter = 1, lastMove = null, boardStarter = null;
+  let mode = 'ultimate';
+  const queues = { 1: [], 2: [] };
+  const sEls = [];
+  const RULES = {
+    ultimate: 'Je zet in een vakje bepaalt in welk bordje de ander moet spelen. Win drie bordjes op een rij om het spel te winnen. Is het bordje waar je heen gestuurd wordt al klaar? Dan mag je overal spelen.',
+    simple: 'Win door drie op een rij te krijgen. Je hebt maximaal drie zetten op het bord: zet je een vierde, dan verdwijnt je oudste zet. Doorzichtige zetten verdwijnen als die speler weer zet.',
+  };
   let wins = { 1: 0, 2: 0 };
   const mbEls = [], ucEls = [];
 
@@ -878,10 +915,11 @@ window.OnlineShell = function (cfg) {
     const s = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (s) {
       wins = s.wins || wins;
+      if (s.mode === 'simple') mode = 'simple';
       if (s.names) { $('name1').value = s.names[1] || 'Speler 1'; $('name2').value = s.names[2] || 'Speler 2'; }
     }
   } catch (e) {}
-  function save() { try { localStorage.setItem(KEY, JSON.stringify({ wins, names: { 1: $('name1').value, 2: $('name2').value } })); } catch (e) {} }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify({ wins, mode, names: { 1: $('name1').value, 2: $('name2').value } })); } catch (e) {} }
   const name = (p) => ($('name' + p).value.trim() || ('Speler ' + p));
   const swatch = (p) => `<span class="swatch" style="--pc:var(--${p === 1 ? 'red' : 'blue'})" aria-hidden="true"></span>`;
   const esc = (s) => s.replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
@@ -901,20 +939,39 @@ window.OnlineShell = function (cfg) {
     mb.append(grid, big); boardEl.append(mb); mbEls.push(mb);
   }
 
+  for (let c = 0; c < 9; c++) {
+    const u = document.createElement('button'); u.type = 'button'; u.className = 'sc'; u.dataset.c = c; u.setAttribute('aria-label', 'Vakje ' + (c + 1));
+    $('sboard').append(u); sEls.push(u);
+  }
+  $('sboard').addEventListener('click', (e) => { const u = e.target.closest('.sc'); if (u && !u.disabled) clickCell(0, +u.dataset.c); });
+
   const cur = () => (moves.length % 2 === 0 ? first : 3 - first);
   const boardsOf = (p) => macro.filter((x) => x === p).length;
   const allowed = (b) => !over && macro[b] === 0 && (next === -1 || next === b);
-  const legal = (b, c) => b >= 0 && b < 9 && c >= 0 && c < 9 && allowed(b) && cells[b][c] === 0;
+  const legal = (b, c) => (mode === 'simple'
+    ? !over && b === 0 && c >= 0 && c < 9 && cells[0][c] === 0
+    : b >= 0 && b < 9 && c >= 0 && c < 9 && allowed(b) && cells[b][c] === 0);
 
   function reset(f) {
     first = f; cells = Array.from({ length: 9 }, () => Array(9).fill(0)); macro = Array(9).fill(0);
-    next = -1; moves = []; over = false; winner = 0; lastMove = null;
+    next = -1; moves = []; over = false; winner = 0; lastMove = null; queues[1] = []; queues[2] = [];
     for (let b = 0; b < 9; b++) for (let c = 0; c < 9; c++) { ucEls[b][c].textContent = ''; ucEls[b][c].classList.remove('p1', 'p2', 'last'); }
     update();
   }
 
+  function playSimple(c, fromNet) {
+    const p = cur(), q = queues[p];
+    if (q.length >= 3) cells[0][q.shift()] = 0; // de oudste zet verdwijnt
+    cells[0][c] = p; q.push(c); moves.push([0, c]); lastMove = [0, c];
+    const w = lineWinner(cells[0]);
+    if (w) { over = true; winner = w; if (!fromNet) { wins[w]++; save(); } }
+    update();
+    return true;
+  }
+
   function play(b, c, fromNet) {
     if (!legal(b, c)) return false;
+    if (mode === 'simple') return playSimple(c, fromNet);
     const p = cur();
     cells[b][c] = p; moves.push([b, c]);
     const u = ucEls[b][c]; u.textContent = mark(p); u.classList.add('p' + p);
@@ -939,10 +996,58 @@ window.OnlineShell = function (cfg) {
     keep.forEach(([b, c]) => play(b, c, true));
   }
 
+  function winLine() {
+    for (const L of LINES) if (cells[0][L[0]] && cells[0][L[0]] === cells[0][L[1]] && cells[0][L[0]] === cells[0][L[2]]) return L;
+    return [];
+  }
+  function updateSimple(net, waiting, mine) {
+    const wl = over ? winLine() : [];
+    const lastIdx = lastMove ? lastMove[1] : -1;
+    for (let c = 0; c < 9; c++) {
+      const v = cells[0][c], u = sEls[c];
+      u.textContent = v ? mark(v) : '';
+      u.className = 'sc' + (v ? ' p' + v : '');
+      if (v && queues[v].length === 3 && queues[v][0] === c && !over) u.classList.add('fade');
+      if (c === lastIdx && v) u.classList.add('last');
+      if (wl.includes(c)) u.classList.add('win');
+      u.disabled = !(mine && legal(0, c));
+    }
+    $('score1').textContent = ''; $('score2').textContent = '';
+    [1, 2].forEach((p) => {
+      const active = !over && p === cur() && !waiting;
+      document.querySelector(`.player[data-p="${p}"]`).classList.toggle('active', active);
+      $('wins' + p).textContent = net && p === myColor() ? (active ? 'jij bent aan zet' : `jij · ${wins[p]} keer gewonnen`) : active ? 'is aan zet' : `${wins[p]} keer gewonnen`;
+    });
+    statusEl.classList.remove('flash');
+    let flash = false;
+    const vanish = !over && queues[cur()].length === 3 ? ' · de doorzichtige zet verdwijnt' : '';
+    if (waiting) statusEl.innerHTML = '<span>Wachten op tegenstander…</span>';
+    else if (over) { flash = true; statusEl.innerHTML = `${swatch(winner)}<span>${esc(name(winner))} wint!</span>`; }
+    else if (net) statusEl.innerHTML = `${swatch(cur())}<span>${mine ? 'Jouw beurt' : 'Beurt van ' + esc(name(cur()))}${vanish}</span>`;
+    else statusEl.innerHTML = `${swatch(cur())}<span>${esc(name(cur()))} is aan zet${vanish}</span>`;
+    if (flash) { void statusEl.offsetWidth; statusEl.classList.add('flash'); }
+  }
+
   function update(boardWon) {
     const net = netRoom();
     const waiting = net && !(NET.S && NET.S.phase === 'play');
     const mine = !net || (!waiting && cur() === myColor());
+    const simple = mode === 'simple';
+    boardEl.hidden = simple; $('sboard').hidden = !simple;
+    document.querySelectorAll('.score').forEach((el) => { el.hidden = simple; });
+    $('rulesHint').textContent = RULES[mode];
+    document.querySelectorAll('#modeSeg button').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
+      b.disabled = !!net && !(NET.isHost() && (moves.length === 0 || over));
+    });
+    if (simple) {
+      $('undo').hidden = !!net; $('fullReset').hidden = !!net;
+      $('newgame').textContent = net ? 'Revanche' : 'Nieuw spel';
+      $('newgame').disabled = !!net && (!over || waiting);
+      ['name1', 'name2'].forEach((id) => { $(id).readOnly = !!net; });
+      $('undo').disabled = moves.length === 0;
+      return updateSimple(net, waiting, mine);
+    }
     for (let b = 0; b < 9; b++) {
       const mb = mbEls[b];
       mb.classList.toggle('active', allowed(b) && !waiting);
@@ -993,6 +1098,16 @@ window.OnlineShell = function (cfg) {
     starter = starter === 1 ? 2 : 1; reset(starter);
   });
   $('undo').addEventListener('click', undo);
+  function setMode(m) {
+    if (m === mode) return;
+    mode = m; save();
+    reset(netRoom() ? first : starter);
+  }
+  document.getElementById('modeSeg').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b || b.disabled) return;
+    if (NET && NET.where()) { if (netRoom() && NET.isHost() && NET.S.mode !== b.dataset.mode) NET.act({ type: 'mode', mode: b.dataset.mode }); return; }
+    setMode(b.dataset.mode);
+  });
   ['name1', 'name2'].forEach((id) => $(id).addEventListener('input', () => { if (netRoom()) return; save(); update(); }));
 
   let armTimer = null;
@@ -1027,10 +1142,10 @@ window.OnlineShell = function (cfg) {
     }
     play(b, c);
   }
-  function snapshotSolo() { solo = { starter, wins: { ...wins }, n1: $('name1').value, n2: $('name2').value, moves: moves.slice(), first }; }
+  function snapshotSolo() { solo = { mode, starter, wins: { ...wins }, n1: $('name1').value, n2: $('name2').value, moves: moves.slice(), first }; }
   function restoreSolo() {
     if (!solo) return;
-    starter = solo.starter; wins = solo.wins; $('name1').value = solo.n1; $('name2').value = solo.n2;
+    mode = solo.mode; starter = solo.starter; wins = solo.wins; $('name1').value = solo.n1; $('name2').value = solo.n2;
     reset(solo.first); solo.moves.forEach(([b, c]) => play(b, c, true));
     solo = null; update();
   }
@@ -1040,7 +1155,10 @@ window.OnlineShell = function (cfg) {
     $('name1').value = hostP ? hostP.name : 'Speler 1';
     $('name2').value = guestP ? guestP.name : 'Nog niemand';
     wins = { 1: +S.wins[1] || 0, 2: +S.wins[2] || 0 };
-    const same = cells && boardStarter === S.starter && moves.length <= S.moves.length && moves.every((m, i) => m[0] === S.moves[i][0] && m[1] === S.moves[i][1]);
+    const netMode = S.mode === 'simple' ? 'simple' : 'ultimate';
+    const modeChanged = netMode !== mode;
+    if (modeChanged) mode = netMode;
+    const same = !modeChanged && cells && boardStarter === S.starter && moves.length <= S.moves.length && moves.every((m, i) => m[0] === S.moves[i][0] && m[1] === S.moves[i][1]);
     if (!same) { boardStarter = S.starter; reset(S.starter); S.moves.forEach(([b, c]) => play(b, c, true)); }
     else for (let i = moves.length; i < S.moves.length; i++) play(S.moves[i][0], S.moves[i][1], true);
     update();
@@ -1050,8 +1168,8 @@ window.OnlineShell = function (cfg) {
     startTitle: 'Speel online tegen iemand',
     startText: 'Maak een lobby en stuur de code of link naar je tegenstander. Heb je een code gekregen? Vul hem hieronder in.',
     hostText: 'Jij speelt X (rood) en begint.',
-    fresh: () => ({ phase: 'lobby', starter: 1, moves: [], wins: { 1: 0, 2: 0 }, guest: null }),
-    publicState: (G) => ({ phase: G.phase, starter: G.starter, moves: G.moves, wins: G.wins, guest: G.guest }),
+    fresh: () => ({ phase: 'lobby', mode: 'ultimate', starter: 1, moves: [], wins: { 1: 0, 2: 0 }, guest: null }),
+    publicState: (G) => ({ phase: G.phase, mode: G.mode, starter: G.starter, moves: G.moves, wins: G.wins, guest: G.guest }),
     onJoin: (G, id) => { if (!G.guest) G.guest = id; if (G.guest === id && G.phase === 'lobby') G.phase = 'play'; },
     onAction: (G, from, a, api) => {
       const color = from === api.me ? 1 : from === G.guest ? 2 : 0;
@@ -1061,6 +1179,10 @@ window.OnlineShell = function (cfg) {
         G.moves.push([+a.b, +a.c]);
         if (over && winner) G.wins[winner] += 1;
         api.push();
+      } else if (a.type === 'mode') {
+        if (color === 1 && G.phase === 'play' && (a.mode === 'simple' || a.mode === 'ultimate') && (moves.length === 0 || over)) {
+          G.mode = a.mode; G.moves = []; api.push();
+        }
       } else if (a.type === 'new') {
         if (G.phase === 'play' && over && color) { G.starter = G.starter === 1 ? 2 : 1; G.moves = []; api.push(); }
       }

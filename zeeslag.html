@@ -278,6 +278,8 @@ button.zc:disabled { cursor: default; }
 button.zc.fire:not(:disabled):hover, button.zc.fire:not(:disabled):focus-visible { background: var(--yellow-soft); border-color: var(--ink); outline: none; }
 
 .seas { display: flex; flex-direction: column; gap: 14px; }
+.sea-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 0 0 6px; }
+.sea-head .sea-title { margin: 0; }
 .sea-title { margin: 0 0 6px; font: 400 18px/1 var(--font-title); letter-spacing: .03em; }
 .palette { display: flex; flex-wrap: wrap; gap: 8px; }
 .ship-btn {
@@ -359,10 +361,10 @@ input[readonly] { cursor: default; }
     <div id="battleUI" hidden>
       <div class="seas two" id="seas">
         <div><h2 class="sea-title" id="eTitle">Vijandelijk water</h2><div class="sea" id="eSea" aria-label="Vijandelijk water, kies een vak om op te schieten"></div></div>
-        <div><h2 class="sea-title">Jouw vloot</h2><div class="sea" id="mSea" aria-label="Jouw vloot"></div></div>
+        <div><div class="sea-head"><h2 class="sea-title" id="mTitle">Jouw vloot</h2><button type="button" class="btn small" id="showMineBtn" aria-pressed="false">Toon mijn schepen</button></div><div class="sea" id="mSea" aria-label="Jouw vloot"></div></div>
       </div>
       <div class="row" id="passRow" hidden>
-        <button class="btn yellow" id="passBtn" type="button">Klaar, geef door</button>
+        <button class="btn yellow" id="passBtn" type="button">Nu doorgeven</button>
       </div>
     </div>
 
@@ -1006,6 +1008,7 @@ window.OnlineShell = function (cfg) {
   const pG = makeSea($('pSea'), true), eG = makeSea($('eSea'), true), mG = makeSea($('mSea'), false);
 
   // ---------- plaatsen ----------
+  let showMine = false;
   let draft = Array(5).fill(null), sel = 0, dir = 'h', ctxKey = '', note = '', noteTimer = 0, ghost = null, sentReady = false;
   const flashNote = (t) => { note = t; clearTimeout(noteTimer); noteTimer = setTimeout(() => { note = ''; draw(); }, 2200); draw(); };
   function resetDraft() { draft = Array(5).fill(null); sel = 0; dir = 'h'; ghost = null; sentReady = false; }
@@ -1053,15 +1056,31 @@ window.OnlineShell = function (cfg) {
     const r = +u.dataset.r, c = +u.dataset.c;
     if (online()) { if (NET.S && NET.S.phase === 'battle' && NET.S.turn === NET.S.you) NET.act({ type: 'shoot', r, c }); return; }
     if (ui.cover || ui.shotDone || !Gs || Gs.phase !== 'battle' || Gs.turn !== ui.viewer) return;
-    if (shoot(Gs, ui.viewer, r, c)) { ui.shotDone = true; save(); draw(); }
+    if (shoot(Gs, ui.viewer, r, c)) {
+      ui.shotDone = true; save(); draw();
+      // Na het schot even het resultaat laten zien, daarna automatisch doorgeven aan de ander
+      if (Gs.phase === 'battle') {
+        const L = Gs.last;
+        clearTimeout(passTimer);
+        passTimer = setTimeout(passOn, L.sunk >= 0 ? 2800 : L.hit ? 2000 : 1500);
+      }
+    }
   });
-  $('passBtn').addEventListener('click', () => { ui.viewer = Gs.turn; ui.cover = true; ui.shotDone = false; draw(); });
-  $('coverBtn').addEventListener('click', () => { ui.cover = false; draw(); });
+  let passTimer = 0;
+  function passOn() {
+    clearTimeout(passTimer);
+    if (online() || !Gs || Gs.phase !== 'battle' || !ui.shotDone) return;
+    ui.viewer = Gs.turn; ui.cover = true; ui.shotDone = false; showMine = false; draw();
+  }
+  $('passBtn').addEventListener('click', passOn);
+  $('coverBtn').addEventListener('click', () => { ui.cover = false; showMine = false; draw(); });
+  $('showMineBtn').addEventListener('click', () => { showMine = !showMine; draw(); });
 
   $('newgame').addEventListener('click', () => {
     if (online()) { if (NET.S && NET.S.phase === 'over') NET.act({ type: 'new' }); return; }
     const first = Gs && Gs.first ? 3 - Gs.first : 1;
     const round = Gs ? Gs.round + 1 : 1;
+    clearTimeout(passTimer);
     Gs = newG(first, null); Gs.round = round; Gs.wins = wins;
     ui = { viewer: 1, cover: true, shotDone: false }; resetDraft(); save(); draw();
   });
@@ -1074,6 +1093,7 @@ window.OnlineShell = function (cfg) {
     disarm();
     wins = { 1: 0, 2: 0 }; $('name1').value = 'Speler 1'; $('name2').value = 'Speler 2';
     try { localStorage.removeItem(KEY); } catch (e) {}
+    clearTimeout(passTimer);
     Gs = newG(1, wins); ui = { viewer: 1, cover: true, shotDone: false }; resetDraft(); draw();
   });
 
@@ -1194,17 +1214,22 @@ window.OnlineShell = function (cfg) {
       });
       eG.forEach((row, r) => row.forEach((u, c) => { u.disabled = !canFire || !!has(v.myShots || [], r, c); }));
       const ownSunk = new Set(); (v.mine || []).forEach((s) => { if (sunkBy(s, v.shotsOnMe || [])) cellsOf(s).forEach(([r, c]) => ownSunk.add(r * N + c)); });
+      const showShips = showMine || v.phase === 'over';
+      $('showMineBtn').hidden = v.phase === 'over';
+      $('showMineBtn').textContent = showMine ? 'Verberg mijn schepen' : 'Toon mijn schepen';
+      $('showMineBtn').setAttribute('aria-pressed', String(showMine));
+      $('mTitle').textContent = showShips ? 'Jouw vloot' : 'Jouw vloot (verborgen)';
       paint(mG, (r, c) => {
         const out = [];
         const s = has(v.shotsOnMe || [], r, c);
-        if (inFleet(v.mine, r, c)) out.push('ship');
+        if (showShips && inFleet(v.mine, r, c)) out.push('ship');
         if (ownSunk.has(r * N + c)) out.push('sunk'); else if (s) out.push(s.hit ? 'hit' : 'miss');
         if (lastOpp && lastOpp.r === r && lastOpp.c === c) out.push('last');
         return out.join(' ');
       });
       $('eTitle').textContent = net ? `Water van ${nameOf(opp)}` : `Water van ${nameOf(opp)}`;
       $('passRow').hidden = net || !(v.phase === 'battle' && ui.shotDone);
-      if (!net) $('passBtn').textContent = `Klaar, geef door aan ${nameOf(Gs.turn)}`;
+      if (!net) $('passBtn').textContent = `Nu doorgeven aan ${nameOf(Gs.turn)}`;
       const L = v.last;
       const res = L ? `${L.p === me ? 'Jij' : esc(nameOf(L.p))} schoot op ${coord(L.r, L.c)}: ${L.hit ? (L.sunk >= 0 ? `Raak en gezonken! (${SHIPS[L.sunk][0]})` : 'Raak!') : 'Mis.'}` : '';
       if (v.phase === 'over') {
@@ -1214,7 +1239,7 @@ window.OnlineShell = function (cfg) {
         html = canFire ? `${swatch(me)}<span>${res ? res + ' · ' : ''}Jouw beurt: kies een vak</span>` : `${swatch(opp)}<span>${res ? res + ' · ' : ''}${esc(nameOf(opp))} schiet…</span>`;
       } else if (ui.shotDone) {
         flash = L && L.hit;
-        html = `${swatch(ui.viewer)}<span>${res} Geef de telefoon door.</span>`;
+        html = `${swatch(ui.viewer)}<span>${res} De telefoon gaat zo naar ${esc(nameOf(Gs.turn))}…</span>`;
       } else {
         html = `${swatch(ui.viewer)}<span>${esc(nameOf(ui.viewer))}: kies een vak om op te schieten${res ? ' · Vorige beurt: ' + res : ''}</span>`;
       }
@@ -1260,7 +1285,7 @@ window.OnlineShell = function (cfg) {
       names = { 1: hostP ? hostP.name : 'Speler 1', 2: guestP ? guestP.name : 'Nog niemand' };
       draw();
     },
-    onWhere: () => { draw(); },
+    onWhere: (isOnline) => { showMine = !!isOnline; draw(); },
     render: (stage, S, P, api) => {
       const showGame = !api.where() || (api.inRoom() && S && S.phase !== 'lobby');
       $('zGame').hidden = !showGame;
