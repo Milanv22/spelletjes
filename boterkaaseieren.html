@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ultieme Boter, Kaas en Eieren</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* Gedeelde stijl van de spelletjessite: lucht met wolken, dikke inktranden, gele titels.
+   Bewust één vaste, vrolijke look (geen donkere variant). */
+:root {
+  --sky-top: #7cc8ef;
+  --sky-bottom: #c4ebfb;
+  --cloud: #ffffff;
+  --paper: #ffffff;
+  --ink: #1f2a3c;
+  --muted: #55667f;
+  --soft: #e9f4fb;
+  --guide: #d3e2ee;
+  --yellow: #ffcc2e;
+  --yellow-deep: #f2a900;
+  --yellow-soft: #fff3c4;
+  --red: #e0443a;
+  --red-soft: #fde2df;
+  --blue: #2f6fe0;
+  --blue-deep: #1d4fb8;
+  --blue-soft: #dce8fb;
+  --good: #1f9a5a;
+  --good-soft: #d9f5e5;
+  --bad: #e0443a;
+  --bad-soft: #fde2df;
+  --font-title: "Lilita One", "Arial Black", Impact, sans-serif;
+  --font-ui: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--sky-top); }
+body {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 70%) fixed;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 44px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.sky { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.cloud { position: absolute; fill: var(--cloud); opacity: .9; animation: drift linear infinite; }
+.cloud.c1 { width: 130px; top: 9%; left: -10%; animation-duration: 70s; }
+.cloud.c2 { width: 90px; top: 38%; left: -20%; animation-duration: 95s; animation-delay: -40s; opacity: .7; }
+.cloud.c3 { width: 160px; top: 70%; left: -25%; animation-duration: 120s; animation-delay: -75s; opacity: .6; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+
+.wrap { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+.back {
+  display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  padding: 7px 14px 7px 10px; border-radius: 999px;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+  color: var(--ink); text-decoration: none; font: 600 14px/1 var(--font-ui);
+  transition: transform .08s, box-shadow .08s;
+}
+.back:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
+.back:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.back:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.back svg { width: 16px; height: 16px; }
+
+.logo {
+  margin: 0;
+  font: 400 clamp(44px, 12vw, 72px)/0.95 var(--font-title);
+  letter-spacing: .03em;
+  color: var(--yellow);
+  -webkit-text-stroke: 6px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 var(--ink);
+  transform: rotate(-2deg);
+  text-wrap: balance;
+}
+.lede { margin: 0; color: var(--ink); opacity: .8; font-size: 15px; max-width: 44ch; }
+
+.card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 7px 0 var(--ink);
+  padding-block: 20px;
+  padding-inline: clamp(14px, 4.5vw, 26px);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+details.card:not([open]) { gap: 0; }
+
+/* Spelerskaarten (2 spelers) */
+.players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.player {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 16px; min-width: 0;
+  background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink);
+  transition: transform .2s, box-shadow .2s, background .2s;
+}
+.player.active { background: var(--yellow-soft); transform: translateY(-3px); box-shadow: 0 7px 0 var(--ink); }
+.who { display: flex; flex-direction: column; min-width: 0; }
+.player input {
+  font: 600 17px/1.2 var(--font-ui); color: var(--ink); background: transparent;
+  border: 0; border-bottom: 2px dashed transparent; padding: 1px 0; width: 100%; min-width: 0;
+}
+.player input:hover { border-bottom-color: var(--guide); }
+.player input:focus { outline: none; border-bottom-color: var(--ink); }
+.sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.player.active .sub { color: var(--ink); font-weight: 600; }
+.score { font: 400 30px/1 var(--font-title); font-variant-numeric: tabular-nums; }
+
+.status {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 36px; text-align: center;
+  font: 400 clamp(22px, 5.5vw, 28px)/1.1 var(--font-title); letter-spacing: .02em;
+}
+.status.flash { animation: bounce .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes bounce { from { transform: translateY(-10px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.btn {
+  font: 700 17px/1 var(--font-ui);
+  padding: 13px 20px; border-radius: 14px;
+  border: 3px solid var(--ink); background: var(--paper); color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink); cursor: pointer;
+  transition: transform .08s, box-shadow .08s;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.yellow { background: var(--yellow); }
+.btn.small { font-size: 14px; padding: 9px 14px; box-shadow: 0 3px 0 var(--ink); }
+.btn.danger.armed { background: var(--bad); color: #fff; }
+
+.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.hint { color: var(--ink); opacity: .75; font-size: 13px; margin: 0; max-width: 46ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .status.flash { animation: none !important; }
+  .player, .btn, .back { transition: none; }
+}
+
+/* ---- Online-schermen (gedeeld) ---- */
+.ol-where { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ol-mode {
+  text-align: left; display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  padding: 12px 14px; border-radius: 16px; border: 3px solid var(--ink); background: var(--paper);
+  color: var(--ink); cursor: pointer; box-shadow: 0 4px 0 var(--ink); font: inherit;
+  transition: transform .1s, box-shadow .1s, background .15s;
+}
+.ol-mode b { font: 400 18px/1.1 var(--font-title); letter-spacing: .02em; }
+.ol-mode span { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.ol-mode[aria-pressed="true"] { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); }
+.ol-mode[aria-pressed="true"] span { color: var(--ink); }
+.ol-mode:focus-visible { outline: 4px solid var(--yellow-deep); outline-offset: 2px; }
+.ol-wrap { display: flex; flex-direction: column; gap: 18px; }
+.ol-card { gap: 12px; }
+.ol-h2 { margin: 0; font: 700 22px/1.2 var(--font-ui); text-wrap: balance; }
+.ol-muted { margin: 0; color: var(--muted); }
+.ol-small { font-size: 13px; font-weight: 600; color: var(--muted); }
+.ol-label { font-weight: 700; font-size: 14px; margin-bottom: -6px; }
+.ol-input {
+  min-width: 0; width: 100%; font: 600 17px/1.2 var(--font-ui);
+  padding: 11px 13px; border-radius: 12px; border: 3px solid var(--ink); background: var(--soft); color: var(--ink);
+}
+.ol-input:focus { outline: none; box-shadow: 0 0 0 4px var(--yellow); }
+.ol-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .ol-split { grid-template-columns: 1fr; } }
+.ol-box { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 16px; background: var(--soft); border: 3px dashed var(--ink); min-width: 0; }
+.ol-box b { font: 400 19px/1.1 var(--font-title); letter-spacing: .02em; }
+.ol-box span { font-size: 14px; color: var(--muted); }
+.ol-join { display: flex; gap: 8px; }
+.ol-code-in { font: 400 22px/1 var(--font-title); letter-spacing: .2em; text-transform: uppercase; text-align: center; flex: 1; background: var(--paper); }
+.ol-room { padding-block: 14px; gap: 10px; }
+.ol-room-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ol-room-code { display: flex; flex-direction: column; }
+.ol-room-code b { font: 400 34px/1 var(--font-title); letter-spacing: .14em; user-select: all; -webkit-user-select: all; }
+.ol-share { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ol-copy-msg { font-size: 13px; font-weight: 600; color: var(--good); }
+.ol-copy-msg:empty { display: none; }
+.ol-players { display: flex; flex-wrap: wrap; gap: 6px; }
+.ol-pl { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 2px solid var(--ink); background: var(--paper); font-weight: 700; font-size: 14px; }
+.ol-pl.me { background: var(--yellow-soft); }
+.ol-pl.off { opacity: .45; border-style: dashed; }
+.ol-pl small { font-size: 11px; font-weight: 600; color: var(--muted); }
+.ol-pl i { font-style: normal; font-size: 12px; font-weight: 600; color: var(--muted); }
+.ol-pl i.ok { color: var(--good); }
+.ol-pl b { font: 400 15px/1 var(--font-title); padding: 2px 6px; border-radius: 6px; background: var(--yellow); }
+.ol-msg { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--soft); font-size: 14px; font-weight: 600; }
+.ol-msg.bad { background: var(--bad-soft); color: #9a2a22; }
+.ol-retry { align-self: flex-start; }
+/* bouwstenen voor de spelschermen */
+.ol-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ol-tag { font: 400 15px/1 var(--font-title); letter-spacing: .05em; padding: 7px 12px; border-radius: 10px; background: var(--yellow); border: 3px solid var(--ink); }
+.ol-q { margin: 0; font: 700 clamp(21px, 5.4vw, 28px)/1.25 var(--font-ui); text-wrap: balance; }
+.ol-cta { font-size: 19px; padding: 15px 20px; }
+.ol-hostrow { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding-top: 10px; border-top: 3px dashed var(--soft); }
+.ol-box-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 14px; border-radius: 14px; background: var(--soft); border: 3px dashed var(--ink); }
+.ol-box-line b { font: 700 17px/1.25 var(--font-ui); flex: 1; min-width: 160px; }
+.ol-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.ol-choice {
+  text-align: left; padding: 12px 14px; border-radius: 14px; border: 3px solid var(--ink); background: var(--paper);
+  color: var(--ink); font: 700 17px/1.2 var(--font-ui); cursor: pointer; box-shadow: 0 3px 0 var(--ink); min-width: 0; overflow-wrap: anywhere;
+}
+.ol-choice:hover:not(:disabled) { background: var(--yellow-soft); }
+.ol-choice[aria-pressed="true"] { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 5px 0 var(--ink); }
+.ol-choice:disabled { cursor: default; opacity: .6; }
+.ol-choice:focus-visible { outline: 3px solid var(--yellow-deep); outline-offset: 2px; }
+.ol-done { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 14px; background: var(--good-soft); border: 3px solid var(--good); }
+.ol-done b { font: 400 20px/1.1 var(--font-title); color: var(--good); letter-spacing: .02em; }
+.ol-bars { display: flex; flex-direction: column; gap: 8px; }
+.ol-bar { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 12px; border: 3px solid var(--ink); background: var(--paper); overflow: hidden; }
+.ol-bar::before { content: ""; position: absolute; inset: 0 auto 0 0; width: calc(var(--w, 0) * 1%); background: var(--bc, var(--yellow-soft)); transition: width .6s ease-out; }
+.ol-bar > * { position: relative; }
+.ol-bar .row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.ol-bar b { font: 700 17px/1.2 var(--font-ui); min-width: 0; overflow-wrap: anywhere; }
+.ol-bar .n { font: 400 20px/1 var(--font-title); white-space: nowrap; }
+.ol-bar small { font-size: 13px; color: var(--muted); font-weight: 600; }
+.ol-bar.win { --bc: var(--yellow); }
+.ol-scores { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.ol-scores li { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 10px; background: var(--paper); border: 2px solid var(--ink); }
+.ol-scores li span { flex: 1; font-weight: 700; }
+.ol-scores li b { font: 400 18px/1 var(--font-title); }
+.ol-scores li:first-child { background: var(--yellow); }
+.ol-scores li.me { box-shadow: inset 0 0 0 2px var(--ink); }
+.ol-seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.ol-seg button { font: 600 14px/1 var(--font-ui); padding: 8px 12px; border-radius: 999px; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; }
+.ol-seg button[aria-pressed="true"] { background: var(--yellow); }
+.ol-check { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ol-check input { width: 18px; height: 18px; accent-color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .ol-bar::before { transition: none; } }
+.ol-solo { display: flex; flex-direction: column; gap: 18px; }
+.ol-solo[hidden] { display: none !important; }
+.ol-me { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-top: 10px; border-top: 3px dashed var(--soft); font-size: 15px; }
+.ol-me[hidden], .ol-rename[hidden] { display: none !important; }
+.ol-rename { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 3px dashed var(--soft); }
+.ol-rename .ol-join { flex-wrap: wrap; }
+.ol-rename .ol-input { flex: 1 1 160px; }
+
+</style>
+<style>
+/* Negen kleine bordjes in één groot bord. Dikke inktlijnen tussen de grote vakken, dunne lijntjes erbinnen. */
+.ub {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 8px;
+  background: var(--ink); border-radius: 16px; border: 3px solid var(--ink); touch-action: manipulation; user-select: none; -webkit-user-select: none;
+}
+.mb { position: relative; padding: 4px; border-radius: 9px; background: var(--paper); transition: background .15s; }
+.mb.active { background: var(--yellow); }
+.cells { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+.uc {
+  aspect-ratio: 1; min-width: 0; padding: 0; border-radius: 5px; border: 2px solid var(--guide); background: var(--paper);
+  font: 400 clamp(15px, 6vw, 30px)/1 var(--font-title); color: var(--ink); cursor: pointer;
+  display: grid; place-items: center;
+}
+.uc.p1 { color: var(--red); }
+.uc.p2 { color: var(--blue); }
+.uc:disabled { cursor: default; }
+.mb.active .uc:not(:disabled):hover, .mb.active .uc:not(:disabled):focus-visible { background: var(--yellow-soft); border-color: var(--ink); outline: none; }
+.uc.last { border-color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
+.big {
+  position: absolute; inset: 0; display: none; place-items: center; border-radius: 9px;
+  font: 400 clamp(60px, 22vw, 130px)/1 var(--font-title); pointer-events: none;
+  stroke: var(--ink); -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill;
+}
+.mb.w1 .big, .mb.w2 .big, .mb.w3 .big { display: grid; animation: stamp .4s cubic-bezier(.3, 1.6, .5, 1); }
+.mb.w1 { background: var(--red-soft); } .mb.w1 .big { color: var(--red); }
+.mb.w2 { background: var(--blue-soft); } .mb.w2 .big { color: var(--blue); }
+.mb.w3 { background: var(--soft); } .mb.w3 .big { color: var(--guide); font-size: clamp(30px, 10vw, 60px); }
+.mb.w1 .cells, .mb.w2 .cells, .mb.w3 .cells { opacity: .28; }
+@keyframes stamp { from { transform: scale(.3); } to { transform: scale(1); } }
+.ub.over .mb.active { background: var(--paper); }
+
+.swatch { width: 30px; height: 12px; border-radius: 6px; flex: none; border: 3px solid var(--ink); background: var(--pc); }
+.player[data-p="1"] { --pc: var(--red); }
+.player[data-p="2"] { --pc: var(--blue); }
+.toolbar { display: flex; gap: 12px; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
+.kv-game { display: flex; flex-direction: column; gap: 18px; }
+input[readonly] { cursor: default; }
+@media (prefers-reduced-motion: reduce) { .mb.w1 .big, .mb.w2 .big, .mb.w3 .big { animation: none !important; } .mb { transition: none; } }
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <svg class="cloud c1" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c2" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+  <svg class="cloud c3" viewBox="0 0 120 60"><path d="M20 55a18 18 0 0 1 2-36 26 26 0 0 1 48-8 20 20 0 0 1 34 14 15 15 0 0 1-2 30z"/></svg>
+</div>
+<div class="wrap">
+  <a class="back" href="./"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Alle spelletjes</a>
+  <header>
+    <h1 class="logo">ULTIEME BOTER, KAAS EN EIEREN</h1>
+  </header>
+
+  <div id="kvGame" class="kv-game">
+  <section class="players" aria-label="Spelers en score">
+    <div class="player" data-p="1">
+      <span class="swatch" aria-hidden="true"></span>
+      <div class="who">
+        <input id="name1" value="Speler 1" maxlength="16" aria-label="Naam speler 1 (X, rood)">
+        <span class="sub" id="wins1">0 keer gewonnen</span>
+      </div>
+      <span class="score" id="score1" aria-label="Bordjes speler 1">0</span>
+    </div>
+    <div class="player" data-p="2">
+      <span class="swatch" aria-hidden="true"></span>
+      <div class="who">
+        <input id="name2" value="Speler 2" maxlength="16" aria-label="Naam speler 2 (O, blauw)">
+        <span class="sub" id="wins2">0 keer gewonnen</span>
+      </div>
+      <span class="score" id="score2" aria-label="Bordjes speler 2">0</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <div class="ub" id="board" role="group" aria-label="Speelveld met negen bordjes"></div>
+    <div class="toolbar">
+      <button class="btn" id="undo" type="button">Zet terug</button>
+      <button class="btn yellow" id="newgame" type="button">Nieuw spel</button>
+    </div>
+  </section>
+
+  <div class="foot">
+    <p class="hint">Je zet in een vakje bepaalt in welk bordje de ander moet spelen. Win drie bordjes op een rij om het spel te winnen. Is het bordje waar je heen gestuurd wordt al klaar? Dan mag je overal spelen.</p>
+    <button class="btn small danger" id="fullReset" type="button">Volledig resetten</button>
+  </div>
+  </div>
+</div>
+
+<script>
+/* NetRoom: lobby-laag bovenop PeerJS voor 2 tot 8 spelers.
+   De maker van de lobby is spelleider (host): zijn apparaat bewaart de officiële stand
+   en stuurt die naar iedereen. De anderen sturen alleen hun acties door. */
+window.NetRoom = function (opts) {
+  const PREFIX = opts.prefix;
+  const KEY = opts.storeKey;
+  const MAX = opts.maxPlayers || 8;
+  const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let ME = '';
+  try { ME = localStorage.getItem(KEY + '-id') || ''; } catch (e) {}
+  if (!ME) { ME = Math.random().toString(36).slice(2, 10); try { localStorage.setItem(KEY + '-id', ME); } catch (e) {} }
+
+  const R = {
+    on: false, role: null, code: '', name: '', peer: null, conns: new Map(), hostConn: null,
+    players: {}, status: 'idle', joined: false, tries: 0, lastSeen: new Map(),
+    retryTimer: 0, joinTimer: 0, reviveTimer: 0,
+  };
+  const emit = (type, data) => { try { if (opts.onEvent) opts.onEvent(type, data); } catch (e) { console.error(e); } };
+  const setStatus = (status, msg, bad) => { R.status = status; emit('status', { status, msg: msg || '', bad: !!bad }); };
+
+  // ---- PeerJS pas laden als het nodig is ----
+  let lib = null;
+  function loadLib() {
+    if (window.Peer) return Promise.resolve();
+    if (lib) return lib;
+    const urls = ['https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js', 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js'];
+    lib = urls.reduce((p, url) => p.catch(() => new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = url; s.onload = res; s.onerror = () => { s.remove(); rej(); };
+      document.head.appendChild(s);
+    })), Promise.reject()).then(() => { if (!window.Peer) throw new Error('nolib'); });
+    lib.catch(() => { lib = null; });
+    return lib;
+  }
+  const peerOpts = () => Object.assign({ debug: 0 }, window.PEER_OPTIONS || {});
+  const newCode = () => Array.from({ length: 5 }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join('');
+  const libError = () => 'Online spelen kon niet starten. Het werkt alleen op de gewone website (zoals GitHub Pages) met internet.';
+  function errText(err) {
+    switch (err && err.type) {
+      case 'browser-incompatible': return 'Deze browser ondersteunt online spelen niet. Probeer Chrome, Edge, Firefox of Safari.';
+      case 'network': case 'server-error': case 'socket-error': case 'socket-closed': return 'Geen verbinding met de koppeldienst. Controleer je internet en probeer het opnieuw.';
+      case 'webrtc': return 'De directe verbinding lukte niet. Probeer een ander netwerk, bijvoorbeeld wifi in plaats van 4G.';
+      default: return 'Er ging iets mis met de verbinding. Probeer het opnieuw.';
+    }
+  }
+  const publicPlayers = () => Object.entries(R.players).map(([id, p]) => ({ id, name: p.name, online: !!p.online, host: R.role === 'host' ? id === ME : !!p.host }));
+
+  // ================= SPELLEIDER =================
+  function makeHostPeer(code, onOpen, onFirstError) {
+    const peer = new window.Peer(PREFIX + code, peerOpts());
+    let opened = false;
+    peer.on('open', () => { if (!opened) { opened = true; if (onOpen) onOpen(peer); } });
+    peer.on('connection', (conn) => {
+      conn.on('data', (m) => hostData(m, conn));
+      conn.on('close', () => hostClose(conn));
+      conn.on('error', () => {});
+    });
+    peer.on('disconnected', () => { if (R.peer === peer && !peer.destroyed) scheduleRevive(false, 1500); });
+    peer.on('close', () => { if (R.peer === peer && R.on) scheduleRevive(true, 1500); });
+    peer.on('error', (err) => {
+      if (!opened) { if (onFirstError) onFirstError(err, peer); return; }
+      if (R.peer !== peer) return;
+      if (err.type === 'unavailable-id') scheduleRevive(true, 5000);
+      else if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(err.type)) scheduleRevive(false, 3000);
+    });
+    return peer;
+  }
+  function scheduleRevive(force, delay) { clearTimeout(R.reviveTimer); R.reviveTimer = setTimeout(() => revive(force), delay); }
+  function revive(force) {
+    if (!R.on || R.role !== 'host') return;
+    const p = R.peer;
+    if (p && !p.destroyed && !force) { if (p.disconnected) { try { p.reconnect(); } catch (e) {} } return; }
+    try { if (p && !p.destroyed) p.destroy(); } catch (e) {}
+    R.peer = makeHostPeer(R.code, null, (err) => { if (err.type === 'unavailable-id') scheduleRevive(true, 5000); else scheduleRevive(true, 4000); });
+  }
+
+  function host(name, code) {
+    R.name = name;
+    setStatus('connecting', code ? 'Lobby wordt hersteld…' : 'Lobby wordt gemaakt…');
+    return loadLib().then(() => new Promise((resolve, reject) => {
+      const attempt = (n) => {
+        const c = code || newCode();
+        makeHostPeer(c, (peer) => {
+          Object.assign(R, { on: true, role: 'host', code: c, peer, joined: true });
+          R.players[ME] = Object.assign(R.players[ME] || {}, { name, online: true });
+          keepAwake(true);
+          setStatus('hosting');
+          emit('players', publicPlayers());
+          resolve(c);
+        }, (err, peer) => {
+          try { peer.destroy(); } catch (e) {}
+          if (err.type === 'unavailable-id' && n < (code ? 8 : 3)) { setTimeout(() => attempt(n + 1), code ? 3000 : 0); return; }
+          setStatus('error', errText(err), true); reject(err);
+        });
+      };
+      attempt(0);
+    }), (e) => { setStatus('error', libError(), true); throw e; });
+  }
+
+  function hostData(m, conn) {
+    if (!m || typeof m !== 'object') return;
+    if (m.t === 'hello') {
+      const id = String(m.id || '').slice(0, 20);
+      if (!id || id === ME) { try { conn.send({ t: 'full' }); } catch (e) {} return; }
+      const known = !!R.players[id];
+      if (!known && Object.keys(R.players).length >= MAX) { try { conn.send({ t: 'full' }); } catch (e) {} return; }
+      const old = R.conns.get(id);
+      if (old && old !== conn) { R.conns.delete(id); try { old.close(); } catch (e) {} }
+      R.conns.set(id, conn); conn._id = id; R.lastSeen.set(id, Date.now());
+      R.players[id] = Object.assign(R.players[id] || {}, { name: String(m.name || 'Speler').slice(0, 16), online: true });
+      try { conn.send({ t: 'welcome', you: id, code: R.code }); } catch (e) {}
+      emit('join', { id, known });
+      emit('players', publicPlayers());
+      broadcast();
+      return;
+    }
+    const id = conn._id;
+    if (!id || R.conns.get(id) !== conn) return;
+    R.lastSeen.set(id, Date.now());
+    if (m.t === 'ping') { try { conn.send({ t: 'pong' }); } catch (e) {} return; }
+    if (m.t === 'act') emit('action', { from: id, a: m.a });
+    if (m.t === 'name' && R.players[id]) { R.players[id].name = String(m.name || 'Speler').slice(0, 16); emit('players', publicPlayers()); broadcast(); }
+  }
+  function hostClose(conn) {
+    const id = conn._id;
+    if (!id || R.conns.get(id) !== conn) return;
+    R.conns.delete(id);
+    if (R.players[id]) R.players[id].online = false;
+    emit('leave', { id });
+    emit('players', publicPlayers());
+    broadcast();
+  }
+  function broadcast() {
+    if (R.role !== 'host') return;
+    const players = publicPlayers();
+    R.conns.forEach((c, id) => { if (c.open) { try { c.send({ t: 'state', s: opts.getState(id), players }); } catch (e) {} } });
+    emit('state', { s: opts.getState(ME), players });
+  }
+
+  // ================= MEESPELER =================
+  function join(code, name) {
+    R.name = name;
+    if (!R.joined) setStatus('connecting', 'Verbinden met lobby ' + code + '…');
+    return loadLib().then(() => {
+      R.code = code;
+      if (R.peer && !R.peer.destroyed && R.peer.open && !R.peer.disconnected) { connectHost(); return; }
+      try { if (R.peer && !R.peer.destroyed) R.peer.destroy(); } catch (e) {}
+      const peer = new window.Peer(peerOpts());
+      R.peer = peer;
+      peer.on('open', () => { if (R.peer !== peer) return; R.on = true; R.role = 'guest'; connectHost(); });
+      peer.on('disconnected', () => { if (R.peer === peer && !peer.destroyed) setTimeout(() => { try { peer.reconnect(); } catch (e) {} }, 1500); });
+      peer.on('error', (err) => {
+        if (R.peer !== peer) return;
+        clearTimeout(R.joinTimer);
+        if (R.joined) { scheduleRejoin(4000); return; }
+        if (err.type === 'peer-unavailable') fail('Geen lobby gevonden met code ' + code + '. Klopt de code?');
+        else fail(errText(err));
+      });
+    }, () => fail(libError()));
+  }
+  function fail(msg) { cleanup(); setStatus('error', msg, true); }
+  function connectHost() {
+    const c = R.peer.connect(PREFIX + R.code, { reliable: true });
+    c.on('open', () => {
+      if (R.hostConn && R.hostConn !== c) { try { R.hostConn.close(); } catch (e) {} }
+      R.hostConn = c; clearTimeout(R.joinTimer); R.lastSeen.set('host', Date.now());
+      try { c.send({ t: 'hello', id: ME, name: R.name }); } catch (e) {}
+    });
+    c.on('data', (m) => { if (c !== R.hostConn) return; R.lastSeen.set('host', Date.now()); guestData(m, c); });
+    c.on('close', () => {
+      if (c !== R.hostConn) return;
+      R.hostConn = null;
+      if (!R.joined) { fail('Meedoen lukte niet: deze lobby is al vol of gesloten.'); return; }
+      scheduleRejoin(1000);
+    });
+    c.on('error', () => {});
+    clearTimeout(R.joinTimer);
+    R.joinTimer = setTimeout(() => {
+      if (c.open) return;
+      try { c.close(); } catch (e) {}
+      if (R.joined) scheduleRejoin(1000);
+      else fail('Het lukt niet om verbinding te maken. Probeer een ander netwerk (bijvoorbeeld wifi in plaats van 4G) of vraag om een nieuwe code.');
+    }, 20000);
+  }
+  function guestData(m, c) {
+    if (!m || typeof m !== 'object') return;
+    if (m.t === 'welcome') {
+      R.joined = true; R.tries = 0; clearTimeout(R.retryTimer);
+      keepAwake(true); setStatus('connected'); emit('joined', { code: R.code });
+    } else if (m.t === 'state') {
+      if (Array.isArray(m.players)) { R.players = {}; m.players.forEach((p) => { R.players[p.id] = p; }); }
+      emit('state', { s: m.s, players: m.players || [] });
+    } else if (m.t === 'full') {
+      R.hostConn = null; try { c.close(); } catch (e) {}
+      fail('Deze lobby is al vol.');
+    }
+  }
+  function scheduleRejoin(delay) {
+    if (!R.on || R.role !== 'guest') return;
+    clearTimeout(R.retryTimer);
+    R.tries += 1;
+    if (R.tries > 40) { R.tries = 0; setStatus('lost', 'De spelleider is niet bereikbaar. Tik op Opnieuw verbinden om het nog eens te proberen.', true); return; }
+    setStatus('lost', `Verbinding weg. Opnieuw verbinden… (poging ${R.tries})`, true);
+    R.retryTimer = setTimeout(() => { if (!R.hostConn || !R.hostConn.open) join(R.code, R.name); }, delay);
+  }
+
+  // ================= GEDEELD =================
+  function action(a) {
+    if (R.role === 'host') { emit('action', { from: ME, a }); return true; }
+    if (R.hostConn && R.hostConn.open) { try { R.hostConn.send({ t: 'act', a }); return true; } catch (e) {} }
+    return false;
+  }
+  function setName(name) {
+    R.name = String(name || '').slice(0, 16);
+    if (R.role === 'host' && R.players[ME]) { R.players[ME].name = R.name; emit('players', publicPlayers()); broadcast(); }
+    else if (R.hostConn && R.hostConn.open) { try { R.hostConn.send({ t: 'name', name: R.name }); } catch (e) {} }
+  }
+  function cleanup() {
+    clearTimeout(R.retryTimer); clearTimeout(R.joinTimer); clearTimeout(R.reviveTimer);
+    R.conns.forEach((c) => { try { c.close(); } catch (e) {} });
+    try { if (R.hostConn) R.hostConn.close(); } catch (e) {}
+    try { if (R.peer && !R.peer.destroyed) R.peer.destroy(); } catch (e) {}
+    keepAwake(false);
+    Object.assign(R, { on: false, role: null, code: '', peer: null, conns: new Map(), hostConn: null, players: {}, joined: false, tries: 0, lastSeen: new Map() });
+  }
+  function leave() { cleanup(); setStatus('idle'); }
+  function retry() { R.tries = 0; if (R.role === 'guest') join(R.code, R.name); }
+  function seedPlayers(list) {
+    R.players = {};
+    (list || []).forEach((p) => { if (p && p.id) R.players[p.id] = { name: p.name, online: false }; });
+  }
+
+  // Hartslag: merk dode verbindingen snel op
+  setInterval(() => {
+    if (!R.on) return;
+    const now = Date.now();
+    if (R.role === 'host') {
+      R.conns.forEach((c, id) => {
+        if (!c.open) return;
+        try { c.send({ t: 'ping' }); } catch (e) {}
+        if (now - (R.lastSeen.get(id) || now) > 20000) { try { c.close(); } catch (e) {} hostClose(c); }
+      });
+    } else if (R.hostConn && R.hostConn.open) {
+      try { R.hostConn.send({ t: 'ping' }); } catch (e) {}
+      if (now - (R.lastSeen.get('host') || now) > 20000) { try { R.hostConn.close(); } catch (e) {} }
+    }
+  }, 4000);
+
+  // Scherm aan houden
+  let wake = null;
+  async function keepAwake(on) {
+    try {
+      if (on && !wake && 'wakeLock' in navigator && document.visibilityState === 'visible') {
+        wake = await navigator.wakeLock.request('screen');
+        wake.addEventListener('release', () => { wake = null; });
+      } else if (!on && wake) { const w = wake; wake = null; await w.release(); }
+    } catch (e) { wake = null; }
+  }
+
+  // Terug in de app: meteen controleren en herstellen
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !R.on) return;
+    const now = Date.now();
+    R.lastSeen.forEach((v, k) => R.lastSeen.set(k, now));
+    keepAwake(true);
+    if (R.role === 'host') revive(false);
+    else if (!R.hostConn || !R.hostConn.open) { R.tries = 0; join(R.code, R.name); }
+    else { try { R.hostConn.send({ t: 'ping' }); } catch (e) {} }
+  });
+
+  return {
+    me: ME, host, join, leave, retry, action, broadcast, setName, seedPlayers,
+    get role() { return R.role; }, get code() { return R.code; }, get on() { return R.on; },
+    get status() { return R.status; }, players: publicPlayers,
+    link: (code) => location.origin + location.pathname + '#lobby-' + code,
+  };
+};
+</script>
+<script>
+/* OnlineShell: gedeelde online-schermen voor alle spellen (bovenop NetRoom).
+   Het spel levert alleen zijn eigen spelregels: fresh, publicState, onAction en render. */
+window.OnlineShell = function (cfg) {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const KEY = 'spelletjes-' + cfg.game + '-online';
+  const anchor = $(cfg.soloId);
+
+  anchor.insertAdjacentHTML('beforebegin', `
+    <div class="ol-where" role="group" aria-label="Waar speel je">
+      <button type="button" class="ol-mode" id="olWhereSolo" aria-pressed="true"><b>Op één scherm</b><span>${esc(cfg.soloText || 'Samen aan één telefoon of laptop.')}</span></button>
+      <button type="button" class="ol-mode" id="olWhereOnline" aria-pressed="false"><b>Online spelen</b><span>${esc(cfg.onlineText || 'Ieder op een eigen apparaat, via een lobbycode.')}</span></button>
+    </div>`);
+  anchor.insertAdjacentHTML(cfg.onlineBefore ? 'beforebegin' : 'afterend', `
+    <section class="ol-wrap" id="olWrap" hidden>
+      <div class="card ol-card" id="olStart">
+        <h2 class="ol-h2">${esc(cfg.startTitle || 'Speel online')}</h2>
+        <p class="ol-muted">${esc(cfg.startText || 'Maak een lobby en stuur de code of link naar de anderen. Heb je een code gekregen? Vul hem hieronder in.')}</p>
+        <label class="ol-label" for="olName">Jouw naam</label>
+        <input class="ol-input" id="olName" maxlength="16" placeholder="Bijvoorbeeld Milan" autocomplete="nickname">
+        <div class="ol-split">
+          <div class="ol-box">
+            <b>Nieuwe lobby</b>
+            <span>${esc(cfg.hostText || 'Jij bent de spelleider.')}</span>
+            <button class="btn yellow" type="button" id="olHostBtn">Lobby maken</button>
+          </div>
+          <div class="ol-box">
+            <b>Meedoen</b>
+            <span>Vul de code van de spelleider in.</span>
+            <div class="ol-join">
+              <input class="ol-input ol-code-in" id="olCodeIn" maxlength="5" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Lobbycode">
+              <button class="btn" type="button" id="olJoinBtn">Meedoen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card ol-card ol-room" id="olRoom" hidden>
+        <div class="ol-room-top">
+          <div class="ol-room-code"><span class="ol-small">Lobbycode</span><b id="olCodeBig"></b></div>
+          <div class="ol-share">
+            <button class="btn small yellow" type="button" id="olShareBtn" hidden>Deel link</button>
+            <button class="btn small" type="button" id="olCopyBtn">Kopieer link</button>
+            <button class="btn small" type="button" id="olLeaveBtn">Verlaten</button>
+          </div>
+        </div>
+        <span class="ol-copy-msg" id="olCopyMsg" role="status"></span>
+        <input class="ol-input" id="olLinkBox" readonly hidden aria-label="Lobbylink">
+        <span class="ol-small" id="olYou"></span>
+        <div class="ol-players" id="olPlayers" aria-label="Spelers"></div>
+        <div class="ol-me" id="olMe">
+          <span>Jij speelt als <b id="olMeName"></b></span>
+          <button class="btn small" type="button" id="olRenameBtn">Naam wijzigen</button>
+        </div>
+        <div class="ol-rename" id="olRenameBox" hidden>
+          <label class="ol-label" for="olNewName">Nieuwe naam</label>
+          <div class="ol-join">
+            <input class="ol-input" id="olNewName" maxlength="16" autocomplete="nickname">
+            <button class="btn small yellow" type="button" id="olRenameSave">Opslaan</button>
+            <button class="btn small" type="button" id="olRenameCancel">Annuleren</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="ol-msg" id="olMsg" role="status" hidden></p>
+      <button class="btn small yellow ol-retry" type="button" id="olRetryBtn" hidden>Opnieuw verbinden</button>
+      <section class="card ol-card ol-stage" id="olStage" hidden aria-live="polite"></section>
+    </section>`);
+
+  let G = null, S = null, P = [], where = false;
+  const room = window.NetRoom ? window.NetRoom({
+    prefix: 'spelletjes-' + cfg.game + '-', storeKey: KEY, maxPlayers: cfg.maxPlayers || 8,
+    getState: (id) => (G ? cfg.publicState(G, id, room.players()) : null), onEvent,
+  }) : null;
+
+  const api = {
+    me: room ? room.me : 'me',
+    get G() { return G; }, get S() { return S; }, get P() { return P; },
+    isHost: () => !!room && room.role === 'host',
+    inRoom: () => !!room && room.on,
+    where: () => where,
+    active: () => where && !!room && room.on && !!S,
+    push, act: (a) => (room ? room.action(a) : false),
+    name: (id) => { const p = P.find((x) => x.id === id) || (room ? room.players().find((x) => x.id === id) : null); return p ? p.name : 'Speler'; },
+    hostPlayers: () => (room ? room.players() : []),
+    rerender: () => render(),
+    leave: () => leave(),
+    esc,
+  };
+
+  function myName() { return ($('olName').value.trim() || 'Speler').slice(0, 16); }
+  try { $('olName').value = localStorage.getItem('spelletjes-online-name') || ''; } catch (e) {}
+  $('olName').addEventListener('input', () => {
+    try { localStorage.setItem('spelletjes-online-name', $('olName').value); } catch (e) {}
+    if (room && room.on) room.setName(myName());
+  });
+
+  function setWhere(online) {
+    where = online;
+    $('olWhereSolo').setAttribute('aria-pressed', String(!online));
+    $('olWhereOnline').setAttribute('aria-pressed', String(online));
+    if (!cfg.keepSolo) anchor.hidden = online;
+    $('olWrap').hidden = !online;
+    if (!online && room && room.on) leave(true);
+    if (cfg.onWhere) cfg.onWhere(online, api);
+    render();
+  }
+  // Naam wijzigen terwijl je al in de lobby zit
+  function openRename(open) {
+    $('olRenameBox').hidden = !open;
+    $('olMe').hidden = open;
+    if (open) { $('olNewName').value = myName(); $('olNewName').focus(); $('olNewName').select(); }
+  }
+  function saveRename() {
+    const v = $('olNewName').value.trim().slice(0, 16);
+    if (!v) { $('olNewName').focus(); return; }
+    $('olName').value = v;
+    try { localStorage.setItem('spelletjes-online-name', v); } catch (e) {}
+    if (room && room.on) room.setName(v);
+    openRename(false); render();
+  }
+  $('olRenameBtn').addEventListener('click', () => openRename(true));
+  $('olRenameCancel').addEventListener('click', () => openRename(false));
+  $('olRenameSave').addEventListener('click', saveRename);
+  $('olNewName').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveRename(); } if (e.key === 'Escape') openRename(false); });
+
+  $('olWhereSolo').addEventListener('click', () => setWhere(false));
+  $('olWhereOnline').addEventListener('click', () => setWhere(true));
+
+  const cleanCode = (v) => v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+  function msg(text, bad) { const m = $('olMsg'); m.textContent = text || ''; m.hidden = !text; m.classList.toggle('bad', !!bad); }
+
+  $('olHostBtn').addEventListener('click', () => {
+    if (!room) return msg('Online spelen kon niet starten.', true);
+    $('olHostBtn').disabled = true;
+    G = cfg.fresh(api);
+    room.host(myName()).then((code) => {
+      $('olHostBtn').disabled = false;
+      history.replaceState(null, '', '#lobby-' + code);
+      push();
+    }).catch(() => { $('olHostBtn').disabled = false; G = null; });
+  });
+  function doJoin(code) {
+    if (!room) return msg('Online spelen kon niet starten.', true);
+    if (code.length !== 5) return msg('Een lobbycode heeft 5 tekens.', true);
+    $('olJoinBtn').disabled = true;
+    room.join(code, myName());
+  }
+  $('olJoinBtn').addEventListener('click', () => doJoin(cleanCode($('olCodeIn').value)));
+  $('olCodeIn').addEventListener('input', () => { $('olCodeIn').value = cleanCode($('olCodeIn').value); });
+  $('olCodeIn').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doJoin(cleanCode($('olCodeIn').value)); } });
+  $('olLeaveBtn').addEventListener('click', () => leave());
+  $('olRetryBtn').addEventListener('click', () => { if (room) room.retry(); });
+  $('olCopyBtn').addEventListener('click', () => {
+    const text = room.link(room.code);
+    const fb = () => { const b = $('olLinkBox'); b.hidden = false; b.value = text; b.focus(); b.select(); $('olCopyMsg').textContent = 'Selecteer en kopieer de link.'; };
+    try { navigator.clipboard.writeText(text).then(() => { $('olCopyMsg').textContent = 'Link gekopieerd'; }, fb); } catch (e) { fb(); }
+  });
+  if (navigator.share) {
+    $('olShareBtn').hidden = false;
+    $('olShareBtn').addEventListener('click', () => {
+      navigator.share({ title: cfg.title, text: `Doe mee met ${cfg.title}. Lobbycode: ${room.code}`, url: room.link(room.code) }).catch(() => {});
+    });
+  }
+
+  function leave(silent) {
+    if (room) room.leave();
+    if (G) { try { localStorage.removeItem(KEY + '-host'); } catch (e) {} }
+    G = null; S = null; P = [];
+    if (location.hash.startsWith('#lobby-')) history.replaceState(null, '', location.pathname + location.search);
+    msg('');
+    if (cfg.onLeave) cfg.onLeave(api);
+    if (!silent) render();
+  }
+  function push() {
+    if (!room || room.role !== 'host' || !G) return;
+    try { localStorage.setItem(KEY + '-host', JSON.stringify({ code: room.code, G, players: room.players(), t: Date.now() })); } catch (e) {}
+    room.broadcast();
+  }
+
+  function onEvent(type, d) {
+    if (type === 'status') {
+      $('olJoinBtn').disabled = false;
+      $('olRetryBtn').hidden = d.status !== 'lost';
+      if (d.status === 'connecting' || d.status === 'lost' || d.status === 'error') msg(d.msg, d.bad); else msg('');
+      if (d.status === 'error' || d.status === 'idle') { S = null; P = []; if (cfg.onLeave) cfg.onLeave(api); }
+      render();
+    } else if (type === 'joined') {
+      history.replaceState(null, '', '#lobby-' + d.code);
+    } else if (type === 'state') {
+      S = d.s; P = d.players || [];
+      if (cfg.onState) cfg.onState(S, P, api);
+      render();
+    } else if (type === 'action' && G) {
+      cfg.onAction(G, d.from, d.a || {}, api);
+    } else if (type === 'join' && G) {
+      if (cfg.onJoin) cfg.onJoin(G, d.id, api);
+      push();
+    } else if (type === 'leave' && G) {
+      if (cfg.onLeaveP) cfg.onLeaveP(G, d.id, api);
+      push();
+    }
+  }
+
+  function render() {
+    const inRoom = !!room && room.on;
+    $('olStart').hidden = inRoom;
+    $('olRoom').hidden = !inRoom;
+    $('olStage').hidden = !(inRoom && S);
+    if (inRoom) {
+      $('olCodeBig').textContent = room.code;
+      const mine = P.find((p) => p.id === api.me);
+      $('olMeName').textContent = mine ? mine.name : myName();
+      const hostP = P.find((p) => p.host);
+      $('olYou').textContent = api.isHost() ? 'Jij bent de spelleider' : 'Spelleider: ' + (hostP ? hostP.name : '…');
+      $('olPlayers').innerHTML = P.map((p) => {
+        const extra = cfg.chip ? cfg.chip(p, S, api) : '';
+        return `<span class="ol-pl${p.online ? '' : ' off'}${p.id === api.me ? ' me' : ''}">${esc(p.name)}${p.host ? '<small>spelleider</small>' : ''}${extra || ''}</span>`;
+      }).join('');
+    }
+    if (cfg.render) cfg.render($('olStage'), inRoom ? S : null, P, api);
+  }
+
+  function boot() {
+    const m = location.hash.match(/^#lobby-([A-Za-z0-9]{5})$/);
+    if (!m || !room || room.on) return;
+    const code = cleanCode(m[1]);
+    setWhere(true);
+    let snap = null;
+    try { snap = JSON.parse(localStorage.getItem(KEY + '-host') || 'null'); } catch (e) {}
+    if (snap && snap.code === code && Date.now() - snap.t < 6 * 3600 * 1000 && snap.G) {
+      G = snap.G;
+      room.seedPlayers(snap.players);
+      room.host(myName(), code).then(() => push()).catch(() => { G = null; });
+    } else {
+      $('olCodeIn').value = code;
+      doJoin(code);
+    }
+  }
+  window.addEventListener('hashchange', boot);
+  setTimeout(boot, 0);
+  return api;
+};
+</script>
+<script>
+(function () {
+  const KEY = 'ultieme-boter-kaas-eieren';
+  const $ = (id) => document.getElementById(id);
+  const statusEl = $('status'), boardEl = $('board');
+  const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+  const lineWinner = (a) => { for (const [x, y, z] of LINES) if (a[x] && a[x] === a[y] && a[x] === a[z]) return a[x]; return 0; };
+
+  let cells, macro, next, moves, over, winner, first = 1, starter = 1, lastMove = null, boardStarter = null;
+  let wins = { 1: 0, 2: 0 };
+  const mbEls = [], ucEls = [];
+
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (s) {
+      wins = s.wins || wins;
+      if (s.names) { $('name1').value = s.names[1] || 'Speler 1'; $('name2').value = s.names[2] || 'Speler 2'; }
+    }
+  } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify({ wins, names: { 1: $('name1').value, 2: $('name2').value } })); } catch (e) {} }
+  const name = (p) => ($('name' + p).value.trim() || ('Speler ' + p));
+  const swatch = (p) => `<span class="swatch" style="--pc:var(--${p === 1 ? 'red' : 'blue'})" aria-hidden="true"></span>`;
+  const esc = (s) => s.replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const mark = (p) => (p === 1 ? 'X' : 'O');
+
+  // Het bord wordt één keer gebouwd, daarna wordt alleen bijgewerkt
+  for (let b = 0; b < 9; b++) {
+    const mb = document.createElement('div'); mb.className = 'mb'; mb.setAttribute('role', 'group'); mb.setAttribute('aria-label', 'Bordje ' + (b + 1));
+    const grid = document.createElement('div'); grid.className = 'cells';
+    ucEls.push([]);
+    for (let c = 0; c < 9; c++) {
+      const u = document.createElement('button'); u.type = 'button'; u.className = 'uc';
+      u.dataset.b = b; u.dataset.c = c; u.setAttribute('aria-label', `Bordje ${b + 1}, vakje ${c + 1}`);
+      grid.append(u); ucEls[b].push(u);
+    }
+    const big = document.createElement('span'); big.className = 'big'; big.setAttribute('aria-hidden', 'true');
+    mb.append(grid, big); boardEl.append(mb); mbEls.push(mb);
+  }
+
+  const cur = () => (moves.length % 2 === 0 ? first : 3 - first);
+  const boardsOf = (p) => macro.filter((x) => x === p).length;
+  const allowed = (b) => !over && macro[b] === 0 && (next === -1 || next === b);
+  const legal = (b, c) => b >= 0 && b < 9 && c >= 0 && c < 9 && allowed(b) && cells[b][c] === 0;
+
+  function reset(f) {
+    first = f; cells = Array.from({ length: 9 }, () => Array(9).fill(0)); macro = Array(9).fill(0);
+    next = -1; moves = []; over = false; winner = 0; lastMove = null;
+    for (let b = 0; b < 9; b++) for (let c = 0; c < 9; c++) { ucEls[b][c].textContent = ''; ucEls[b][c].classList.remove('p1', 'p2', 'last'); }
+    update();
+  }
+
+  function play(b, c, fromNet) {
+    if (!legal(b, c)) return false;
+    const p = cur();
+    cells[b][c] = p; moves.push([b, c]);
+    const u = ucEls[b][c]; u.textContent = mark(p); u.classList.add('p' + p);
+    if (lastMove) ucEls[lastMove[0]][lastMove[1]].classList.remove('last');
+    lastMove = [b, c]; u.classList.add('last');
+    const w = lineWinner(cells[b]);
+    if (w) macro[b] = w; else if (cells[b].every(Boolean)) macro[b] = 3;
+    const mw = lineWinner(macro.map((x) => (x > 2 ? 0 : x)));
+    if (mw) { over = true; winner = mw; }
+    else if (macro.every(Boolean)) { over = true; const a = boardsOf(1), d = boardsOf(2); winner = a > d ? 1 : d > a ? 2 : 0; }
+    else next = macro[c] === 0 ? c : -1;
+    if (over && winner && !fromNet) { wins[winner]++; save(); }
+    update(macro[b] > 0 && macro[b] < 3);
+    return true;
+  }
+
+  function undo() {
+    if (!moves.length || netRoom()) return;
+    const keep = moves.slice(0, -1);
+    if (over && winner) { wins[winner]--; save(); }
+    reset(first);
+    keep.forEach(([b, c]) => play(b, c, true));
+  }
+
+  function update(boardWon) {
+    const net = netRoom();
+    const waiting = net && !(NET.S && NET.S.phase === 'play');
+    const mine = !net || (!waiting && cur() === myColor());
+    for (let b = 0; b < 9; b++) {
+      const mb = mbEls[b];
+      mb.classList.toggle('active', allowed(b) && !waiting);
+      mb.classList.toggle('w1', macro[b] === 1); mb.classList.toggle('w2', macro[b] === 2); mb.classList.toggle('w3', macro[b] === 3);
+      mb.querySelector('.big').textContent = macro[b] === 3 ? '=' : macro[b] ? mark(macro[b]) : '';
+      for (let c = 0; c < 9; c++) ucEls[b][c].disabled = !(mine && legal(b, c));
+    }
+    boardEl.classList.toggle('over', over);
+    $('score1').textContent = boardsOf(1); $('score2').textContent = boardsOf(2);
+    [1, 2].forEach((p) => {
+      const active = !over && p === cur() && !waiting;
+      document.querySelector(`.player[data-p="${p}"]`).classList.toggle('active', active);
+      $('wins' + p).textContent = net && p === myColor() ? (active ? 'jij bent aan zet' : `jij · ${wins[p]} keer gewonnen`) : active ? 'is aan zet' : `${wins[p]} keer gewonnen`;
+    });
+    $('undo').hidden = !!net; $('fullReset').hidden = !!net;
+    $('newgame').textContent = net ? 'Revanche' : 'Nieuw spel';
+    $('newgame').disabled = !!net && (!over || waiting);
+    ['name1', 'name2'].forEach((id) => { $(id).readOnly = !!net; });
+    $('undo').disabled = moves.length === 0;
+
+    statusEl.classList.remove('flash');
+    let flash = false;
+    const where = next === -1 ? 'een bordje naar keuze' : 'het gele bordje';
+    if (waiting) statusEl.innerHTML = '<span>Wachten op tegenstander…</span>';
+    else if (over) {
+      flash = true;
+      statusEl.innerHTML = winner
+        ? `${swatch(winner)}<span>${esc(name(winner))} wint met ${boardsOf(winner)} bordjes!</span>`
+        : '<span>Gelijkspel</span>';
+    } else if (boardWon) {
+      flash = true;
+      statusEl.innerHTML = `${swatch(cur() === 1 ? 2 : 1)}<span>Bordje binnen! ${net ? (mine ? 'Jij speelt in ' : 'Tegenstander speelt in ') : esc(name(cur())) + ' speelt in '}${where}</span>`;
+    } else if (net) {
+      statusEl.innerHTML = `${swatch(cur())}<span>${mine ? 'Jouw beurt: speel in ' : 'Beurt van ' + esc(name(cur())) + ': speelt in '}${where}</span>`;
+    } else {
+      statusEl.innerHTML = `${swatch(cur())}<span>${esc(name(cur()))} speelt in ${where}</span>`;
+    }
+    if (flash) { void statusEl.offsetWidth; statusEl.classList.add('flash'); }
+  }
+
+  boardEl.addEventListener('click', (e) => {
+    const u = e.target.closest('.uc');
+    if (!u || u.disabled) return;
+    clickCell(+u.dataset.b, +u.dataset.c);
+  });
+  $('newgame').addEventListener('click', () => {
+    if (netRoom()) { if (over) NET.act({ type: 'new' }); return; }
+    starter = starter === 1 ? 2 : 1; reset(starter);
+  });
+  $('undo').addEventListener('click', undo);
+  ['name1', 'name2'].forEach((id) => $(id).addEventListener('input', () => { if (netRoom()) return; save(); update(); }));
+
+  let armTimer = null;
+  function disarm() { clearTimeout(armTimer); const b = $('fullReset'); b.classList.remove('armed'); b.textContent = 'Volledig resetten'; }
+  $('fullReset').addEventListener('click', () => {
+    const b = $('fullReset');
+    if (!b.classList.contains('armed')) {
+      b.classList.add('armed'); b.textContent = 'Zeker weten? Klik nog een keer';
+      clearTimeout(armTimer); armTimer = setTimeout(disarm, 4000); return;
+    }
+    disarm();
+    wins = { 1: 0, 2: 0 };
+    $('name1').value = 'Speler 1'; $('name2').value = 'Speler 2';
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    starter = 1; reset(1);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || netRoom()) return;
+    if (e.key === 'Backspace' || (e.key === 'z' && (e.ctrlKey || e.metaKey))) { e.preventDefault(); undo(); }
+  });
+
+  // =================== ONLINE ===================
+  let NET = null;
+  let solo = null;
+  const netRoom = () => !!(NET && NET.where() && NET.inRoom() && NET.S);
+  const myColor = () => (NET && NET.isHost() ? 1 : 2);
+  function clickCell(b, c) {
+    if (NET && NET.where()) {
+      if (!netRoom() || NET.S.phase !== 'play' || over || cur() !== myColor() || !legal(b, c)) return;
+      NET.act({ type: 'move', b, c, k: moves.length });
+      return;
+    }
+    play(b, c);
+  }
+  function snapshotSolo() { solo = { starter, wins: { ...wins }, n1: $('name1').value, n2: $('name2').value, moves: moves.slice(), first }; }
+  function restoreSolo() {
+    if (!solo) return;
+    starter = solo.starter; wins = solo.wins; $('name1').value = solo.n1; $('name2').value = solo.n2;
+    reset(solo.first); solo.moves.forEach(([b, c]) => play(b, c, true));
+    solo = null; update();
+  }
+  function applyNet(S, P) {
+    if (!solo) snapshotSolo();
+    const hostP = P.find((p) => p.host), guestP = P.find((p) => p.id === S.guest);
+    $('name1').value = hostP ? hostP.name : 'Speler 1';
+    $('name2').value = guestP ? guestP.name : 'Nog niemand';
+    wins = { 1: +S.wins[1] || 0, 2: +S.wins[2] || 0 };
+    const same = cells && boardStarter === S.starter && moves.length <= S.moves.length && moves.every((m, i) => m[0] === S.moves[i][0] && m[1] === S.moves[i][1]);
+    if (!same) { boardStarter = S.starter; reset(S.starter); S.moves.forEach(([b, c]) => play(b, c, true)); }
+    else for (let i = moves.length; i < S.moves.length; i++) play(S.moves[i][0], S.moves[i][1], true);
+    update();
+  }
+  NET = window.OnlineShell ? window.OnlineShell({
+    game: 'boterkaaseieren', title: 'Ultieme Boter, Kaas en Eieren', soloId: 'kvGame', keepSolo: true, onlineBefore: true, maxPlayers: 2,
+    startTitle: 'Speel online tegen iemand',
+    startText: 'Maak een lobby en stuur de code of link naar je tegenstander. Heb je een code gekregen? Vul hem hieronder in.',
+    hostText: 'Jij speelt X (rood) en begint.',
+    fresh: () => ({ phase: 'lobby', starter: 1, moves: [], wins: { 1: 0, 2: 0 }, guest: null }),
+    publicState: (G) => ({ phase: G.phase, starter: G.starter, moves: G.moves, wins: G.wins, guest: G.guest }),
+    onJoin: (G, id) => { if (!G.guest) G.guest = id; if (G.guest === id && G.phase === 'lobby') G.phase = 'play'; },
+    onAction: (G, from, a, api) => {
+      const color = from === api.me ? 1 : from === G.guest ? 2 : 0;
+      if (a.type === 'move') {
+        if (G.phase !== 'play' || over || !color || color !== cur() || a.k !== moves.length || !legal(+a.b, +a.c)) return;
+        play(+a.b, +a.c, true);
+        G.moves.push([+a.b, +a.c]);
+        if (over && winner) G.wins[winner] += 1;
+        api.push();
+      } else if (a.type === 'new') {
+        if (G.phase === 'play' && over && color) { G.starter = G.starter === 1 ? 2 : 1; G.moves = []; api.push(); }
+      }
+    },
+    onState: (S, P) => applyNet(S, P),
+    onWhere: (online) => { if (!online) restoreSolo(); },
+    render: (stage, S, P, api) => {
+      const showGame = !api.where() || (api.inRoom() && S && S.phase === 'play');
+      $('kvGame').hidden = !showGame;
+      stage.hidden = !(api.inRoom() && S && S.phase === 'lobby');
+      if (!stage.hidden) {
+        stage.innerHTML = api.isHost()
+          ? '<p class="ol-q">Wachten op je tegenstander…</p><p class="ol-muted">Deel de code of de link. Zodra je tegenstander binnen is, begint het spel. Jij speelt X (rood) en begint.</p>'
+          : '<p class="ol-q">Verbonden!</p><p class="ol-muted">Het spel begint zo.</p>';
+      }
+      if (api.where() && api.inRoom()) update();
+    },
+  }) : null;
+
+  reset(starter);
+})();
+</script>
+</body>
+</html>
